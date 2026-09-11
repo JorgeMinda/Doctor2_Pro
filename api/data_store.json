@@ -1,0 +1,116 @@
+{
+    "users": [
+        {
+            "id": "usr-admin-1",
+            "username": "admin",
+            "password": "$2y$12$r4MGULUH.O6Xy\/yVIsYnLu1N01VwfEnLLiLoxKHMxBdTnBhgsBXdG",
+            "name": "Dr. Jorge Valenzuela",
+            "role": "admin",
+            "email": "contacto@consultorios.pro",
+            "phone": "+5491123456789",
+            "appearance": {
+                "theme": "light",
+                "fontSize": "normal",
+                "calendarView": "week"
+            }
+        }
+    ],
+    "professionals": [
+        {
+            "id": "prof-378c0d79a7",
+            "name": "Dr. Juan Carlos Gómez",
+            "specialty": "Odontología General",
+            "email": "juancarlos@consultorios.pro",
+            "phone": "+5491123456789",
+            "color": "#3b82f6",
+            "slot_minutes": 30,
+            "start_time": "08:00",
+            "end_time": "20:00",
+            "work_days": "1,2,3,4,5",
+            "active": 1
+        }
+    ],
+    "patients": [
+        {
+            "id": "pat-101",
+            "name": "María Rodríguez",
+            "dni": "35123456",
+            "phone": "+5491155551234",
+            "email": "maria.rodriguez@email.com",
+            "birthdate": "1990-05-14",
+            "health_insurance": "OSDE 210",
+            "affiliate_number": "884920192",
+            "notes": "Paciente con antecedentes de hipertensión controlada.",
+            "allergies": "Penicilina"
+        }
+    ],
+    "appointments": [
+        {
+            "id": "apt-sample-1",
+            "patient_id": "pat-101",
+            "patient_name": "María Rodríguez",
+            "patient_phone": "+5491155551234",
+            "patient_email": "maria.rodriguez@email.com",
+            "professional_id": "prof-378c0d79a7",
+            "date": "2026-09-11",
+            "time": "10:00",
+            "duration": 30,
+            "reason": "Control semestral y limpieza",
+            "status": "Confirmado",
+            "cost": 15000,
+            "observation": "Paciente puntual"
+        }
+    ],
+    "inventory": [
+        {
+            "id": "inv-1",
+            "code": "INS-001",
+            "name": "Anestesia Dental 2% Cartuchos x50",
+            "category": "Anestésicos",
+            "stock": 18,
+            "min_stock": 5,
+            "unit": "cajas",
+            "cost_price": 4500,
+            "sale_price": 6000,
+            "expiry_date": "2027-12-31",
+            "location": "Gabinete 1 - Cajón 2"
+        },
+        {
+            "id": "inv-2",
+            "code": "INS-002",
+            "name": "Guantes de Látex Talle M x100",
+            "category": "Descartables",
+            "stock": 4,
+            "min_stock": 8,
+            "unit": "cajas",
+            "cost_price": 3200,
+            "sale_price": 4000,
+            "expiry_date": "2028-06-30",
+            "location": "Depósito Central"
+        },
+        {
+            "id": "inv-3",
+            "code": "INS-003",
+            "name": "Resina Compuesta A2 Fotocurable",
+            "category": "Restauración",
+            "stock": 12,
+            "min_stock": 3,
+            "unit": "jeringas",
+            "cost_price": 8900,
+            "sale_price": 12000,
+            "expiry_date": "2027-04-15",
+            "location": "Gabinete 2 - Estante A"
+        }
+    ],
+    "notifications": [
+        {
+            "id": "notif-1",
+            "title": "Bienvenido a Consultorios.pro",
+            "message": "Sistema inicializado correctamente con todos los módulos activos.",
+            "type": "info",
+            "is_read": 0,
+            "created_at": "2026-09-11 22:48"
+        }
+    ],
+    "inventory_movements": []
+}

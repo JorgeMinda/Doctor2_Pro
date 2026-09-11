@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light" data-font-size="normal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Consultorios.pro | Gestión Médica, Agenda e Inventario</title>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Estilos del Sistema -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <link rel="stylesheet" href="css/liquid-glass.css">
+  <link rel="stylesheet" href="css/components/agenda.css">
+  <link rel="stylesheet" href="css/components/patients.css">
+  <link rel="stylesheet" href="css/components/inventory.css">
+  <link rel="stylesheet" href="css/components/chat.css">
+  <link rel="stylesheet" href="css/components/analytics.css">
+  <link rel="stylesheet" href="css/components/print.css">
+</head>
+<body>
+
+  <!-- Contenedor Oculto para Impresión de Planilla -->
+  <div id="printPlanSheet"></div>
+
+  <div id="app">
+    <!-- Pantalla de Login -->
+    <div id="loginBox" class="modal hidden" style="background: var(--bg-page);">
+      <div class="modal-body" style="max-width: 420px; text-align: center;">
+        <div class="avatar" style="margin: 0 auto 16px; width: 56px; height: 56px; font-size: 1.5rem;">
+          <i class="fas fa-user-md"></i>
+        </div>
+        <h2 style="margin-bottom: 6px;">Consultorios.pro</h2>
+        <p class="muted" style="margin-bottom: 24px;">Ingresá al panel de gestión médica y turnos</p>
+
+        <div class="field" style="text-align: left;">
+          <span>Usuario</span>
+          <input id="loginUser" type="text" placeholder="admin" value="admin" autocomplete="username">
+        </div>
+        <div class="field" style="text-align: left;">
+          <span>Contraseña</span>
+          <input id="loginPass" type="password" placeholder="••••••" value="admin123" autocomplete="current-password">
+        </div>
+
+        <button id="loginBtn" class="primary" style="width: 100%; justify-content: center; margin-top: 12px; padding: 12px;">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+        <div id="loginMsg" style="color: var(--danger); font-size: 0.85rem; margin-top: 10px;"></div>
+      </div>
+    </div>
+
+    <!-- Panel Principal -->
+    <div id="panel" class="layout">
+      <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+      <!-- Barra Lateral de Navegación -->
+      <aside class="sidebar" id="sidebar">
+        <div class="user">
+          <div class="avatar"><i class="fas fa-user-md"></i></div>
+          <div class="user-details">
+            <div id="userName" class="title">Dr. Jorge Valenzuela</div>
+            <small id="userRole" class="muted">Administrador</small>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button id="navAgenda" class="nav-btn active"><i class="fas fa-calendar-check"></i><span>Agenda</span></button>
+          <button id="navPatients" class="nav-btn"><i class="fas fa-users"></i><span>Pacientes</span></button>
+          <button id="navPros" class="nav-btn"><i class="fas fa-user-md"></i><span>Profesionales</span></button>
+          <button id="navInventory" class="nav-btn"><i class="fas fa-boxes-stacked"></i><span>Inventario</span></button>
+          <button id="navAnalytics" class="nav-btn"><i class="fas fa-chart-line"></i><span>Estadísticas</span></button>
+          <button id="navConfig" class="nav-btn"><i class="fas fa-bell"></i><span>Avisos</span><span id="navBadge" class="badge-dot hidden">0</span></button>
+          <button id="navChat" class="nav-btn"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></button>
+          <button id="navInternalChat" class="nav-btn"><i class="fas fa-comments"></i><span>Chat Interno</span></button>
+          <button id="navAppearance" class="nav-btn"><i class="fas fa-palette"></i><span>Apariencia</span></button>
+          <button id="navProfile" class="nav-btn"><i class="fas fa-user-cog"></i><span>Mi Perfil</span></button>
+          <button id="logoutBtn" class="nav-btn logout-btn"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></button>
+        </nav>
+      </aside>
+
+      <!-- Contenedor Central de Vistas -->
+      <main class="content">
+
+        <!-- Barra Superior (Toolbar) -->
+        <header class="toolbar">
+          <div class="toolbar-left">
+            <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Menú"><i class="fas fa-bars"></i></button>
+            <div class="filters">
+              <select id="professionalFilter">
+                <option value="">Todos los profesionales</option>
+              </select>
+              <div class="view-toggle">
+                <button id="viewMonth" class="view-btn"><i class="fas fa-calendar-alt"></i> Mes</button>
+                <button id="viewWeek" class="view-btn active"><i class="fas fa-calendar-week"></i> Semana</button>
+              </div>
+              <div class="date-nav">
+                <button id="prevMonth" class="ghost"><i class="fas fa-chevron-left"></i></button>
+                <div id="monthText">Septiembre 2026</div>
+                <button id="nextMonth" class="ghost"><i class="fas fa-chevron-right"></i></button>
+                <button id="blockedDaysBtn" class="ghost" title="Feriados y Bloqueos"><i class="fas fa-calendar-times" style="color: var(--primary);"></i> Feriados</button>
+              </div>
+            </div>
+          </div>
+          <div class="toolbar-actions">
+            <div class="search">
+              <i class="fas fa-search"></i>
+              <input id="agendaPatientSearch" type="search" placeholder="Buscar paciente...">
+            </div>
+            <button id="newAptBtn" class="primary"><i class="fas fa-plus"></i> Nuevo Turno</button>
+          </div>
+        </header>
+
+        <!-- 1. VISTA AGENDA -->
+        <section id="agendaView" class="pane">
+          <div id="agendaSearchResults" class="card hidden">
+            <div class="card-head">
+              <h3>Resultados de búsqueda</h3>
+              <button id="clearAgendaSearch" class="ghost"><i class="fas fa-times"></i> Limpiar</button>
+            </div>
+            <div id="searchResultsList"></div>
+          </div>
+
+          <div class="responsive-grid week-layout" id="calendarGridContainer">
+            <div class="card calendar-card">
+              <div class="card-head">
+                <div>
+                  <p class="muted">Disponibilidad de la clínica</p>
+                  <h3>Calendario de Turnos</h3>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button id="printPlanBtn" class="ghost"><i class="fas fa-print"></i> Imprimir Planilla</button>
+                  <div class="legend">
+                    <span><i style="background:#3b82f6;"></i>Reservado</span>
+                    <span><i style="background:#10b981;"></i>Confirmado</span>
+                    <span><i style="background:#ef4444;"></i>Cancelado</span>
+                    <span><i style="background:#6366f1;"></i>Atendido</span>
+                  </div>
+                </div>
+              </div>
+              <div id="calendarGrid" class="calendar-grid week-view"></div>
+            </div>
+
+            <div id="agendaSplitter" class="agenda-splitter" title="Arrastrar para redimensionar"></div>
+
+            <div class="card day-card">
+              <div class="card-head">
+                <div>
+                  <p class="muted">Turnos del día</p>
+                  <h3 id="dayTitle">Hoy</h3>
+                </div>
+                <div style="display:flex; gap:6px;">
+                  <button id="refreshBtn" class="ghost"><i class="fas fa-rotate"></i></button>
+                  <button id="quickNew" class="ghost"><i class="fas fa-plus"></i></button>
+                </div>
+              </div>
+              <div id="dayTimeline" class="timeline"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. VISTA PACIENTES -->
+        <section id="patientsView" class="pane hidden">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <p class="muted">Padrón de Pacientes</p>
+                <h3>Fichas Médicas e Historias Clínicas</h3>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <div class="search">
+                  <i class="fas fa-search"></i>
+                  <input id="patientSearch" type="search" placeholder="Buscar por nombre, DNI o teléfono...">
+                </div>
+                <button id="importPatientsBtn" class="ghost" title="Importar Excel / CSV"><i class="fas fa-file-import"></i> Importar</button>
+                <button id="exportPatientsBtn" class="ghost" title="Exportar CSV"><i class="fas fa-file-export"></i> Exportar</button>
+                <button id="newPatientBtn" class="primary"><i class="fas fa-user-plus"></i> Nuevo Paciente</button>
+              </div>
+            </div>
+            <div class="split">
+              <div class="table-wrap">
+                <table class="data-table-enhanced">
+                  <thead>
+                    <tr>
+                      <th>Paciente</th>
+                      <th>DNI</th>
+                      <th>Teléfono</th>
+                      <th>Email</th>
+                      <th>Edad</th>
+                      <th>Obra Social</th>
+                      <th>Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody id="patientsTable"></tbody>
+                </table>
+              </div>
+              <div class="patient-detail" id="patientDetail">
+                <div class="empty">Seleccioná un paciente de la lista para ver su ficha clínica y odontograma.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. VISTA PROFESIONALES -->
+        <section id="professionalsView" class="pane hidden">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <p class="muted">Cuerpo Médico</p>
+                <h3>Profesionales y Especialistas</h3>
+              </div>
+              <div style="display:flex; gap:10px;">
+                <div class="search">
+                  <i class="fas fa-search"></i>
+                  <input id="professionalSearch" type="search" placeholder="Buscar profesional...">
+                </div>
+                <button id="newProfessionalBtn" class="primary"><i class="fas fa-user-md"></i> Nuevo Profesional</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table-enhanced">
+                <thead>
+                  <tr>
+                    <th>Profesional</th>
+                    <th>Especialidad</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Horario de Atención</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="professionalsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. VISTA INVENTARIO -->
+        <section id="inventoryView" class="pane hidden">
+          <!-- KPIs de Inventario -->
+          <div class="inventory-stats-grid">
+            <div class="inv-stat-card">
+              <div class="inv-stat-icon"><i class="fas fa-boxes-stacked"></i></div>
+              <div class="inv-stat-info">
+                <div class="num" id="invTotalItems">0</div>
+                <div class="lbl">Total de Insumos Registrados</div>
+              </div>
+            </div>
+            <div class="inv-stat-card">
+              <div class="inv-stat-icon alert"><i class="fas fa-triangle-exclamation"></i></div>
+              <div class="inv-stat-info">
+                <div class="num" id="invLowStockCount" style="color:var(--danger);">0</div>
+                <div class="lbl">Insumos con Stock Bajo / Crítico</div>
+              </div>
+            </div>
+            <div class="inv-stat-card">
+              <div class="inv-stat-icon warning"><i class="fas fa-coins"></i></div>
+              <div class="inv-stat-info">
+                <div class="num" id="invTotalValuation">$0</div>
+                <div class="lbl">Valuación Total de Stock</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <p class="muted">Control de Stock e Insumos Médicos</p>
+                <h3>Catálogo y Movimientos de Farmacia / Insumos</h3>
+              </div>
+              <div style="display:flex; gap:10px;">
+                <div class="search">
+                  <i class="fas fa-search"></i>
+                  <input id="inventorySearch" type="search" placeholder="Buscar por código, insumo, ubicación...">
+                </div>
+                <button id="newInventoryBtn" class="primary"><i class="fas fa-plus"></i> Nuevo Insumo</button>
+              </div>
+            </div>
+
+            <!-- Filtro de Categorías -->
+            <div class="inventory-toolbar">
+              <div class="filter-pills" id="inventoryCategoryPills"></div>
+            </div>
+
+            <!-- Tabla de Insumos -->
+            <div class="table-wrap">
+              <table class="data-table-enhanced">
+                <thead>
+                  <tr>
+                    <th>Código</th>
+                    <th>Insumo / Descripción</th>
+                    <th>Categoría</th>
+                    <th>Stock Actual</th>
+                    <th>Costo Unitario</th>
+                    <th>Vencimiento</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. VISTA ESTADÍSTICAS -->
+        <section id="analyticsView" class="pane hidden">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <p class="muted">Métricas de Rendimiento</p>
+                <h3>Panel de Estadísticas y KPIs</h3>
+              </div>
+            </div>
+            <div id="analyticsContent"></div>
+          </div>
+        </section>
+
+        <!-- 6. VISTA NOTIFICACIONES -->
+        <section id="notificationsView" class="pane hidden">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <p class="muted">Centro de Mensajes</p>
+                <h3>Avisos y Notificaciones del Sistema</h3>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="ghost" id="markRead"><i class="fas fa-check"></i> Marcar todas leídas</button>
+                <button class="ghost" id="deleteAll"><i class="fas fa-trash"></i> Eliminar todas</button>
+              </div>
+            </div>
+            <div id="notifList" class="timeline"></div>
+          </div>
+        </section>
+
+        <!-- 7. VISTA CHAT WHATSAPP -->
+        <section id="chatView" class="pane hidden">
+          <div id="chatContainer"></div>
+          <div id="aiAssistantContainer"></div>
+        </section>
+
+        <!-- 8. VISTA CHAT INTERNO -->
+        <section id="internalChatView" class="pane hidden">
+          <div class="card" style="padding:0; overflow:hidden;">
+            <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <h3><i class="fas fa-comments" style="color:var(--primary);"></i> Chat Interno de la Clínica</h3>
+                <small class="muted">Comunicate en tiempo real con recepción, médicos y asistentes</small>
+              </div>
+            </div>
+            <div class="chat-messages" id="icMessagesContainer" style="height:400px;"></div>
+            <div class="chat-input-row">
+              <textarea id="icMessageInput" placeholder="Escribí un mensaje al equipo... (Presioná Enter para enviar)" rows="1"></textarea>
+              <button class="primary" onclick="window._ic.icSendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ========== MODALES DEL SISTEMA ========== -->
+
+  <!-- Modal Impresión de Planilla -->
+  <div id="printPlanModal" class="modal hidden">
+    <div class="modal-body" style="max-width:440px;">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Impresión</p>
+          <h3>Imprimir Planilla de Turnos</h3>
+        </div>
+        <button id="closePrintPlan" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="field">
+        <span>Rango de la Planilla</span>
+        <select id="printPlanType">
+          <option value="day">📅 Planilla Diaria (Día Seleccionado)</option>
+          <option value="week" selected>📆 Planilla Semanal (Semana Completa)</option>
+          <option value="month">🗓️ Planilla Mensual (Mes Completo)</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button id="confirmPrintPlan" class="primary"><i class="fas fa-print"></i> Generar e Imprimir</button>
+        <button id="cancelPrintPlan" class="ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nuevo Turno -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-body">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Gestión de Citas</p>
+          <h3 id="modalTitle">Nuevo Turno</h3>
+        </div>
+        <button id="closeModal" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="grid-2">
+        <label class="field">
+          <span>Profesional</span>
+          <select id="formProfessional"></select>
+        </label>
+        <label class="field">
+          <span>Fecha</span>
+          <input type="date" id="formDate">
+        </label>
+        <label class="field">
+          <span>Horario</span>
+          <select id="formTime"></select>
+        </label>
+        <label class="field">
+          <span>Duración</span>
+          <select id="formDuration">
+            <option value="15">15 minutos</option>
+            <option value="30" selected>30 minutos (1 turno)</option>
+            <option value="45">45 minutos</option>
+            <option value="60">1 hora (2 turnos)</option>
+            <option value="90">1:30 hs</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Paciente</span>
+          <input type="text" id="formPatient" placeholder="Nombre completo">
+        </label>
+        <label class="field">
+          <span>Teléfono / WhatsApp</span>
+          <input type="tel" id="formPhone" placeholder="Ej: +54911...">
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="formEmail" placeholder="paciente@correo.com">
+        </label>
+        <label class="field">
+          <span>Costo / Saldo ($)</span>
+          <input type="number" id="formCost" placeholder="0.00">
+        </label>
+        <label class="field" style="grid-column: 1 / -1;">
+          <span>Motivo de Consulta</span>
+          <input type="text" id="formReason" placeholder="Control, extracción, consulta general...">
+        </label>
+        <label class="field" style="grid-column: 1 / -1;">
+          <span>Observación Interna</span>
+          <input type="text" id="formObservation" placeholder="Nota privada para el consultorio">
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button id="saveApt" class="primary"><i class="fas fa-save"></i> Guardar Turno</button>
+        <button id="cancelModal" class="ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nuevo Paciente -->
+  <div id="patientModal" class="modal hidden">
+    <div class="modal-body">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Padrón</p>
+          <h3>Registrar Nuevo Paciente</h3>
+        </div>
+        <button id="closeNewPatient" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="grid-2">
+        <label class="field"><span>Nombre y Apellido</span><input id="newPatName" type="text" placeholder="Ej: María Gómez"></label>
+        <label class="field"><span>DNI / Documento</span><input id="newPatDni" type="text" placeholder="Número de documento"></label>
+        <label class="field"><span>Teléfono / WhatsApp</span><input id="newPatPhone" type="tel" placeholder="+549..."></label>
+        <label class="field"><span>Email</span><input id="newPatEmail" type="email" placeholder="correo@gmail.com"></label>
+        <label class="field"><span>Fecha de Nacimiento</span><input id="newPatBirthdate" type="date"></label>
+        <label class="field"><span>Obra Social / Prepaga</span><input id="newPatInsurance" type="text" placeholder="OSDE, Swiss Medical, Particular..."></label>
+        <label class="field" style="grid-column:1 / -1;"><span>Notas Médicas / Antecedentes</span><textarea id="newPatNotes" rows="2" placeholder="Alergias, medicación o antecedentes relevantes"></textarea></label>
+      </div>
+      <div class="modal-actions">
+        <button id="saveNewPatient" class="primary"><i class="fas fa-save"></i> Guardar Paciente</button>
+        <button id="cancelNewPatient" class="ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Profesional -->
+  <div id="profManager" class="modal hidden">
+    <div class="modal-body">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Gestión Médica</p>
+          <h3>Configuración de Profesional</h3>
+        </div>
+        <button id="closeProfManager" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="grid-2">
+        <label class="field"><span>Nombre</span><input id="mgrName" type="text" placeholder="Dr. Nombre Apellido"></label>
+        <label class="field"><span>Especialidad</span><input id="mgrSpecialty" type="text" placeholder="Odontología, Pediatría..."></label>
+        <label class="field"><span>Email</span><input id="mgrEmail" type="email" placeholder="doctor@consultorios.pro"></label>
+        <label class="field"><span>Teléfono</span><input id="mgrPhone" type="tel" placeholder="+549..."></label>
+        <label class="field"><span>Color en Agenda</span><input id="mgrColor" type="color" value="#3b82f6" style="height:42px;"></label>
+        <label class="field"><span>Duración de Turnos (min)</span><input id="mgrSlot" type="number" value="30" min="10" step="5"></label>
+        <label class="field"><span>Hora Inicio</span><input id="mgrStart" type="time" value="08:00"></label>
+        <label class="field"><span>Hora Fin</span><input id="mgrEnd" type="time" value="20:00"></label>
+      </div>
+      <div class="modal-actions">
+        <button id="saveProf" class="primary"><i class="fas fa-save"></i> Guardar Profesional</button>
+        <button id="resetProfForm" class="ghost">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nuevo Insumo de Inventario -->
+  <div id="inventoryItemModal" class="modal hidden">
+    <div class="modal-body">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Inventario y Stock</p>
+          <h3 id="invModalTitle">Nuevo Insumo</h3>
+        </div>
+        <button id="closeInvModal" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <input type="hidden" id="invItemId">
+      <div class="grid-2">
+        <label class="field"><span>Código de Producto</span><input id="invCode" type="text" placeholder="INS-001"></label>
+        <label class="field"><span>Nombre del Insumo</span><input id="invName" type="text" placeholder="Ej: Gasas Estériles x100"></label>
+        <label class="field"><span>Categoría</span><input id="invCategory" type="text" placeholder="Descartables, Anestésicos, etc."></label>
+        <label class="field"><span>Unidad de Medida</span><input id="invUnit" type="text" placeholder="cajas, unidades, frascos"></label>
+        <label class="field"><span>Stock Inicial</span><input id="invStock" type="number" min="0" value="10"></label>
+        <label class="field"><span>Stock Mínimo de Alerta</span><input id="invMinStock" type="number" min="1" value="5"></label>
+        <label class="field"><span>Costo Unitario ($)</span><input id="invCost" type="number" step="0.01" placeholder="0.00"></label>
+        <label class="field"><span>Fecha de Vencimiento</span><input id="invExpiry" type="date"></label>
+        <label class="field" style="grid-column:1 / -1;"><span>Ubicación en Consultorio</span><input id="invLocation" type="text" placeholder="Gabinete 1 - Estante B"></label>
+      </div>
+      <div class="modal-actions">
+        <button id="saveInvBtn" class="primary"><i class="fas fa-save"></i> Guardar Insumo</button>
+        <button id="cancelInvModal" class="ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Movimiento de Stock (Entrada / Salida) -->
+  <div id="stockMovementModal" class="modal hidden">
+    <div class="modal-body" style="max-width:460px;">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Control de Existencias</p>
+          <h3>Registrar Movimiento de Stock</h3>
+        </div>
+        <button id="closeMovModal" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <input type="hidden" id="movItemId">
+      <p id="movItemName" style="font-weight:600; margin-bottom:14px; color:var(--primary);"></p>
+      <div class="field">
+        <span>Tipo de Movimiento</span>
+        <select id="movType">
+          <option value="entrada">📥 Entrada / Compra de Stock</option>
+          <option value="salida">📤 Salida / Uso en Atención</option>
+          <option value="ajuste">⚙️ Ajuste de Inventario Físico</option>
+        </select>
+      </div>
+      <div class="field">
+        <span>Cantidad</span>
+        <input id="movQuantity" type="number" min="1" value="1">
+      </div>
+      <div class="field">
+        <span>Motivo / Detalle</span>
+        <input id="movReason" type="text" placeholder="Ej: Compra proveedor, atención paciente...">
+      </div>
+      <div class="modal-actions">
+        <button id="saveMovBtn" class="primary"><i class="fas fa-check"></i> Aplicar Movimiento</button>
+        <button id="cancelMovModal" class="ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Apariencia -->
+  <div id="appearanceModal" class="modal hidden">
+    <div class="modal-body" style="max-width:500px;">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Personalización Visual</p>
+          <h3>Tema y Apariencia</h3>
+        </div>
+        <button id="closeAppearance" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <h4 style="margin-bottom:8px;"><i class="fas fa-wand-magic-sparkles" style="color:var(--primary);"></i> Estilos Liquid Glass</h4>
+      <div class="appearance-grid">
+        <div class="theme-card-option active" data-theme-choice="light" onclick="window.setTheme('light')">
+          <span class="theme-preview-dot" style="background:linear-gradient(135deg, #6366f1, #a855f7);"></span>
+          <strong>Liquid Glass</strong>
+          <small class="muted">Frost / Luz</small>
+        </div>
+        <div class="theme-card-option" data-theme-choice="blue" onclick="window.setTheme('blue')">
+          <span class="theme-preview-dot" style="background:linear-gradient(135deg, #38bdf8, #6366f1);"></span>
+          <strong>Cyber Glass</strong>
+          <small class="muted">Nocturno Deep</small>
+        </div>
+        <div class="theme-card-option" data-theme-choice="green" onclick="window.setTheme('green')">
+          <span class="theme-preview-dot" style="background:linear-gradient(135deg, #10b981, #06b6d4);"></span>
+          <strong>Emerald Glass</strong>
+          <small class="muted">Clínico Vital</small>
+        </div>
+      </div>
+
+      <h4 style="margin:16px 0 8px;">Tamaño de Texto</h4>
+      <div style="display:flex; gap:10px;">
+        <button class="ghost size-btn" data-size-choice="small" onclick="window.setFontSize('small')">Pequeño</button>
+        <button class="ghost size-btn" data-size-choice="normal" onclick="window.setFontSize('normal')">Normal</button>
+        <button class="ghost size-btn" data-size-choice="large" onclick="window.setFontSize('large')">Grande</button>
+      </div>
+
+      <div class="modal-actions" style="margin-top:24px;">
+        <button id="cancelAppearance" class="primary">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Perfil -->
+  <div id="profileModal" class="modal hidden">
+    <div class="modal-body" style="max-width:460px;">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Configuración</p>
+          <h3>Mi Perfil</h3>
+        </div>
+        <button id="closeProfile" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="field"><span>Email de Notificaciones</span><input type="email" value="contacto@consultorios.pro"></div>
+      <div class="field"><span>Teléfono / WhatsApp</span><input type="tel" value="+5491123456789"></div>
+      <div class="field"><span>Cambiar Contraseña</span><input type="password" placeholder="Nueva contraseña"></div>
+      <div class="modal-actions">
+        <button id="saveProfile" class="primary"><i class="fas fa-save"></i> Guardar</button>
+        <button id="cancelProfile" class="ghost">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Feriados y Bloqueos -->
+  <div id="blockedDaysModal" class="modal hidden">
+    <div class="modal-body" style="max-width:520px;">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Agenda</p>
+          <h3>Días Bloqueados y Feriados</h3>
+        </div>
+        <button id="closeBlockedModal" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="field"><span>Fecha a Bloquear</span><input id="newBlockedDateFrom" type="date"></div>
+      <div class="field"><span>Motivo del Bloqueo</span><input id="newBlockedReason" type="text" placeholder="Feriado, Congreso, Vacaciones..."></div>
+      <button id="saveBlockedBtn" class="primary" style="margin-bottom:16px;"><i class="fas fa-lock"></i> Bloquear Fecha</button>
+
+      <h4 style="margin-bottom:8px;">Bloqueos Existentes</h4>
+      <div id="blockedDaysList" class="timeline" style="max-height:160px;"></div>
+      <div class="modal-actions">
+        <button id="cancelBlockedModal" class="ghost">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts Modulares -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

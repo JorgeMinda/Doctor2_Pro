@@ -1,0 +1,32 @@
+﻿# Dependencias & Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Entorno & Variables
+.env
+.env.local
+.env.*.local
+
+# Logs del Sistema
+*.log
+logs/
+
+# IDEs & Editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Bases de datos SQLite locales si se generan dinámicamente
+*.sqlite-journal
+*.db-journal

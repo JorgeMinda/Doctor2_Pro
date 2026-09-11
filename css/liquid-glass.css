@@ -1,0 +1,312 @@
+﻿/* =========================================================
+   LIQUID GLASS (FROSTED GLASS / VISION OS UI SYSTEM)
+   Consultorios.pro / Doctor2 Modern Aesthetic Engine
+   ========================================================= */
+
+:root,
+[data-theme="liquid-glass"],
+[data-theme="light"] {
+  --glass-bg: rgba(255, 255, 255, 0.68);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.45);
+  --glass-bg-card: rgba(255, 255, 255, 0.75);
+  --glass-bg-card-hover: rgba(255, 255, 255, 0.90);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-border-subtle: rgba(226, 232, 240, 0.6);
+  --glass-blur: 24px;
+  --glass-shadow: 0 16px 40px -8px rgba(99, 102, 241, 0.08), 0 8px 16px -4px rgba(0, 0, 0, 0.03);
+  --glass-shadow-lg: 0 25px 60px -12px rgba(15, 23, 42, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  --glass-specular: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95);
+  --mesh-1: rgba(99, 102, 241, 0.12);
+  --mesh-2: rgba(168, 85, 247, 0.10);
+  --mesh-3: rgba(14, 165, 233, 0.12);
+  --mesh-4: rgba(16, 185, 129, 0.08);
+}
+
+/* --- TEMA LIQUID DARK (CYBER VISION) --- */
+[data-theme="liquid-dark"],
+[data-theme="blue"] {
+  --bg: #070d19;
+  --bg-page: #050a14;
+  --surface: rgba(15, 28, 48, 0.65);
+  --card: rgba(15, 28, 48, 0.70);
+  --border: rgba(56, 189, 248, 0.18);
+  --border-focus: #38bdf8;
+  --muted: #94a3b8;
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary: #38bdf8;
+  --primary-strong: #0284c7;
+  --primary-light: rgba(56, 189, 248, 0.15);
+  --glass-bg: rgba(12, 24, 43, 0.65);
+  --glass-bg-subtle: rgba(15, 28, 50, 0.45);
+  --glass-bg-card: rgba(15, 30, 56, 0.70);
+  --glass-bg-card-hover: rgba(22, 42, 75, 0.85);
+  --glass-border: rgba(125, 211, 252, 0.25);
+  --glass-border-subtle: rgba(56, 189, 248, 0.12);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+  --glass-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  --mesh-1: rgba(56, 189, 248, 0.15);
+  --mesh-2: rgba(99, 102, 241, 0.15);
+  --mesh-3: rgba(14, 165, 233, 0.12);
+  --mesh-4: rgba(139, 92, 246, 0.10);
+}
+
+/* --- TEMA LIQUID EMERALD (VITAL CLINIC) --- */
+[data-theme="green"] {
+  --bg: #061813;
+  --bg-page: #04120e;
+  --surface: rgba(10, 36, 28, 0.65);
+  --card: rgba(10, 36, 28, 0.70);
+  --border: rgba(52, 211, 153, 0.2);
+  --border-focus: #10b981;
+  --muted: #94a3b8;
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --primary: #10b981;
+  --primary-strong: #059669;
+  --primary-light: rgba(16, 185, 129, 0.15);
+  --glass-bg: rgba(8, 30, 24, 0.65);
+  --glass-bg-subtle: rgba(10, 36, 28, 0.45);
+  --glass-bg-card: rgba(12, 44, 34, 0.70);
+  --glass-bg-card-hover: rgba(16, 58, 45, 0.85);
+  --glass-border: rgba(110, 231, 183, 0.25);
+  --glass-border-subtle: rgba(52, 211, 153, 0.12);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+  --mesh-1: rgba(16, 185, 129, 0.18);
+  --mesh-2: rgba(20, 184, 166, 0.15);
+  --mesh-3: rgba(6, 182, 212, 0.12);
+  --mesh-4: rgba(132, 204, 22, 0.10);
+}
+
+/* =========================================================
+   LIQUID BACKGROUND MESH & AMBIENT LIGHTING
+   ========================================================= */
+body {
+  background-color: var(--bg-page);
+  background-image: 
+    radial-gradient(at 0% 0%, var(--mesh-1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, var(--mesh-2) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, var(--mesh-3) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, var(--mesh-4) 0px, transparent 50%);
+  background-attachment: fixed;
+  background-size: cover;
+  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =========================================================
+   LIQUID GLASS STRUCTURES (Sidebar, Toolbar, Panes)
+   ========================================================= */
+
+/* Sidebar Traslúcido */
+.sidebar {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(190%) !important;
+  border-right: 1px solid var(--glass-border-subtle) !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Toolbar Flotante Vidriado */
+.toolbar {
+  background: var(--glass-bg-subtle) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%) !important;
+  border-bottom: 1px solid var(--glass-border-subtle) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Tarjetas Principales Liquid Glass */
+.card,
+.patient-detail,
+.stat-card,
+.calendar-card,
+.agenda-list-card {
+  background: var(--glass-bg-card) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--glass-shadow), var(--glass-specular) !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Turnos / Slots Liquid Glass */
+.slot {
+  background: var(--glass-bg-subtle) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid var(--glass-border-subtle) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--glass-specular), 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.slot:hover {
+  background: var(--glass-bg-card-hover) !important;
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 24px -4px rgba(99, 102, 241, 0.12), var(--glass-specular) !important;
+  border-color: var(--primary) !important;
+}
+
+/* Modales Liquid Glass Flotantes */
+.modal {
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  background: rgba(15, 23, 42, 0.35) !important;
+}
+
+.modal-body {
+  background: var(--glass-bg-card) !important;
+  backdrop-filter: blur(32px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(200%) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--glass-shadow-lg) !important;
+}
+
+/* Botones con Brillo Especular Líquido */
+button.primary,
+.btn.primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.5) !important;
+  border-radius: 10px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+button.primary:hover,
+.btn.primary:hover {
+  transform: translateY(-1px) scale(1.02) !important;
+  box-shadow: 0 8px 24px 0 rgba(99, 102, 241, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+button.primary:active,
+.btn.primary:active {
+  transform: translateY(1px) scale(0.98) !important;
+}
+
+button.ghost,
+.btn.secondary {
+  background: var(--glass-bg-subtle) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--glass-border-subtle) !important;
+  box-shadow: var(--glass-specular) !important;
+  border-radius: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+button.ghost:hover,
+.btn.secondary:hover {
+  background: var(--glass-bg-card-hover) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+/* Inputs & Selects Liquid Glass */
+input,
+select,
+textarea {
+  background: var(--glass-bg-subtle) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--glass-border-subtle) !important;
+  border-radius: 10px !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.25s ease !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  background: var(--glass-bg-card-hover) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-light), var(--glass-specular) !important;
+  outline: none !important;
+}
+
+/* Tabs & Pills Liquid Glass */
+.patient-tabs,
+.chat-tabs {
+  background: var(--glass-bg-subtle);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border-subtle);
+}
+
+.patient-tab,
+.chat-tab {
+  border-radius: 8px !important;
+  border: none !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.patient-tab.active,
+.chat-tab.active {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), var(--glass-specular) !important;
+}
+
+/* Badges con Reflejo Líquido */
+.badge {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: var(--glass-specular) !important;
+}
+
+.badge.attended {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #059669 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.badge.pending {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #d97706 !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.badge.cancelled {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #dc2626 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Tablas con Líneas Vidriadas Suaves */
+.data-table-enhanced,
+.data-table {
+  border-collapse: separate !important;
+  border-spacing: 0 4px !important;
+}
+
+.data-table-enhanced tbody tr,
+.data-table tbody tr {
+  background: var(--glass-bg-subtle) !important;
+  transition: transform 0.2s ease, background 0.2s ease !important;
+}
+
+.data-table-enhanced tbody tr:hover,
+.data-table tbody tr:hover {
+  background: var(--glass-bg-card-hover) !important;
+  transform: scale(1.003);
+}
+
+.data-table-enhanced tbody td:first-child,
+.data-table tbody td:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.data-table-enhanced tbody td:last-child,
+.data-table tbody td:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}

@@ -1,0 +1,172 @@
+/* Componente de Pacientes, Ficha Médica y Odontograma */
+
+.split {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.patient-detail {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  min-height: 480px;
+}
+
+.patient-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.patient-header h3 {
+  font-size: 1.2rem;
+  color: var(--text);
+}
+
+.patient-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+  background: var(--bg-page);
+  padding: 14px;
+  border-radius: 8px;
+}
+
+.info-item label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  display: block;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.info-item span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Tabs de Ficha */
+.patient-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.patient-tab {
+  background: none;
+  border: none;
+  padding: 8px 14px;
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.88rem;
+  border-bottom: 2px solid transparent;
+}
+
+.patient-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Odontograma */
+.odontogram-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 10px;
+}
+
+.arch-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.dental-arch {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tooth-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tooth-svg {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.tooth-svg polygon, .tooth-svg rect {
+  fill: #f8fafc;
+  stroke: #cbd5e1;
+  stroke-width: 1.5;
+  transition: all 0.2s;
+}
+
+.tooth-svg polygon:hover, .tooth-svg rect:hover {
+  fill: #c7d2fe;
+}
+
+.tooth-svg.has-caries polygon.center {
+  fill: #ef4444;
+}
+
+.tooth-svg.has-restoration polygon.center {
+  fill: #3b82f6;
+}
+
+.tooth-num {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Evoluciones Clínicas */
+.clinical-note-item {
+  background: var(--bg-page);
+  border-left: 3px solid var(--primary);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.clinical-note-item .date {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.clinical-note-item .diagnosis {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 4px 0;
+  color: var(--text);
+}
+
+.clinical-note-item .treatment {
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+@media (max-width: 1024px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}

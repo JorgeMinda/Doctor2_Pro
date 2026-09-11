@@ -1,0 +1,212 @@
+﻿/* =========================================================
+   PATIENT COMPONENTS - Master & Component Styles
+   ========================================================= */
+
+.patient-summary-card {
+  background: var(--glass-bg-card);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 20px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.summary-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-strong) 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.summary-stats .stat-item {
+  background: var(--glass-bg-subtle);
+  border: 1px solid var(--glass-border-subtle);
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.summary-stats .stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.summary-stats .stat-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.chart-card {
+  background: var(--glass-bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--glass-shadow);
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 120px;
+  padding-top: 10px;
+}
+
+.bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bar-item .bar {
+  width: 100%;
+  max-width: 18px;
+  background: var(--border);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease;
+}
+
+.bar-item .bar.has-visits {
+  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-strong) 100%);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.bar-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* Odontograma FDI */
+.odontogram-professional {
+  background: var(--glass-bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.tooth-professional {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 2px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.tooth-professional:hover {
+  transform: translateY(-2px);
+}
+
+.tooth-number {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.tooth-number.has-treatment {
+  color: var(--primary);
+}
+
+.tooth-svg {
+  width: 32px;
+  height: 40px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
+}
+
+.tooth-surface {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: fill 0.2s ease;
+}
+
+.tooth-surface:hover {
+  fill: #e0e7ff;
+  stroke: var(--primary);
+}
+
+.tooth-surface.obturacion { fill: #3b82f6; }
+.tooth-surface.corona { fill: #fbbf24; }
+.tooth-surface.endodoncia { fill: #f97316; }
+.tooth-surface.extraccion { fill: #ef4444; }
+.tooth-surface.implante { fill: #8b5cf6; }
+.tooth-surface.caries { fill: #dc2626; }
+.tooth-surface.pendiente { fill: #facc15; }
+.tooth-surface.tratado { fill: #22c55e; }
+
+/* Modal Odontograma */
+.odontogram-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(16px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.odontogram-modal-content {
+  background: var(--glass-bg-card);
+  backdrop-filter: blur(32px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--glass-shadow-lg);
+  padding: 24px;
+}
+
+.odontogram-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.odontogram-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
