@@ -570,42 +570,118 @@
 
   <!-- Modal Apariencia -->
   <div id="appearanceModal" class="modal hidden">
-    <div class="modal-body" style="max-width:500px;">
+    <div class="modal-body" style="max-width:520px;">
       <div class="modal-head">
         <div>
           <p class="muted">Personalización Visual</p>
-          <h3>Tema y Apariencia</h3>
+          <h3><i class="fas fa-palette" style="color:var(--primary); margin-right:6px;"></i> Apariencia</h3>
         </div>
         <button id="closeAppearance" class="ghost"><i class="fas fa-times"></i></button>
       </div>
-      <h4 style="margin-bottom:8px;"><i class="fas fa-wand-magic-sparkles" style="color:var(--primary);"></i> Estilos Liquid Glass</h4>
-      <div class="appearance-grid">
-        <div class="theme-card-option active" data-theme-choice="light" onclick="window.setTheme('light')">
-          <span class="theme-preview-dot" style="background:linear-gradient(135deg, #6366f1, #a855f7);"></span>
-          <strong>Liquid Glass</strong>
-          <small class="muted">Frost / Luz</small>
-        </div>
-        <div class="theme-card-option" data-theme-choice="blue" onclick="window.setTheme('blue')">
-          <span class="theme-preview-dot" style="background:linear-gradient(135deg, #38bdf8, #6366f1);"></span>
-          <strong>Cyber Glass</strong>
-          <small class="muted">Nocturno Deep</small>
-        </div>
-        <div class="theme-card-option" data-theme-choice="green" onclick="window.setTheme('green')">
-          <span class="theme-preview-dot" style="background:linear-gradient(135deg, #10b981, #06b6d4);"></span>
-          <strong>Emerald Glass</strong>
-          <small class="muted">Clínico Vital</small>
+
+      <!-- 1. Tema de Colores (8 Colores) -->
+      <div class="appearance-section">
+        <label>Tema de colores</label>
+        <div class="appearance-button-group">
+          <button class="theme-btn" data-theme="dark" onclick="window.setTheme('dark')">
+            <i class="fas fa-moon"></i>
+            <small>Oscuro</small>
+          </button>
+          <button class="theme-btn active" data-theme="light" onclick="window.setTheme('light')">
+            <i class="fas fa-sun"></i>
+            <small>Claro</small>
+          </button>
+          <button class="theme-btn" data-theme="blue" onclick="window.setTheme('blue')">
+            <i class="fas fa-water"></i>
+            <small>Azul</small>
+          </button>
+          <button class="theme-btn" data-theme="green" onclick="window.setTheme('green')">
+            <i class="fas fa-leaf"></i>
+            <small>Verde</small>
+          </button>
+          <button class="theme-btn" data-theme="purple" onclick="window.setTheme('purple')">
+            <i class="fas fa-wand-magic-sparkles"></i>
+            <small>Violeta</small>
+          </button>
+          <button class="theme-btn" data-theme="rose" onclick="window.setTheme('rose')">
+            <i class="fas fa-heart"></i>
+            <small>Rosa</small>
+          </button>
+          <button class="theme-btn" data-theme="amber" onclick="window.setTheme('amber')">
+            <i class="fas fa-fire"></i>
+            <small>Ámbar</small>
+          </button>
+          <button class="theme-btn" data-theme="teal" onclick="window.setTheme('teal')">
+            <i class="fas fa-droplet"></i>
+            <small>Turquesa</small>
+          </button>
         </div>
       </div>
 
-      <h4 style="margin:16px 0 8px;">Tamaño de Texto</h4>
-      <div style="display:flex; gap:10px;">
-        <button class="ghost size-btn" data-size-choice="small" onclick="window.setFontSize('small')">Pequeño</button>
-        <button class="ghost size-btn" data-size-choice="normal" onclick="window.setFontSize('normal')">Normal</button>
-        <button class="ghost size-btn" data-size-choice="large" onclick="window.setFontSize('large')">Grande</button>
+      <!-- 2. Tamaño de Texto -->
+      <div class="appearance-section">
+        <label>Tamaño de texto</label>
+        <div class="appearance-button-group">
+          <button class="size-btn" data-size="small" onclick="window.setFontSize('small')">
+            <i class="fas fa-font" style="font-size: 11px;"></i>
+            <small>Pequeño</small>
+          </button>
+          <button class="size-btn active" data-size="normal" onclick="window.setFontSize('normal')">
+            <i class="fas fa-font" style="font-size: 14px;"></i>
+            <small>Normal</small>
+          </button>
+          <button class="size-btn" data-size="large" onclick="window.setFontSize('large')">
+            <i class="fas fa-font" style="font-size: 17px;"></i>
+            <small>Grande</small>
+          </button>
+        </div>
       </div>
 
-      <div class="modal-actions" style="margin-top:24px;">
-        <button id="cancelAppearance" class="primary">Listo</button>
+      <!-- 3. Distribución de Agenda -->
+      <div class="appearance-section">
+        <label>Distribución de agenda</label>
+        <div class="appearance-button-group">
+          <button class="density-btn" data-density="compact" onclick="window.setAgendaDensity('compact')">
+            <i class="fas fa-compress-arrows-alt"></i>
+            <small>Compacto</small>
+          </button>
+          <button class="density-btn active" data-density="normal" onclick="window.setAgendaDensity('normal')">
+            <i class="fas fa-table-cells-large"></i>
+            <small>Normal</small>
+          </button>
+          <button class="density-btn" data-density="wide" onclick="window.setAgendaDensity('wide')">
+            <i class="fas fa-expand-arrows-alt"></i>
+            <small>Amplio</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Menú Lateral -->
+      <div class="appearance-section">
+        <label>Menú lateral</label>
+        <div class="appearance-button-group">
+          <button class="sidebar-btn active" data-sidebar="fixed" onclick="window.setSidebarMode('fixed')">
+            <i class="fas fa-thumbtack"></i>
+            <small>Fijo</small>
+          </button>
+          <button class="sidebar-btn" data-sidebar="auto" onclick="window.setSidebarMode('auto')">
+            <i class="fas fa-angles-right"></i>
+            <small>Automático</small>
+          </button>
+        </div>
+        <p class="appearance-help-text">
+          Automático deja visibles los iconos y abre el menú al pasar el mouse. En modo fijo podés arrastrar su borde.
+        </p>
+      </div>
+
+      <!-- Acciones: Guardar y Restablecer -->
+      <div style="display:flex; gap:12px; margin-top:24px; padding-top:16px; border-top:1px solid var(--border);">
+        <button id="saveAppearanceBtn" class="primary" style="flex:1; justify-content:center;" onclick="window.saveAppearanceSettings()">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+        <button id="resetAppearanceBtn" class="ghost" style="flex:1; justify-content:center;" onclick="window.resetAppearanceSettings()">
+          <i class="fas fa-rotate-left"></i> Restablecer
+        </button>
       </div>
     </div>
   </div>

@@ -133,6 +133,7 @@ export async function saveProfile() {
 }
 
 export function openAppearanceModal() {
+  syncAppearanceUI();
   el('appearanceModal')?.classList.remove('hidden');
 }
 
@@ -140,38 +141,134 @@ export function closeAppearanceModal() {
   el('appearanceModal')?.classList.add('hidden');
 }
 
-export function setTheme(themeName) {
+// Estado temporal o activo de apariencia
+let currentAppearance = {
+  theme: localStorage.getItem('doctor2_theme') || 'light',
+  fontSize: localStorage.getItem('doctor2_fontSize') || 'normal',
+  density: localStorage.getItem('doctor2_density') || 'normal',
+  sidebar: localStorage.getItem('doctor2_sidebar') || 'fixed'
+};
+
+export function initAppearance() {
+  setTheme(currentAppearance.theme, true);
+  setFontSize(currentAppearance.fontSize, true);
+  setAgendaDensity(currentAppearance.density, true);
+  setSidebarMode(currentAppearance.sidebar, true);
+}
+
+function syncAppearanceUI() {
+  // 1. Temas
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === currentAppearance.theme);
+  });
+  // 2. Fuente
+  document.querySelectorAll('.size-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.size === currentAppearance.fontSize);
+  });
+  // 3. Densidad
+  document.querySelectorAll('.density-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.density === currentAppearance.density);
+  });
+  // 4. Sidebar
+  document.querySelectorAll('.sidebar-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sidebar === currentAppearance.sidebar);
+  });
+}
+
+export function setTheme(themeName, silent = false) {
+  currentAppearance.theme = themeName;
   document.documentElement.setAttribute('data-theme', themeName);
-  document.querySelectorAll('.theme-card-option').forEach(b => b.classList.remove('active'));
-  document.querySelector(`[data-theme-choice="${themeName}"]`)?.classList.add('active');
+  localStorage.setItem('doctor2_theme', themeName);
+  
+  document.querySelectorAll('.theme-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === themeName);
+  });
 
-  // Guardar en state y servidor
-  if (state.user) {
-    state.user.appearance = { ...(state.user.appearance || {}), theme: themeName };
-    apiFetch(api.profile, {
-      method: 'PATCH',
-      body: JSON.stringify({ appearance: { theme: themeName } })
-    }).catch(() => {});
+  if (!silent) {
+    const themeLabels = {
+      dark: 'Oscuro',
+      light: 'Claro',
+      blue: 'Azul Cyber',
+      green: 'Verde Esmeralda',
+      purple: 'Violeta Velvet',
+      rose: 'Rosa Coral',
+      amber: 'Ámbar Solar',
+      teal: 'Turquesa Mint'
+    };
+    showToast(`Tema ${themeLabels[themeName] || themeName} aplicado`, 'info');
   }
-  showToast(`Tema ${themeName} aplicado`, 'info');
 }
 
-export function setFontSize(size) {
+export function setFontSize(size, silent = false) {
+  currentAppearance.fontSize = size;
   document.documentElement.setAttribute('data-font-size', size);
-  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`[data-size-choice="${size}"]`)?.classList.add('active');
+  localStorage.setItem('doctor2_fontSize', size);
 
-  if (state.user) {
-    state.user.appearance = { ...(state.user.appearance || {}), fontSize: size };
-    apiFetch(api.profile, {
-      method: 'PATCH',
-      body: JSON.stringify({ appearance: { fontSize: size } })
-    }).catch(() => {});
+  document.querySelectorAll('.size-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.size === size);
+  });
+
+  if (!silent) {
+    showToast(`Tamaño de texto: ${size === 'small' ? 'Pequeño' : size === 'large' ? 'Grande' : 'Normal'}`, 'info');
   }
 }
 
+export function setAgendaDensity(density, silent = false) {
+  currentAppearance.density = density;
+  document.documentElement.setAttribute('data-agenda-density', density);
+  localStorage.setItem('doctor2_density', density);
+
+  document.querySelectorAll('.density-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.density === density);
+  });
+
+  if (!silent) {
+    showToast(`Distribución de agenda: ${density}`, 'info');
+  }
+}
+
+export function setSidebarMode(mode, silent = false) {
+  currentAppearance.sidebar = mode;
+  document.documentElement.setAttribute('data-sidebar-mode', mode);
+  localStorage.setItem('doctor2_sidebar', mode);
+
+  document.querySelectorAll('.sidebar-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.sidebar === mode);
+  });
+
+  if (!silent) {
+    showToast(`Menú lateral: ${mode === 'auto' ? 'Automático (al pasar el mouse)' : 'Fijo'}`, 'info');
+  }
+}
+
+export function saveAppearanceSettings() {
+  if (state.user) {
+    state.user.appearance = { ...currentAppearance };
+    apiFetch(api.profile, {
+      method: 'PATCH',
+      body: JSON.stringify({ appearance: currentAppearance })
+    }).catch(() => {});
+  }
+  showToast('Preferencias de apariencia guardadas con éxito', 'success');
+  closeAppearanceModal();
+}
+
+export function resetAppearanceSettings() {
+  setTheme('light');
+  setFontSize('normal');
+  setAgendaDensity('normal');
+  setSidebarMode('fixed');
+  saveAppearanceSettings();
+  showToast('Apariencia restablecida a valores por defecto', 'info');
+}
+
+// Exponer funciones en window para invocación desde el DOM
 window.setTheme = setTheme;
 window.setFontSize = setFontSize;
+window.setAgendaDensity = setAgendaDensity;
+window.setSidebarMode = setSidebarMode;
+window.saveAppearanceSettings = saveAppearanceSettings;
+window.resetAppearanceSettings = resetAppearanceSettings;
 
 // Placeholders de Ajustes Avanzados
 export function resetSystem() { if (confirm('¿Estás seguro de reiniciar los datos?')) showToast('Sistema reiniciado', 'info'); }

@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    LIQUID GLASS (FROSTED GLASS / VISION OS UI SYSTEM)
    Consultorios.pro / Doctor2 Modern Aesthetic Engine
    ========================================================= */
@@ -22,7 +22,35 @@
   --mesh-4: rgba(16, 185, 129, 0.08);
 }
 
-/* --- TEMA LIQUID DARK (CYBER VISION) --- */
+/* --- TEMA LIQUID DARK (MIDNIGHT VISION) --- */
+[data-theme="dark"] {
+  --bg: #0b0f19;
+  --bg-page: #070a12;
+  --surface: rgba(17, 24, 39, 0.70);
+  --card: rgba(17, 24, 39, 0.75);
+  --border: rgba(99, 102, 241, 0.20);
+  --border-focus: #6366f1;
+  --muted: #9ca3af;
+  --text: #f9fafb;
+  --text-muted: #9ca3af;
+  --primary: #6366f1;
+  --primary-strong: #4f46e5;
+  --primary-light: rgba(99, 102, 241, 0.18);
+  --glass-bg: rgba(17, 24, 39, 0.70);
+  --glass-bg-subtle: rgba(31, 41, 55, 0.50);
+  --glass-bg-card: rgba(17, 24, 39, 0.75);
+  --glass-bg-card-hover: rgba(31, 41, 55, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-subtle: rgba(255, 255, 255, 0.08);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  --mesh-1: rgba(99, 102, 241, 0.15);
+  --mesh-2: rgba(168, 85, 247, 0.12);
+  --mesh-3: rgba(59, 130, 246, 0.12);
+  --mesh-4: rgba(30, 41, 59, 0.20);
+}
+
+/* --- TEMA LIQUID BLUE (CYBER OCEAN) --- */
 [data-theme="liquid-dark"],
 [data-theme="blue"] {
   --bg: #070d19;
@@ -51,7 +79,7 @@
   --mesh-4: rgba(139, 92, 246, 0.10);
 }
 
-/* --- TEMA LIQUID EMERALD (VITAL CLINIC) --- */
+/* --- TEMA LIQUID GREEN (EMERALD CLINIC) --- */
 [data-theme="green"] {
   --bg: #061813;
   --bg-page: #04120e;
@@ -76,6 +104,98 @@
   --mesh-2: rgba(20, 184, 166, 0.15);
   --mesh-3: rgba(6, 182, 212, 0.12);
   --mesh-4: rgba(132, 204, 22, 0.10);
+}
+
+/* --- TEMA LIQUID PURPLE (VELVET GLASS) --- */
+[data-theme="purple"] {
+  --bg: #150b26;
+  --bg-page: #0d061a;
+  --surface: rgba(33, 17, 59, 0.65);
+  --card: rgba(33, 17, 59, 0.70);
+  --border: rgba(168, 85, 247, 0.22);
+  --border-focus: #a855f7;
+  --muted: #c084fc;
+  --text: #faf5ff;
+  --text-muted: #c084fc;
+  --primary: #a855f7;
+  --primary-strong: #9333ea;
+  --primary-light: rgba(168, 85, 247, 0.18);
+  --glass-bg: rgba(25, 12, 46, 0.65);
+  --glass-bg-subtle: rgba(33, 17, 59, 0.45);
+  --glass-bg-card: rgba(35, 18, 64, 0.70);
+  --glass-bg-card-hover: rgba(48, 25, 88, 0.85);
+  --glass-border: rgba(192, 132, 252, 0.25);
+  --glass-border-subtle: rgba(168, 85, 247, 0.14);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* --- TEMA LIQUID ROSE (CORAL GLASS) --- */
+[data-theme="rose"] {
+  --bg: #220b16;
+  --bg-page: #15050d;
+  --surface: rgba(54, 16, 35, 0.65);
+  --card: rgba(54, 16, 35, 0.70);
+  --border: rgba(244, 63, 94, 0.22);
+  --border-focus: #f43f5e;
+  --muted: #fda4af;
+  --text: #fff1f2;
+  --text-muted: #fda4af;
+  --primary: #f43f5e;
+  --primary-strong: #e11d48;
+  --primary-light: rgba(244, 63, 94, 0.18);
+  --glass-bg: rgba(40, 10, 26, 0.65);
+  --glass-bg-subtle: rgba(54, 16, 35, 0.45);
+  --glass-bg-card: rgba(58, 18, 38, 0.70);
+  --glass-bg-card-hover: rgba(78, 24, 52, 0.85);
+  --glass-border: rgba(251, 113, 133, 0.25);
+  --glass-border-subtle: rgba(244, 63, 94, 0.14);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* --- TEMA LIQUID AMBER (SOLAR GLASS) --- */
+[data-theme="amber"] {
+  --bg: #221405;
+  --bg-page: #140b02;
+  --surface: rgba(56, 33, 8, 0.65);
+  --card: rgba(56, 33, 8, 0.70);
+  --border: rgba(245, 158, 11, 0.22);
+  --border-focus: #f59e0b;
+  --muted: #fcd34d;
+  --text: #fffbeb;
+  --text-muted: #fcd34d;
+  --primary: #f59e0b;
+  --primary-strong: #d97706;
+  --primary-light: rgba(245, 158, 11, 0.18);
+  --glass-bg: rgba(42, 24, 6, 0.65);
+  --glass-bg-subtle: rgba(56, 33, 8, 0.45);
+  --glass-bg-card: rgba(62, 36, 10, 0.70);
+  --glass-bg-card-hover: rgba(84, 49, 14, 0.85);
+  --glass-border: rgba(251, 191, 36, 0.25);
+  --glass-border-subtle: rgba(245, 158, 11, 0.14);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* --- TEMA LIQUID TEAL (MINT GLASS) --- */
+[data-theme="teal"] {
+  --bg: #061a1e;
+  --bg-page: #031013;
+  --surface: rgba(10, 41, 48, 0.65);
+  --card: rgba(10, 41, 48, 0.70);
+  --border: rgba(6, 182, 212, 0.22);
+  --border-focus: #06b6d4;
+  --muted: #67e8f9;
+  --text: #ecfeff;
+  --text-muted: #67e8f9;
+  --primary: #06b6d4;
+  --primary-strong: #0891b2;
+  --primary-light: rgba(6, 182, 212, 0.18);
+  --glass-bg: rgba(6, 30, 36, 0.65);
+  --glass-bg-subtle: rgba(10, 41, 48, 0.45);
+  --glass-bg-card: rgba(12, 48, 56, 0.70);
+  --glass-bg-card-hover: rgba(16, 64, 75, 0.85);
+  --glass-border: rgba(103, 232, 249, 0.25);
+  --glass-border-subtle: rgba(6, 182, 212, 0.14);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 /* =========================================================

@@ -27,6 +27,7 @@ import {
   saveProfile,
   openAppearanceModal,
   closeAppearanceModal,
+  initAppearance,
   setTheme,
   setFontSize
 } from './modules/app-modal.js';
@@ -76,6 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupLoginListeners();
 
   // 2. Inicializar componentes y utilitarios
+  initAppearance();
   initAgendaSplitter();
   initBlockedDays();
   initAgendaPrint();

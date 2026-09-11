@@ -10,7 +10,7 @@
             "phone": "+5491123456789",
             "appearance": {
                 "theme": "light",
-                "fontSize": "normal",
+                "fontSize": "small",
                 "calendarView": "week"
             }
         }
