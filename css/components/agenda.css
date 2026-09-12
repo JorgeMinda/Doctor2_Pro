@@ -168,9 +168,119 @@
 }
 
 .day-cell .count {
+  font-size: 0.72rem;
+  color: var(--primary-strong);
+  font-weight: 600;
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  border-radius: 12px;
+  padding: 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  cursor: pointer;
+  width: fit-content;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.15);
+}
+
+.day-cell .count:hover {
+  background: var(--primary);
+  color: #ffffff;
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.35);
+}
+
+.day-cell .count i {
+  font-size: 0.68rem;
+}
+
+/* Indicador de turno pasado / horario transcurrido */
+.time-passed-tag {
+  font-size: 0.72rem;
+  color: #be123c;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffe4e6;
+  border: 1px solid #fecdd3;
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-left: 6px;
+}
+
+[data-theme="dark"] .time-passed-tag,
+[data-theme="blue"] .time-passed-tag,
+[data-theme="green"] .time-passed-tag,
+[data-theme="purple"] .time-passed-tag,
+[data-theme="rose"] .time-passed-tag,
+[data-theme="amber"] .time-passed-tag,
+[data-theme="teal"] .time-passed-tag {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fda4af;
+  border-color: rgba(244, 63, 94, 0.4);
+}
+
+/* Autocomplete Dropdown de Pacientes en modal de Turno */
+.patient-autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--primary);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 1100;
+  margin-top: 4px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.patient-autocomplete-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+.patient-autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.patient-autocomplete-item:hover,
+.patient-autocomplete-item.active-item {
+  background: var(--primary-light);
+  color: var(--primary-strong);
+}
+
+.patient-autocomplete-item .pat-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.patient-autocomplete-item .pat-meta {
   font-size: 0.75rem;
   color: var(--muted);
-  font-weight: 600;
+  margin-top: 2px;
+}
+
+.patient-autocomplete-item .pat-badge {
+  font-size: 0.72rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 6px;
 }
 
 /* Vista Semanal */

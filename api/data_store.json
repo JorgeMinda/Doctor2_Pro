@@ -11,7 +11,9 @@
             "appearance": {
                 "theme": "light",
                 "fontSize": "small",
-                "calendarView": "week"
+                "calendarView": "week",
+                "density": "compact",
+                "sidebar": "auto"
             }
         }
     ],
@@ -41,7 +43,36 @@
             "health_insurance": "OSDE 210",
             "affiliate_number": "884920192",
             "notes": "Paciente con antecedentes de hipertensión controlada.",
-            "allergies": "Penicilina"
+            "allergies": "Penicilina",
+            "budgets": [
+                {
+                    "id": "bdg_1789170702375",
+                    "number": "0001",
+                    "date": "2026-09-11",
+                    "expiryDate": "2026-09-26",
+                    "professionalId": "prof-378c0d79a7",
+                    "professionalName": "Dr. Juan Carlos Gómez",
+                    "patientId": "pat-101",
+                    "patientName": "María Rodríguez",
+                    "patientDni": "35123456",
+                    "patientPhone": "+5491155551234",
+                    "items": [
+                        {
+                            "pieza": "",
+                            "desc": "Consulta inicial y diagnóstico",
+                            "cant": 1,
+                            "precio": 5000
+                        }
+                    ],
+                    "subtotal": 5000,
+                    "discountPercent": 0,
+                    "discountAmount": 0,
+                    "total": 5000,
+                    "paymentMethod": "Efectivo \/ Transferencia",
+                    "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                    "status": "Pendiente"
+                }
+            ]
         }
     ],
     "appointments": [
@@ -59,6 +90,22 @@
             "status": "Confirmado",
             "cost": 15000,
             "observation": "Paciente puntual"
+        },
+        {
+            "id": "apt-9c082f40f0",
+            "patient_id": null,
+            "patient_name": "juan",
+            "patient_phone": "+593987077452",
+            "patient_email": "jls.minda@yavirac.edu.ec",
+            "professional_id": "prof-378c0d79a7",
+            "date": "2026-09-15",
+            "time": "08:00",
+            "duration": 30,
+            "reason": "",
+            "status": "Reservado",
+            "cost": 4,
+            "observation": "",
+            "created_at": "2026-09-11 23:56:00"
         }
     ],
     "inventory": [
@@ -70,7 +117,7 @@
             "stock": 18,
             "min_stock": 5,
             "unit": "cajas",
-            "cost_price": 4500,
+            "cost_price": 4500.03,
             "sale_price": 6000,
             "expiry_date": "2027-12-31",
             "location": "Gabinete 1 - Cajón 2"
@@ -108,8 +155,16 @@
             "title": "Bienvenido a Consultorios.pro",
             "message": "Sistema inicializado correctamente con todos los módulos activos.",
             "type": "info",
-            "is_read": 0,
+            "is_read": 1,
             "created_at": "2026-09-11 22:48"
+        },
+        {
+            "id": "notif-6aa495106860a",
+            "title": "Nuevo Turno Agendado",
+            "message": "juan · 2026-09-15 08:00 hs",
+            "type": "success",
+            "is_read": 0,
+            "created_at": "2026-09-11 23:56"
         }
     ],
     "inventory_movements": []

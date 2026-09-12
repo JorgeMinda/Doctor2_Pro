@@ -419,10 +419,11 @@
             <option value="90">1:30 hs</option>
           </select>
         </label>
-        <label class="field">
+        <div class="field" style="position:relative;">
           <span>Paciente</span>
-          <input type="text" id="formPatient" placeholder="Nombre completo">
-        </label>
+          <input type="text" id="formPatient" placeholder="Buscar paciente existente o escribir..." autocomplete="off">
+          <div id="patientAutocompleteDropdown" class="patient-autocomplete-dropdown hidden"></div>
+        </div>
         <label class="field">
           <span>Teléfono / WhatsApp</span>
           <input type="tel" id="formPhone" placeholder="Ej: +54911...">

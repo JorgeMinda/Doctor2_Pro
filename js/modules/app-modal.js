@@ -6,6 +6,7 @@ import { el, formatDate, apiFetch, showToast } from './app-utils.js';
 import { loadMonth } from './app-calendar.js';
 
 let editingAppointmentId = null;
+let autocompleteInitialized = false;
 
 export function openModal(opts = {}) {
   const modal = el('modal');
@@ -23,12 +24,17 @@ export function openModal(opts = {}) {
   const formEmail = el('formEmail');
   const formCost = el('formCost');
   const formObs = el('formObservation');
+  const modalTitle = el('modalTitle');
+
+  if (modalTitle) {
+    modalTitle.textContent = editingAppointmentId ? 'Editar / Detalle de Cita' : 'Nuevo Turno';
+  }
 
   if (opts.appointment) {
     const a = opts.appointment;
     if (formProf) formProf.value = a.professional_id;
     if (formDate) formDate.value = a.date;
-    loadSlots();
+    loadSlots(a.date);
     if (formTime) setTimeout(() => formTime.value = a.time, 50);
     if (formDuration) formDuration.value = String(a.duration || 30);
     if (formReason) formReason.value = a.reason || '';
@@ -38,17 +44,21 @@ export function openModal(opts = {}) {
     if (formCost) formCost.value = a.cost || '';
     if (formObs) formObs.value = a.observation || '';
   } else {
-    if (formDate) formDate.value = opts.date || formatDate(state.selectedDate);
+    const targetDate = opts.date || formatDate(state.selectedDate);
+    if (formDate) formDate.value = targetDate;
     if (opts.patientName && formPatient) formPatient.value = opts.patientName;
     if (opts.patientPhone && formPhone) formPhone.value = opts.patientPhone;
     if (opts.patientId && modal) modal.dataset.patientId = opts.patientId;
 
-    loadSlots();
+    loadSlots(targetDate);
     if (opts.time && formTime) setTimeout(() => formTime.value = opts.time, 50);
     if (formReason) formReason.value = '';
     if (formCost) formCost.value = '';
     if (formObs) formObs.value = '';
   }
+
+  // Inicializar autocompletado de pacientes
+  setupPatientAutocomplete();
 
   modal.classList.remove('hidden');
 }
@@ -56,9 +66,92 @@ export function openModal(opts = {}) {
 export function closeModal() {
   el('modal')?.classList.add('hidden');
   editingAppointmentId = null;
+  el('patientAutocompleteDropdown')?.classList.add('hidden');
 }
 
-export function loadSlots() {
+/**
+ * Autocompletado inteligente de pacientes en el formulario de turnos
+ */
+function setupPatientAutocomplete() {
+  const input = el('formPatient');
+  const dropdown = el('patientAutocompleteDropdown');
+  if (!input || !dropdown) return;
+
+  if (autocompleteInitialized) return;
+  autocompleteInitialized = true;
+
+  function renderDropdown(filterText = '') {
+    const q = filterText.toLowerCase().trim();
+    const matches = (state.patients || []).filter(p => {
+      if (!q) return true;
+      return (
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.dni && p.dni.toString().includes(q)) ||
+        (p.phone && p.phone.includes(q))
+      );
+    }).slice(0, 8);
+
+    if (matches.length === 0) {
+      dropdown.innerHTML = '<div class="patient-autocomplete-item" style="color:var(--muted); cursor:default;">No se encontraron pacientes existentes. Podés escribir uno nuevo.</div>';
+      dropdown.classList.remove('hidden');
+      return;
+    }
+
+    dropdown.innerHTML = matches.map(p => `
+      <div class="patient-autocomplete-item" data-id="${p.id}">
+        <div class="pat-info">
+          <div class="pat-name"><i class="fas fa-user-circle" style="color:var(--primary);"></i> ${p.name}</div>
+          <div class="pat-meta">
+            ${p.dni ? `<span>DNI: ${p.dni}</span>` : ''} 
+            ${p.phone ? `<span>· 📱 ${p.phone}</span>` : ''}
+            ${p.insurance ? `<span>· 🏥 ${p.insurance}</span>` : ''}
+          </div>
+        </div>
+        <span class="pat-badge">Seleccionar</span>
+      </div>
+    `).join('');
+
+    dropdown.querySelectorAll('.patient-autocomplete-item[data-id]').forEach(item => {
+      item.addEventListener('click', () => {
+        const patId = item.dataset.id;
+        const patient = state.patients.find(p => p.id === patId);
+        if (patient) {
+          selectPatient(patient);
+        }
+      });
+    });
+
+    dropdown.classList.remove('hidden');
+  }
+
+  function selectPatient(patient) {
+    input.value = patient.name;
+    const formPhone = el('formPhone');
+    const formEmail = el('formEmail');
+    const formProf = el('formProfessional');
+    const modal = el('modal');
+
+    if (formPhone && patient.phone) formPhone.value = patient.phone;
+    if (formEmail && patient.email) formEmail.value = patient.email;
+    if (formProf && patient.assignedProfessionalId) formProf.value = patient.assignedProfessionalId;
+    if (modal) modal.dataset.patientId = patient.id;
+
+    dropdown.classList.add('hidden');
+    showToast(`Paciente "${patient.name}" autocompletado`, 'info');
+  }
+
+  input.addEventListener('input', () => renderDropdown(input.value));
+  input.addEventListener('focus', () => renderDropdown(input.value));
+
+  // Cerrar al hacer clic afuera
+  document.addEventListener('click', (e) => {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
+}
+
+export function loadSlots(selectedDate = null) {
   const select = el('formTime');
   if (!select) return;
 
@@ -89,6 +182,20 @@ export async function saveAppointment() {
     return;
   }
 
+  // Validación de fecha y hora que ya transcurrió
+  const now = new Date();
+  const appointmentDateTime = new Date(`${date}T${time}:00`);
+
+  if (!editingAppointmentId && appointmentDateTime < now) {
+    const confirmPast = confirm(
+      `⚠️ Atención de Horario:\n\nLa fecha y hora seleccionadas (${date} a las ${time} hs) ya han transcurrido respecto al momento actual.\n\n¿Deseas registrar este turno como histórico / atención previa?`
+    );
+    if (!confirmPast) {
+      showToast('Operación cancelada. Por favor seleccioná un horario futuro.', 'warning');
+      return;
+    }
+  }
+
   const payload = {
     id: editingAppointmentId,
     professional_id: profId || state.professionals[0]?.id || 'prof-1',
@@ -110,7 +217,7 @@ export async function saveAppointment() {
       body: JSON.stringify(payload)
     });
 
-    showToast(editingAppointmentId ? 'Turno actualizado' : 'Turno agendado con éxito', 'success');
+    showToast(editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito', 'success');
     closeModal();
     loadMonth();
   } catch (err) {

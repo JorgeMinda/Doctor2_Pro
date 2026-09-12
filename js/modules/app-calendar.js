@@ -106,7 +106,11 @@ export function renderMonthView() {
 
     cell.innerHTML = `
       <div class="date">${day}</div>
-      <div class="count">${dayApts.length > 0 ? `${dayApts.length} turnos` : ''}</div>
+      ${dayApts.length > 0 ? `
+        <div class="count" title="Hacé clic para ver el detalle de los ${dayApts.length} turnos" onclick="event.stopPropagation(); window.viewDayAppointments('${dateStr}')">
+          <i class="fas fa-calendar-check"></i> ${dayApts.length} ${dayApts.length === 1 ? 'turno' : 'turnos'}
+        </div>
+      ` : ''}
     `;
 
     cell.addEventListener('click', () => {
@@ -211,23 +215,57 @@ export function renderDayTimeline() {
   const dayApts = state.appointments.filter(a => a.date === dateStr);
 
   if (dayApts.length === 0) {
-    timeline.innerHTML = '<div class="empty">Sin turnos agendados para este día.</div>';
+    timeline.innerHTML = '<div class="empty"><i class="fas fa-calendar-day" style="font-size:2rem; color:var(--muted); margin-bottom:8px; display:block;"></i>Sin turnos agendados para este día.</div>';
     return;
   }
 
-  timeline.innerHTML = dayApts.map(apt => `
-    <div class="slot" data-id="${apt.id}">
-      <div class="info">
-        <strong>${apt.time} · ${apt.patient_name}</strong>
-        <small>${apt.reason || 'Consulta general'} ${apt.patient_phone ? `· 📱 ${apt.patient_phone}` : ''}</small>
+  const now = new Date();
+
+  timeline.innerHTML = dayApts.map(apt => {
+    // Validar si la fecha/hora del turno ya pasó
+    const timeClean = apt.time && apt.time.length === 5 ? apt.time : '00:00';
+    const aptDateTime = new Date(`${apt.date}T${timeClean}:00`);
+    const isPast = aptDateTime < now;
+    const isNotDone = apt.status !== 'Atendido' && apt.status !== 'Cancelado';
+
+    return `
+      <div class="slot" data-id="${apt.id}" style="cursor:pointer;" onclick="window.editApt('${apt.id}')">
+        <div class="info">
+          <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
+            <strong>${apt.time} · ${apt.patient_name}</strong>
+            ${isPast && isNotDone ? `
+              <span class="time-passed-tag" title="El horario establecido (${apt.time} hs) ya ha transcurrido">
+                <i class="fas fa-clock-rotate-left"></i> Horario pasado
+              </span>
+            ` : ''}
+          </div>
+          <small>${apt.reason || 'Consulta general'} ${apt.patient_phone ? `· 📱 ${apt.patient_phone}` : ''} ${apt.cost ? `· 💵 $${parseFloat(apt.cost).toLocaleString('es-AR')}` : ''}</small>
+        </div>
+        <div class="actions" onclick="event.stopPropagation()">
+          <span class="badge ${apt.status}">${apt.status}</span>
+          <button class="ghost" onclick="window.editApt('${apt.id}')" title="Ver / Editar turno"><i class="fas fa-edit"></i></button>
+        </div>
       </div>
-      <div class="actions">
-        <span class="badge ${apt.status}">${apt.status}</span>
-        <button class="ghost" onclick="window.editApt('${apt.id}')" title="Editar turno"><i class="fas fa-edit"></i></button>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
+
+window.viewDayAppointments = (dateStr) => {
+  const parts = dateStr.split('-');
+  state.selectedDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  scheduleAgendaRender();
+
+  const dayApts = state.appointments.filter(a => a.date === dateStr);
+  if (dayApts.length === 1) {
+    // Si hay un único turno, abrir su modal con toda la información
+    openModal({ appointment: dayApts[0] });
+  } else if (dayApts.length > 1) {
+    // Si hay varios, hacer scroll suave al panel diario para ver el listado
+    const timelineCard = el('dayTimeline')?.closest('.card');
+    timelineCard?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    showToast(`Mostrando los ${dayApts.length} turnos del día`, 'info');
+  }
+};
 
 window.editApt = (id) => {
   const apt = state.appointments.find(a => a.id === id);
