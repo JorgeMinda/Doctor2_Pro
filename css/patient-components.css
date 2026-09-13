@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    PATIENT COMPONENTS - Master & Component Styles
    ========================================================= */
 
@@ -210,3 +210,435 @@
   gap: 8px;
   margin-top: 20px;
 }
+
+/* =========================================================
+   HISTORIA CLÍNICA ODONTOLÓGICA - 12 SECCIONES OFICIALES
+   ========================================================= */
+
+.hc-section-card {
+  background: var(--glass-bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hc-section-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.hc-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hc-section-header h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.hc-section-num {
+  background: var(--primary);
+  color: white;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
+}
+
+/* Toggle Chips Interactivos */
+.chips-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 8px 0 14px;
+}
+
+.chip-toggle {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.chip-toggle:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.chip-toggle.active {
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary-strong);
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.3);
+  font-weight: 600;
+}
+
+.chip-toggle.danger.active {
+  background: #ef4444;
+  border-color: #dc2626;
+  box-shadow: 0 3px 10px rgba(239, 68, 68, 0.35);
+}
+
+.chip-toggle.warning.active {
+  background: #f59e0b;
+  border-color: #d97706;
+  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);
+}
+
+/* Alerta de Bifosfonatos */
+.bifosfonatos-alert-box {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1.5px solid #ef4444;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #991b1b;
+}
+
+[data-theme="dark"] .bifosfonatos-alert-box,
+[data-theme="blue"] .bifosfonatos-alert-box,
+[data-theme="green"] .bifosfonatos-alert-box,
+[data-theme="purple"] .bifosfonatos-alert-box,
+[data-theme="rose"] .bifosfonatos-alert-box,
+[data-theme="amber"] .bifosfonatos-alert-box,
+[data-theme="teal"] .bifosfonatos-alert-box {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Examen Estomatognático - 12 Estructuras */
+.estomato-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.estomato-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.estomato-item:hover {
+  border-color: var(--primary);
+}
+
+.estomato-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.estomato-title {
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.estomato-switch {
+  display: flex;
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.estomato-switch-btn {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.15s ease;
+}
+
+.estomato-switch-btn.active.normal {
+  background: #10b981;
+  color: #fff;
+}
+
+.estomato-switch-btn.active.patologico {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* Signos Vitales & IMC */
+.vital-signs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.vital-input-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.vital-input-card span {
+  font-size: 0.75rem;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.vital-input-card input {
+  width: 100%;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-page);
+}
+
+.imc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+
+/* Matriz Higiene Bucal Simplificada (IHO-S) */
+.ihos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.ihos-table th {
+  background: var(--bg-page);
+  padding: 8px 6px;
+  border: 1px solid var(--border);
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.ihos-table td {
+  padding: 6px;
+  border: 1px solid var(--border);
+}
+
+.ihos-table select {
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
+  background: var(--surface);
+}
+
+/* Índices CPO - ceo */
+.cpo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.cpo-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.cpo-card-head {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--primary);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cpo-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 0.85rem;
+}
+
+.cpo-total-badge {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--primary-strong);
+  background: var(--primary-light);
+  padding: 2px 10px;
+  border-radius: 8px;
+}
+
+/* CIE-11 Diagnósticos */
+.cie11-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.cie11-row-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.cie11-input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.cie11-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--primary);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 1200;
+  margin-top: 4px;
+}
+
+.cie11-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cie11-item:hover {
+  background: var(--primary-light);
+  color: var(--primary-strong);
+}
+
+.cie11-code-badge {
+  font-weight: 700;
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+}
+
+.pre-def-btn-group {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pre-def-btn {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--bg-page);
+  border: none;
+  color: var(--muted);
+  transition: all 0.15s ease;
+}
+
+.pre-def-btn.active.pre {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.pre-def-btn.active.def {
+  background: #10b981;
+  color: #fff;
+}
+
+/* Sesiones de Evolución y Tratamiento */
+.session-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  border-left: 4px solid var(--primary);
+}
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.session-badge {
+  background: var(--primary-light);
+  color: var(--primary-strong);
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+.signature-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px dashed var(--primary);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--primary-strong);
+  background: var(--primary-light);
+}
+

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * patient-export.js - Generación de PDF y Envíos por WhatsApp / Email
  */
 import { getWhatsAppStatus, sendWhatsAppReport } from './whatsapp-manager.js';
@@ -134,36 +134,245 @@ export function createExportActions(patient, notes = [], plans = [], professiona
   }
   
   function generateHistoriaHTML() {
+    const hc = patient.clinicalHistory || {};
+    const antecedentes = hc.antecedentes || [];
+    const estomato = hc.estomatognatico || [];
+    const cie11 = hc.diagnosticosCIE11 || [];
+    const sv = hc.signosVitales || {};
+    const cpo = hc.cpo || {};
+    const ind = hc.indicadoresSalud || {};
+    const planes = hc.planes || {};
+    const presc = hc.prescripciones || {};
+
     return `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
-        <title>Historia Clínica - ${patient.name}</title>
+        <title>Historia Clínica Odontológica - ${patient.name}</title>
         <style>
-          body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
-          .header { border-bottom: 2px solid #6366f1; padding-bottom: 16px; margin-bottom: 20px; }
-          .note-card { border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 6px; padding: 12px; margin-bottom: 10px; font-size: 13px; }
+          @page { size: A4; margin: 12mm; }
+          body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; line-height: 1.4; font-size: 12px; margin: 0; padding: 12px; }
+          .hc-header { border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end; }
+          .hc-title { font-size: 18px; font-weight: 700; color: #1e3a8a; margin: 0; }
+          .hc-subtitle { font-size: 11px; color: #64748b; margin: 2px 0 0; }
+          .sec-box { border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px; overflow: hidden; page-break-inside: avoid; }
+          .sec-title { background: #f1f5f9; padding: 5px 10px; font-size: 11px; font-weight: 700; color: #1e40af; border-bottom: 1px solid #cbd5e1; text-transform: uppercase; }
+          .sec-body { padding: 8px 10px; }
+          .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+          .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+          .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+          .data-item label { font-size: 10px; color: #64748b; display: block; }
+          .data-item span { font-weight: 600; font-size: 12px; }
+          .chip { display: inline-block; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin: 2px; }
+          .alert-chip { background: #fee2e2; color: #991b1b; }
+          table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 4px; }
+          th, td { border: 1px solid #e2e8f0; padding: 4px 6px; text-align: left; }
+          th { background: #f8fafc; font-weight: 600; color: #475569; }
+          .badge-pre { background: #fef3c7; color: #92400e; padding: 2px 5px; border-radius: 3px; font-weight: 700; font-size: 9px; }
+          .badge-def { background: #dcfce7; color: #166534; padding: 2px 5px; border-radius: 3px; font-weight: 700; font-size: 9px; }
+          .sig-box { display: flex; justify-content: space-around; margin-top: 25px; page-break-inside: avoid; }
+          .sig-line { width: 200px; border-top: 1px solid #333; text-align: center; font-size: 11px; padding-top: 4px; }
         </style>
       </head>
       <body>
-        <div class="header">
-          <h1 style="color:#6366f1; margin:0; font-size:22px;">Historia Clínica y Evoluciones</h1>
-          <p style="color:#64748b; margin:4px 0 0; font-size:12px;">Paciente: <strong>${patient.name}</strong> | DNI: ${patient.dni || '-'} | Fecha: ${new Date().toLocaleDateString('es-AR')}</p>
+        <div class="hc-header">
+          <div>
+            <div class="hc-title">${clinicName} - HISTORIA CLÍNICA ODONTOLÓGICA</div>
+            <div class="hc-subtitle">Sistema Odontológico Integral · Cumplimiento CIE-11 OMS / MSP</div>
+          </div>
+          <div style="text-align:right; font-size:11px; color:#64748b;">
+            Emisión: ${new Date().toLocaleDateString('es-AR')}
+          </div>
         </div>
 
-        ${notes.length === 0 ? '<p style="color:#64748b;">Sin evoluciones registradas.</p>' : notes.map(n => `
-          <div class="note-card">
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-              <strong>📅 ${n.date || '-'}</strong>
-              ${n.pieza ? `<span style="background:#eef2ff; padding:2px 6px; border-radius:4px; font-size:11px;">Pieza ${n.pieza}</span>` : ''}
-            </div>
-            ${n.diagnosticoTipo ? `<div><strong>Diagnóstico:</strong> ${n.diagnosticoTipo}${n.diagnosticoTexto ? ' - ' + n.diagnosticoTexto : ''}</div>` : ''}
-            ${n.procedimiento ? `<div><strong>Procedimiento:</strong> <span style="color:#4f46e5;">${n.procedimiento}</span></div>` : ''}
-            ${n.observaciones ? `<div><strong>Observaciones:</strong> ${n.observaciones}</div>` : ''}
-            ${n.notaAdicional ? `<div><strong>Indicaciones:</strong> ${n.notaAdicional}</div>` : ''}
+        <!-- Sec 1: Filiación -->
+        <div class="sec-box">
+          <div class="sec-title">1. Datos de Filiación y Registro</div>
+          <div class="sec-body grid-4">
+            <div class="data-item"><label>Paciente:</label><span>${patient.name || '-'}</span></div>
+            <div class="data-item"><label>DNI / Documento:</label><span>${patient.dni || '-'}</span></div>
+            <div class="data-item"><label>Sexo / Edad:</label><span>${patient.sex || 'No espec.'} / ${patient.birthdate ? (new Date().getFullYear() - new Date(patient.birthdate).getFullYear()) + ' años' : '-'}</span></div>
+            <div class="data-item"><label>Teléfono:</label><span>${patient.phone || '-'}</span></div>
+            <div class="data-item"><label>Ocupación:</label><span>${patient.occupation || '-'}</span></div>
+            <div class="data-item"><label>Cobertura:</label><span>${patient.health_insurance || patient.insurance || 'Particular'}</span></div>
+            <div class="data-item"><label>Representante Legal:</label><span>${patient.representativeName ? `${patient.representativeName} (DNI ${patient.representativeDni || '-'})` : 'N/A'}</span></div>
+            <div class="data-item"><label>Contacto Emergencia:</label><span>${patient.emergencyPhone || '-'}</span></div>
           </div>
-        `).join('')}
+        </div>
+
+        <!-- Sec 2 y 3: Motivo y Enfermedad Actual -->
+        <div class="grid-2">
+          <div class="sec-box">
+            <div class="sec-title">2. Motivo de Consulta</div>
+            <div class="sec-body">${hc.motivoConsulta || patient.motivoConsulta || 'Consulta general odontológica.'}</div>
+          </div>
+          <div class="sec-box">
+            <div class="sec-title">3. Enfermedad Actual y Evolución</div>
+            <div class="sec-body">${hc.enfermedadActual || 'Paciente refiere inicio del cuadro sin complicaciones agudas.'}</div>
+          </div>
+        </div>
+
+        <!-- Sec 4: Antecedentes -->
+        <div class="sec-box">
+          <div class="sec-title">4. Antecedentes Personales y Familiares</div>
+          <div class="sec-body">
+            <div style="margin-bottom: 4px;">
+              ${antecedentes.length > 0 ? antecedentes.map(a => `<span class="chip">${a}</span>`).join('') : '<span style="color:#64748b;">Sin antecedentes patológicos declarados.</span>'}
+              ${hc.antecedentesOtros ? `<div style="margin-top:4px; font-size:11px;"><strong>Otros:</strong> ${hc.antecedentesOtros}</div>` : ''}
+            </div>
+            ${hc.bifosfonatos ? `<div style="margin-top:4px; color:#b91c1c; font-weight:600; font-size:11px;">⚠️ ALERTA: Paciente con tratamiento de Bifosfonatos / Medicación Antirreabsortiva (${hc.bifosfonatosDetalle || 'Precaución de osteonecrosis'})</div>` : ''}
+          </div>
+        </div>
+
+        <!-- Sec 5: Signos Vitales -->
+        <div class="sec-box">
+          <div class="sec-title">5. Signos Vitales y Somatometría</div>
+          <div class="sec-body grid-4">
+            <div class="data-item"><label>Presión Arterial (PA):</label><span>${sv.pa || '-'} mmHg</span></div>
+            <div class="data-item"><label>Frecuencia Cardíaca (FC):</label><span>${sv.fc || '-'} lpm</span></div>
+            <div class="data-item"><label>Frecuencia Respiratoria:</label><span>${sv.fr || '-'} rpm</span></div>
+            <div class="data-item"><label>Temperatura:</label><span>${sv.temp || '-'} °C</span></div>
+            <div class="data-item"><label>Peso:</label><span>${sv.peso || '-'} kg</span></div>
+            <div class="data-item"><label>Talla / Estatura:</label><span>${sv.talla || '-'} m</span></div>
+            <div class="data-item"><label>IMC Calculado:</label><span>${sv.imc || '-'}</span></div>
+            <div class="data-item"><label>Alergias:</label><span style="color:#dc2626;">${patient.allergies || 'Ninguna conocida'}</span></div>
+          </div>
+        </div>
+
+        <!-- Sec 6: Sistema Estomatognático -->
+        <div class="sec-box">
+          <div class="sec-title">6. Examen del Sistema Estomatognático</div>
+          <div class="sec-body">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:30%;">Región Anatómica</th>
+                  <th style="width:20%;">Estado</th>
+                  <th>Hallazgos / Descripción Clínica</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${estomato.length > 0 ? estomato.map(e => `
+                  <tr>
+                    <td><strong>${e.nombre}</strong></td>
+                    <td><span class="chip ${e.estado === 'patologico' ? 'alert-chip' : ''}">${e.estado === 'patologico' ? 'PATOLÓGICO' : 'SANO / NORMAL'}</span></td>
+                    <td>${e.notas || '-'}</td>
+                  </tr>
+                `).join('') : '<tr><td colspan="3" style="text-align:center; color:#64748b;">Todas las estructuras estomatognáticas evaluadas sin patología aparente.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sec 8: Indicadores de Salud Bucal & Índices CPO / ceo -->
+        <div class="sec-box">
+          <div class="sec-title">8. Indicadores de Salud Bucal e Índices CPO / ceo</div>
+          <div class="sec-body">
+            <div class="grid-4" style="margin-bottom:8px;">
+              <div class="data-item"><label>Higiene Bucal:</label><span>${ind.higiene || 'Aceptable'}</span></div>
+              <div class="data-item"><label>Placa Bacteriana:</label><span>${ind.placa || 'Leve'}</span></div>
+              <div class="data-item"><label>Cálculo / Sarro:</label><span>${ind.calculo || 'Ausente'}</span></div>
+              <div class="data-item"><label>Enfermedad Periodontal:</label><span>${ind.periodontitis || 'No'}</span></div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Índice CPO-D (Dientes Permanentes)</th>
+                  <th>Índice ceo-d (Dientes Temporales)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Cariados: <strong>${cpo.cpodC || '0'}</strong> | Perdidos: <strong>${cpo.cpodP || '0'}</strong> | Obturados: <strong>${cpo.cpodO || '0'}</strong> | <strong>Total CPO-D: ${cpo.cpodTotal || '0'}</strong></td>
+                  <td>Cariados: <strong>${cpo.ceodC || '0'}</strong> | Extracción: <strong>${cpo.ceodE || '0'}</strong> | Obturados: <strong>${cpo.ceodO || '0'}</strong> | <strong>Total ceo-d: ${cpo.ceodTotal || '0'}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sec 9: Diagnósticos CIE-11 OMS -->
+        <div class="sec-box">
+          <div class="sec-title">9. Diagnósticos Odontológicos (Codificación OMS CIE-11)</div>
+          <div class="sec-body">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:15%;">Código CIE-11</th>
+                  <th style="width:65%;">Diagnóstico Clínico / Descripción</th>
+                  <th style="width:20%;">Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${cie11.length > 0 ? cie11.map(d => `
+                  <tr>
+                    <td><strong style="color:#2563eb;">${d.code}</strong></td>
+                    <td>${d.title}</td>
+                    <td><span class="${d.tipo === 'DEF' ? 'badge-def' : 'badge-pre'}">${d.tipo === 'DEF' ? 'DEFINITIVO (DEF)' : 'PRESUNTIVO (PRE)'}</span></td>
+                  </tr>
+                `).join('') : '<tr><td colspan="3" style="text-align:center; color:#64748b;">Sin diagnósticos CIE-11 formalizados.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sec 10: Planes -->
+        <div class="sec-box">
+          <div class="sec-title">10. Planes de Diagnóstico, Terapéutico y Educacional</div>
+          <div class="sec-body grid-3">
+            <div class="data-item"><label>Plan Diagnóstico (Rx, Tomografía):</label><p style="margin:2px 0;">${planes.planesDiagnostico || 'Evaluación clínica de rutina y control radiográfico periapical.'}</p></div>
+            <div class="data-item"><label>Plan Terapéutico (Tratamientos):</label><p style="margin:2px 0;">${planes.planesTerapeutico || 'Restauraciones adhesivas y profilaxis dental.'}</p></div>
+            <div class="data-item"><label>Plan Educacional (Prevención):</label><p style="margin:2px 0;">${planes.planesEducacional || 'Instrucción de técnica de cepillado y uso de hilo dental.'}</p></div>
+          </div>
+        </div>
+
+        <!-- Sec 11: Evoluciones y Tratamientos -->
+        <div class="sec-box">
+          <div class="sec-title">11. Evolución del Tratamiento y Sesiones Clínicas</div>
+          <div class="sec-body">
+            ${notes.length === 0 ? '<p style="color:#64748b; margin:0;">Sin evoluciones registradas aún.</p>' : `
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:15%;">Fecha</th>
+                    <th style="width:10%;">Pieza</th>
+                    <th style="width:45%;">Procedimiento / Evolución</th>
+                    <th style="width:30%;">Firma / Profesional</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${notes.map(n => `
+                    <tr>
+                      <td><strong>${n.date || '-'}</strong></td>
+                      <td>${n.pieza ? 'Pza ' + n.pieza : '-'}</td>
+                      <td>
+                        <strong>${n.procedimiento || n.diagnosticoTipo || 'Sesión'}</strong>
+                        ${n.observaciones ? `<div style="color:#64748b; font-size:10px;">${n.observaciones}</div>` : ''}
+                      </td>
+                      <td>${prof ? prof.name : 'Dr. Asignado'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            `}
+          </div>
+        </div>
+
+        <!-- Sec 12: Prescripciones y Firmas -->
+        <div class="sec-box">
+          <div class="sec-title">12. Prescripciones Médicas y Firmas de Conformidad</div>
+          <div class="sec-body">
+            <div class="grid-2">
+              <div class="data-item"><label>Fármacos Recetados / Posología:</label><p style="margin:2px 0;">${presc.farmacos || 'Sin medicación prescrita actualmente.'}</p></div>
+              <div class="data-item"><label>Indicaciones Post-operatorias:</label><p style="margin:2px 0;">${presc.indicacionesGenerales || 'Dieta blanda y frío local según necesidad.'}</p></div>
+            </div>
+            <div class="sig-box">
+              <div class="sig-line">Firma del Odontólogo / Matrícula<br><small>${prof ? prof.name : 'Odontólogo'}</small></div>
+              <div class="sig-line">Firma del Paciente / Representante<br><small>Conformidad Informada</small></div>
+            </div>
+          </div>
+        </div>
       </body>
       </html>
     `;

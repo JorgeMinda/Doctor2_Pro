@@ -167,6 +167,16 @@ window.switchPatientTab = (tab) => {
             })
           });
           patient.treatmentPlans = newPlans;
+        },
+        async (hcData) => {
+          await apiFetch(api.patients, {
+            method: 'PATCH',
+            body: JSON.stringify({
+              id: patient.id,
+              clinicalHistory: hcData
+            })
+          });
+          patient.clinicalHistory = hcData;
         }
       );
       content.appendChild(hcNode);
