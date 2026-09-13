@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="css/components/inventory.css">
   <link rel="stylesheet" href="css/components/chat.css">
   <link rel="stylesheet" href="css/components/analytics.css">
+  <link rel="stylesheet" href="css/components/login.css">
   <link rel="stylesheet" href="css/components/print.css">
 </head>
 <body>
@@ -26,28 +27,175 @@
   <div id="printPlanSheet"></div>
 
   <div id="app">
-    <!-- Pantalla de Login -->
-    <div id="loginBox" class="modal hidden" style="background: var(--bg-page);">
-      <div class="modal-body" style="max-width: 420px; text-align: center;">
-        <div class="avatar" style="margin: 0 auto 16px; width: 56px; height: 56px; font-size: 1.5rem;">
-          <i class="fas fa-user-md"></i>
-        </div>
-        <h2 style="margin-bottom: 6px;">Consultorios.pro</h2>
-        <p class="muted" style="margin-bottom: 24px;">Ingresá al panel de gestión médica y turnos</p>
+    <!-- Pantalla de Login Dinámico e Interactivo -->
+    <div id="loginBox" class="login-modal-overlay hidden">
+      <div class="login-split-card state-idle" id="loginSplitCard">
+        
+        <!-- Columna Izquierda: Formulario de Autenticación -->
+        <div class="login-form-side">
+          <div>
+            <div class="login-brand-head">
+              <div class="login-brand-logo">
+                <i class="fas fa-tooth"></i>
+              </div>
+              <div class="login-brand-title">
+                <h2>Doctor2_Pro</h2>
+                <p>Consultorios Odontológicos & Gestión Médica</p>
+              </div>
+            </div>
 
-        <div class="field" style="text-align: left;">
-          <span>Usuario</span>
-          <input id="loginUser" type="text" placeholder="admin" value="admin" autocomplete="username">
-        </div>
-        <div class="field" style="text-align: left;">
-          <span>Contraseña</span>
-          <input id="loginPass" type="password" placeholder="••••••" value="admin123" autocomplete="current-password">
+            <div class="login-fields-wrap">
+              <div class="login-input-group">
+                <label for="loginUser">Usuario o Correo Profesional</label>
+                <div class="login-input-wrapper">
+                  <i class="fas fa-user-md login-input-icon"></i>
+                  <input id="loginUser" type="text" class="login-input-field" placeholder="admin" value="admin" autocomplete="username" required>
+                </div>
+              </div>
+
+              <div class="login-input-group">
+                <label for="loginPass">Contraseña de Acceso</label>
+                <div class="login-input-wrapper">
+                  <i class="fas fa-key login-input-icon"></i>
+                  <input id="loginPass" type="password" class="login-input-field" placeholder="••••••••" value="admin123" autocomplete="current-password" required>
+                  <button type="button" class="login-toggle-pass-btn" id="toggleLoginPassBtn" title="Mostrar/Ocultar contraseña">
+                    <i class="fas fa-eye" id="toggleLoginPassIcon"></i>
+                  </button>
+                </div>
+              </div>
+
+              <button id="loginBtn" class="login-submit-btn">
+                <i class="fas fa-arrow-right-to-bracket"></i> Iniciar Sesión
+              </button>
+
+              <div id="loginMsg" class="login-msg-box"></div>
+            </div>
+          </div>
+
+          <div class="login-footer-info">
+            <span>Doctor2_Pro Enterprise Edition · Sistema Clínico Integral</span>
+          </div>
         </div>
 
-        <button id="loginBtn" class="primary" style="width: 100%; justify-content: center; margin-top: 12px; padding: 12px;">
-          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-        </button>
-        <div id="loginMsg" style="color: var(--danger); font-size: 0.85rem; margin-top: 10px;"></div>
+        <!-- Columna Derecha: Escenario Ilustrativo Dinámico -->
+        <div class="login-visual-side">
+          <div class="mascot-ambient-aura"></div>
+          <div class="mascot-stage">
+            <svg class="dental-mascot-svg" viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="toothGrad" x1="20" y1="20" x2="180" y2="200" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#ffffff"/>
+                  <stop offset="0.75" stop-color="#f8fafc"/>
+                  <stop offset="1" stop-color="#e2e8f0"/>
+                </linearGradient>
+                <linearGradient id="glossGrad" x1="40" y1="30" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#ffffff" stop-opacity="0.8"/>
+                  <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+                <filter id="toothShadow" x="-10%" y="-10%" width="120%" height="130%">
+                  <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#6366f1" flood-opacity="0.12"/>
+                </filter>
+              </defs>
+
+              <!-- CUERPO DEL DIENTE -->
+              <g class="mascot-body" filter="url(#toothShadow)">
+                <!-- Corona y Raíces -->
+                <path d="M 50 35 C 25 45, 20 85, 30 130 C 35 155, 45 195, 65 198 C 80 200, 85 165, 100 165 C 115 165, 120 200, 135 198 C 155 195, 165 155, 170 130 C 180 85, 175 45, 150 35 C 130 25, 115 38, 100 38 C 85 38, 70 25, 50 35 Z" fill="url(#toothGrad)" stroke="#cbd5e1" stroke-width="3"/>
+                <!-- Brillo de esmalte -->
+                <path d="M 52 45 C 38 55, 34 85, 40 115 C 44 95, 55 60, 75 50 C 65 46, 58 45, 52 45 Z" fill="url(#glossGrad)"/>
+                <circle cx="145" cy="55" r="4" fill="#ffffff" opacity="0.9"/>
+                <circle cx="155" cy="65" r="2.5" fill="#ffffff" opacity="0.7"/>
+
+                <!-- MEJILLAS ROSADAS -->
+                <ellipse cx="52" cy="120" rx="9" ry="5.5" fill="#fda4af" opacity="0.6"/>
+                <ellipse cx="148" cy="120" rx="9" ry="5.5" fill="#fda4af" opacity="0.6"/>
+
+                <!-- OJOS -->
+                <!-- Ojo Izquierdo -->
+                <g class="mascot-eye-left">
+                  <ellipse cx="72" cy="95" rx="14" ry="17" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+                  <g id="mascotPupilLeft" class="mascot-pupil">
+                    <circle cx="72" cy="96" r="8" fill="#1e293b"/>
+                    <circle cx="69.5" cy="93" r="2.8" fill="#ffffff"/>
+                    <circle cx="74" cy="98" r="1.2" fill="#ffffff"/>
+                  </g>
+                  <!-- Pestaña cerrada (Success) -->
+                  <path d="M 60 96 Q 72 84 84 96" stroke="#1e293b" stroke-width="3.2" stroke-linecap="round" fill="none" class="mascot-eyelid"/>
+                </g>
+
+                <!-- Ojo Derecho -->
+                <g class="mascot-eye-right">
+                  <ellipse cx="128" cy="95" rx="14" ry="17" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+                  <g id="mascotPupilRight" class="mascot-pupil">
+                    <circle cx="128" cy="96" r="8" fill="#1e293b"/>
+                    <circle cx="125.5" cy="93" r="2.8" fill="#ffffff"/>
+                    <circle cx="130" cy="98" r="1.2" fill="#ffffff"/>
+                  </g>
+                  <!-- Pestaña cerrada (Success) -->
+                  <path d="M 116 96 Q 128 84 140 96" stroke="#1e293b" stroke-width="3.2" stroke-linecap="round" fill="none" class="mascot-eyelid"/>
+                </g>
+
+                <!-- BOCAS MULTI-ESTADO -->
+                <!-- 1. Boca Idle (Sonrisa suave) -->
+                <g class="mouth-idle">
+                  <path d="M 82 128 Q 100 144 118 128" stroke="#334155" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                  <path d="M 88 129 Q 100 136 112 129" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+                </g>
+
+                <!-- 2. Boca Focus (Abierta y simpática) -->
+                <g class="mouth-focus" style="display:none;">
+                  <path d="M 80 126 C 80 148, 120 148, 120 126 Z" fill="#e11d48"/>
+                  <path d="M 83 126 Q 100 134 117 126 Z" fill="#ffffff"/>
+                  <ellipse cx="100" cy="140" rx="9" ry="4.5" fill="#fb7185"/>
+                  <path d="M 80 126 Q 100 130 120 126" stroke="#1e293b" stroke-width="2.5" fill="none"/>
+                </g>
+
+                <!-- 3. Boca Password (Ocultando/discreto) -->
+                <g class="mouth-password" style="display:none;">
+                  <ellipse cx="100" cy="132" rx="7" ry="8" fill="#334155"/>
+                  <ellipse cx="100" cy="130" rx="5" ry="3" fill="#ffffff"/>
+                </g>
+
+                <!-- 4. Boca Success (Radiante y brillante) -->
+                <g class="mouth-success" style="display:none;">
+                  <path d="M 72 122 Q 100 165 128 122 Z" fill="#be123c"/>
+                  <path d="M 76 122 Q 100 138 124 122 Z" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+                  <ellipse cx="100" cy="148" rx="12" ry="6.5" fill="#fb7185"/>
+                  <path d="M 72 122 Q 100 126 128 122" stroke="#1e293b" stroke-width="3" stroke-linecap="round" fill="none"/>
+                </g>
+
+                <!-- 5. Boca Error (Wavy nerviosa) -->
+                <g class="mouth-error" style="display:none;">
+                  <path d="M 82 134 Q 91 127 100 134 T 118 134" stroke="#e11d48" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                </g>
+
+                <!-- MANOS QUE SE ELEVAN AL ESCRIBIR CONTRASEÑA -->
+                <g class="mascot-hands">
+                  <!-- Mano izquierda -->
+                  <g>
+                    <ellipse cx="70" cy="95" rx="19" ry="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2.5"/>
+                    <circle cx="70" cy="95" r="7" fill="#e0e7ff"/>
+                  </g>
+                  <!-- Mano derecha -->
+                  <g>
+                    <ellipse cx="130" cy="95" rx="19" ry="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2.5"/>
+                    <circle cx="130" cy="95" r="7" fill="#e0e7ff"/>
+                  </g>
+                </g>
+
+                <!-- DESTELLOS DE ÉXITO -->
+                <path class="mascot-sparkle" d="M 160 30 Q 160 45 145 45 Q 160 45 160 60 Q 160 45 175 45 Q 160 45 160 30 Z" fill="#facc15"/>
+                <path class="mascot-sparkle" d="M 35 75 Q 35 85 25 85 Q 35 85 35 95 Q 35 85 45 85 Q 35 85 35 75 Z" fill="#38bdf8"/>
+              </g>
+            </svg>
+          </div>
+
+          <div class="mascot-badge-status" id="mascotBadgeStatus">
+            <i class="fas fa-shield-halved"></i>
+            <span id="mascotStatusText">Acceso Seguro</span>
+          </div>
+        </div>
+
       </div>
     </div>
 

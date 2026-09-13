@@ -1,0 +1,504 @@
+/* =========================================================
+   LOGIN DINÁMICO E INTERACTIVO ODONTOLÓGICO - Doctor2_Pro
+   ========================================================= */
+
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15), transparent 40%),
+              radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.12), transparent 40%),
+              var(--bg-page);
+  backdrop-filter: blur(12px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.login-split-card {
+  display: flex;
+  background: var(--glass-bg-card, rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(32px);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
+  border-radius: 28px;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(99, 102, 241, 0.08);
+  width: 100%;
+  max-width: 880px;
+  min-height: 520px;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+}
+
+[data-theme="dark"] .login-split-card {
+  background: rgba(30, 41, 59, 0.82);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
+}
+
+/* Columna Izquierda: Formulario */
+.login-form-side {
+  flex: 1.1;
+  padding: 44px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+}
+
+.login-brand-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.login-brand-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), #8b5cf6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+.login-brand-title h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.login-brand-title p {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 2px 0 0;
+}
+
+.login-fields-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-input-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.login-input-group label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+}
+
+.login-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-input-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.login-input-field {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-page);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-input-field:focus {
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+.login-input-group:focus-within .login-input-icon {
+  color: var(--primary);
+}
+
+.login-toggle-pass-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 6px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.login-toggle-pass-btn:hover {
+  color: var(--primary);
+}
+
+.login-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+  color: #ffffff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
+
+.login-submit-btn:active {
+  transform: translateY(0);
+}
+
+.login-msg-box {
+  min-height: 22px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.login-msg-box.error {
+  color: var(--danger);
+  animation: loginShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.login-msg-box.success {
+  color: var(--success);
+}
+
+.login-footer-info {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.76rem;
+  color: var(--muted);
+}
+
+/* Columna Derecha: Escenario Ilustrativo Dinámico */
+.login-visual-side {
+  flex: 0.9;
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.08), rgba(16, 185, 129, 0.08));
+  border-left: 1px solid var(--border);
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .login-visual-side {
+  background: linear-gradient(145deg, rgba(99, 102, 241, 0.12), rgba(16, 185, 129, 0.05));
+  border-left-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Aura resplandeciente detrás del personaje */
+.mascot-ambient-aura {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(16, 185, 129, 0.15) 50%, transparent 70%);
+  filter: blur(28px);
+  animation: auraPulse 4s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+.mascot-stage {
+  position: relative;
+  z-index: 2;
+  width: 230px;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Personaje Diente SVG */
+.dental-mascot-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.08));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Animaciones de partes del personaje */
+.mascot-body {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center bottom;
+}
+
+/* Ojos y Pupilas */
+.mascot-pupil {
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mascot-eyelid {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+/* Manos / Espejo Odontológico */
+.mascot-hands {
+  transform: translateY(60px);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  transform-origin: center bottom;
+}
+
+/* Brillo / Destellos */
+.mascot-sparkle {
+  opacity: 0;
+  transform: scale(0);
+  transform-origin: center;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mascot-badge-status {
+  margin-top: 18px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  transition: all 0.3s ease;
+}
+
+/* =========================================================
+   ESTADOS DE LA MÁQUINA DE ESTADOS (IDLE, FOCUS, PASSWORD, SUCCESS, ERROR)
+   ========================================================= */
+
+/* 1. ESTADO IDLE */
+.login-split-card.state-idle .mascot-body {
+  animation: mascotBreath 3.5s ease-in-out infinite alternate;
+}
+
+/* 2. ESTADO FOCUS USER */
+.login-split-card.state-focus-user .dental-mascot-svg {
+  transform: scale(1.03) rotate(-1.5deg);
+}
+
+.login-split-card.state-focus-user .mouth-idle {
+  display: none;
+}
+
+.login-split-card.state-focus-user .mouth-focus {
+  display: block;
+}
+
+/* 3. ESTADO FOCUS PASSWORD (Protección de contraseña) */
+.login-split-card.state-focus-password .mascot-hands {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.login-split-card.state-focus-password .mascot-pupil {
+  transform: translateY(-8px);
+}
+
+.login-split-card.state-focus-password .mouth-idle {
+  display: none;
+}
+
+.login-split-card.state-focus-password .mouth-password {
+  display: block;
+}
+
+.login-split-card.state-focus-password .mascot-badge-status {
+  color: #8b5cf6;
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+/* 4. ESTADO VALIDATING */
+.login-split-card.state-validating .dental-mascot-svg {
+  animation: mascotValidate 0.8s ease-in-out infinite alternate;
+}
+
+.login-split-card.state-validating .mascot-ambient-aura {
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(59, 130, 246, 0.2) 50%, transparent 70%);
+}
+
+/* 5. ESTADO SUCCESS */
+.login-split-card.state-success {
+  box-shadow: 0 25px 70px -10px rgba(16, 185, 129, 0.35);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.login-split-card.state-success .dental-mascot-svg {
+  transform: scale(1.08);
+}
+
+.login-split-card.state-success .mascot-ambient-aura {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.5) 0%, rgba(99, 102, 241, 0.3) 50%, transparent 70%);
+}
+
+.login-split-card.state-success .mouth-idle,
+.login-split-card.state-success .mouth-focus,
+.login-split-card.state-success .mouth-password {
+  display: none;
+}
+
+.login-split-card.state-success .mouth-success {
+  display: block;
+}
+
+.login-split-card.state-success .mascot-sparkle {
+  opacity: 1;
+  transform: scale(1);
+  animation: sparkleTwinkle 1s ease-in-out infinite alternate;
+}
+
+.login-split-card.state-success .mascot-eyelid {
+  opacity: 1;
+}
+
+.login-split-card.state-success .mascot-badge-status {
+  background: #10b981;
+  color: #fff;
+  border-color: #10b981;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+/* 6. ESTADO ERROR */
+.login-split-card.state-error {
+  animation: loginCardShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.login-split-card.state-error .mascot-ambient-aura {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.35) 0%, transparent 70%);
+}
+
+.login-split-card.state-error .mouth-idle,
+.login-split-card.state-error .mouth-focus,
+.login-split-card.state-error .mouth-password,
+.login-split-card.state-error .mouth-success {
+  display: none;
+}
+
+.login-split-card.state-error .mouth-error {
+  display: block;
+}
+
+.login-split-card.state-error .mascot-badge-status {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* =========================================================
+   KEYFRAMES DE ANIMACIÓN
+   ========================================================= */
+
+@keyframes mascotBreath {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-4px) scale(1.01); }
+}
+
+@keyframes auraPulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.15); opacity: 1; }
+}
+
+@keyframes mascotValidate {
+  0% { transform: rotate(-2deg); }
+  100% { transform: rotate(2deg); }
+}
+
+@keyframes sparkleTwinkle {
+  0% { transform: scale(0.8) rotate(0deg); opacity: 0.7; }
+  100% { transform: scale(1.2) rotate(45deg); opacity: 1; }
+}
+
+@keyframes loginShake {
+  10%, 90% { transform: translateX(-3px); }
+  20%, 80% { transform: translateX(3px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+
+@keyframes loginCardShake {
+  10%, 90% { transform: translateX(-6px); }
+  20%, 80% { transform: translateX(6px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+
+/* Responsive Móvil */
+@media (max-width: 768px) {
+  .login-split-card {
+    flex-direction: column-reverse;
+    max-width: 420px;
+    min-height: auto;
+  }
+  
+  .login-form-side {
+    padding: 28px 24px;
+  }
+  
+  .login-visual-side {
+    border-left: none;
+    border-bottom: 1px solid var(--border);
+    padding: 24px 20px;
+  }
+  
+  .mascot-stage {
+    width: 170px;
+    height: 180px;
+  }
+}

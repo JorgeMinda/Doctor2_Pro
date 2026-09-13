@@ -2,6 +2,7 @@
    ESTILOS GENERALES Y LAYOUT BASE - Doctor2 / Consultorios.pro
    ========================================================= */
 @import url('./patient-components.css');
+@import url('./components/login.css');
 
 :root {
   --bg: #f8fafc;
