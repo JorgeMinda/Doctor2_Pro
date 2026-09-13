@@ -1,4 +1,4 @@
-﻿/**
+/**
  * whatsapp-manager.js - Gestor de Conexión de WhatsApp y Envío de Reportes / Recordatorios
  * Soporta conexión por código QR (Baileys/WppConnect), Meta Cloud API oficial y Twilio.
  */
@@ -173,6 +173,17 @@ export function createWhatsAppManager(onStatusChange) {
 }
 
 // Global WhatsApp Report Sender Helper
+export async function getWhatsAppStatus() {
+  try {
+    const res = await fetch(`${WA_SERVICE}/api/whatsapp/status`);
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+  } catch (e) {}
+  return { status: 'disconnected' };
+}
+
 export async function sendWhatsAppReport(phone, patientName, customMessage = '', reportType = 'presupuesto') {
   let cleanPhone = (phone || '').replace(/\D/g, '');
   if (!cleanPhone) {

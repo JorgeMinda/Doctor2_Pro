@@ -368,7 +368,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
     </div>
   `;
 
-  setupInteractiveHandlers(container, patient, notes, onSaveNote);
+  setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit);
 
   return container;
 }
@@ -500,7 +500,7 @@ function calculateCPOFromNotes(notes = []) {
   return { c, p, o, totalCPO: c + p + o, c_min: 0, e_min: 0, o_min: 0, totalCeo: 0 };
 }
 
-function setupInteractiveHandlers(container, patient, notes, onSaveNote) {
+function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit = true) {
   // 1. Chips de Motivo de Consulta
   container.querySelectorAll('#motivoChips .chip-toggle').forEach(chip => {
     chip.addEventListener('click', () => {
