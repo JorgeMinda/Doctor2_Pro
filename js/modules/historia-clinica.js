@@ -587,12 +587,18 @@ function renderEstomatognaticoItems(est = {}) {
 
     return `
       <div class="estomato-item" data-key="${item.key}">
-        <span class="estomato-label">${item.label}</span>
-        <div class="estomato-switch-group">
-          <button type="button" class="estomato-switch-btn sano ${!isPat ? 'active' : ''}" data-val="normal">Sano</button>
-          <button type="button" class="estomato-switch-btn patologico ${isPat ? 'active' : ''}" data-val="patologico">Patológico</button>
+        <div class="estomato-item-head">
+          <span class="estomato-label">${item.label}</span>
+          <div class="estomato-switch-group">
+            <button type="button" class="estomato-switch-btn sano ${!isPat ? 'active' : ''}" data-val="normal">
+              <i class="fas fa-check"></i> Sano
+            </button>
+            <button type="button" class="estomato-switch-btn patologico ${isPat ? 'active' : ''}" data-val="patologico">
+              <i class="fas fa-triangle-exclamation"></i> Patológico
+            </button>
+          </div>
         </div>
-        <input type="text" class="field-input estomato-obs" placeholder="Describa la lesión o anomalía..." value="${val.obs || ''}" style="width:100%; margin-top:8px; display:${isPat ? 'block' : 'none'}; font-size:0.85rem;">
+        <input type="text" class="field-input estomato-obs" placeholder="Describa la lesión o alteración patológica..." value="${val.obs || ''}" style="width:100%; margin-top:8px; display:${isPat ? 'block' : 'none'}; font-size:0.85rem; border-color:#fca5a5;">
       </div>
     `;
   }).join('');

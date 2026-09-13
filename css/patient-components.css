@@ -349,53 +349,71 @@
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: all 0.2s;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .estomato-item:hover {
-  border-color: var(--primary);
+  border-color: rgba(99, 102, 241, 0.4);
 }
 
 .estomato-item-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
+.estomato-label,
 .estomato-title {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.88rem;
+  color: var(--text);
 }
 
-.estomato-switch {
-  display: flex;
+.estomato-switch,
+.estomato-switch-group {
+  display: inline-flex;
   background: var(--bg-page);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 2px;
+  border-radius: 20px;
+  padding: 3px;
+  gap: 3px;
 }
 
 .estomato-switch-btn {
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.78rem;
+  font-weight: 700;
   cursor: pointer;
   border: none;
   background: transparent;
   color: var(--muted);
-  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.estomato-switch-btn:hover {
+  color: var(--text);
+}
+
+.estomato-switch-btn.sano.active,
+.estomato-switch-btn.normal.active,
+.estomato-switch-btn.active.sano,
 .estomato-switch-btn.active.normal {
-  background: #10b981;
-  color: #fff;
+  background: #10b981 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
 }
 
+.estomato-switch-btn.patologico.active,
 .estomato-switch-btn.active.patologico {
-  background: #ef4444;
-  color: #fff;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
 }
 
 /* Signos Vitales & IMC */
