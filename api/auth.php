@@ -13,6 +13,7 @@ if ($method === 'POST' && $action === 'login') {
     $user = $db->findOneBy('users', 'username', $username);
 
     if ($user && password_verify($password, $user['password'])) {
+        $db->logAudit('AUTH', $user['id'], 'LOGIN', null, ['username' => $username, 'status' => 'SUCCESS'], $user['id']);
         unset($user['password']);
         echo json_encode([
             'success' => true,
@@ -20,6 +21,7 @@ if ($method === 'POST' && $action === 'login') {
             'token' => base64_encode($user['id'] . ':' . time())
         ]);
     } else {
+        $db->logAudit('AUTH', $username ?: 'unknown', 'LOGIN', null, ['username' => $username, 'status' => 'FAILED_BAD_CREDENTIALS']);
         http_response_code(401);
         echo json_encode(['success' => false, 'error' => 'Usuario o contraseña incorrectos']);
     }
@@ -62,7 +64,10 @@ if ($method === 'PATCH' && $action === 'profile') {
         'appearance' => $appearance
     ];
 
+    $oldProfile = ['email' => $user['email'], 'phone' => $user['phone'], 'appearance' => $user['appearance'] ?? []];
     $db->update('users', $user['id'], $updates);
+    $db->logAudit('AUTH_PROFILE', $user['id'], 'UPDATE', $oldProfile, $updates, $user['id']);
+
     echo json_encode(['success' => true, 'appearance' => $appearance]);
     exit;
 }

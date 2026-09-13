@@ -1,4 +1,4 @@
-﻿# Dependencias & Node
+# Dependencias & Node
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -30,3 +30,5 @@ desktop.ini
 # Bases de datos SQLite locales si se generan dinámicamente
 *.sqlite-journal
 *.db-journal
+*.lock
+*.tmp

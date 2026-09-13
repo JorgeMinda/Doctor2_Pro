@@ -57,11 +57,13 @@ if ($method === 'POST') {
         'reason' => trim($input['reason'] ?? ''),
         'status' => $input['status'] ?? 'Reservado',
         'cost' => (float)($input['cost'] ?? 0),
+        'payments' => $input['payments'] ?? [],
         'observation' => trim($input['observation'] ?? ''),
         'created_at' => date('Y-m-d H:i:s')
     ];
 
     $db->insert('appointments', $newApt);
+    $db->logAudit('APPOINTMENT', $id, 'CREATE', null, $newApt);
 
     // Notificación interna
     $db->insert('notifications', [
@@ -87,14 +89,59 @@ if ($method === 'PATCH' || $method === 'PUT') {
         exit;
     }
 
+    $oldApt = $db->findById('appointments', $id);
+    if (!$oldApt) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'error' => 'Turno no encontrado']);
+        exit;
+    }
+
+    // Check if new payments were added
+    if (isset($input['payments']) && is_array($input['payments'])) {
+        $oldPayments = $oldApt['payments'] ?? [];
+        $newPayments = $input['payments'];
+
+        // If new payments count is greater, process treasury ledger entries for new payments
+        if (count($newPayments) > count($oldPayments)) {
+            $addedCount = count($newPayments) - count($oldPayments);
+            $recentPayments = array_slice($newPayments, -$addedCount);
+
+            foreach ($recentPayments as $p) {
+                $pAmount = (float)($p['amount'] ?? 0);
+                if ($pAmount > 0) {
+                    $pMethod = $p['method'] ?? 'Efectivo';
+                    $accountId = $db->resolveAccountIdByMethod($pMethod);
+                    $concept = "Cobro Turno #" . substr($id, -6) . " - " . ($oldApt['patient_name'] ?? 'Paciente') . " ($pMethod)";
+                    $db->recordTreasuryMovement(
+                        $accountId,
+                        $pAmount,
+                        'INCOME',
+                        $concept,
+                        $id,
+                        $oldApt['patient_id'] ?? null,
+                        ['paymentMethod' => $pMethod, 'note' => $p['note'] ?? '']
+                    );
+                }
+            }
+        }
+    }
+
     $updated = $db->update('appointments', $id, $input);
+    $db->logAudit('APPOINTMENT', $id, 'UPDATE', $oldApt, $input);
+
     echo json_encode(['success' => true, 'appointment' => $updated]);
     exit;
 }
 
 if ($method === 'DELETE') {
     $id = $_GET['id'] ?? '';
-    if ($id) $db->delete('appointments', $id);
+    if ($id) {
+        $oldApt = $db->findById('appointments', $id);
+        $db->delete('appointments', $id);
+        if ($oldApt) {
+            $db->logAudit('APPOINTMENT', $id, 'DELETE', $oldApt, null);
+        }
+    }
     echo json_encode(['success' => true]);
     exit;
 }

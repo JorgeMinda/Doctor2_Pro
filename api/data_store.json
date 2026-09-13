@@ -166,5 +166,83 @@
         }
     ],
     "notifications": [],
-    "inventory_movements": []
+    "inventory_movements": [],
+    "treasury_accounts": [
+        {
+            "id": "acc_cash_1",
+            "name": "Caja General (Efectivo)",
+            "type": "ASSET",
+            "balance": 15000,
+            "currency": "ARS"
+        },
+        {
+            "id": "acc_bank_1",
+            "name": "Banco Galicia (CBU \/ Transferencias)",
+            "type": "ASSET",
+            "balance": 0,
+            "currency": "ARS"
+        },
+        {
+            "id": "acc_mp_1",
+            "name": "Mercado Pago (QR \/ Cobros Digitales)",
+            "type": "ASSET",
+            "balance": 0,
+            "currency": "ARS"
+        },
+        {
+            "id": "acc_pos_1",
+            "name": "Terminal Tarjetas (Débito y Crédito)",
+            "type": "ASSET",
+            "balance": 0,
+            "currency": "ARS"
+        }
+    ],
+    "treasury_movements": [
+        {
+            "id": "mov_f43e095741fc95f2",
+            "timestamp": "2026-09-13T16:30:34+00:00",
+            "accountId": "acc_cash_1",
+            "accountName": "Caja General (Efectivo)",
+            "amount": 15000,
+            "type": "INCOME",
+            "concept": "Cobro Test Turno",
+            "referenceId": "apt-test-1",
+            "patientId": "pat-101",
+            "balanceAfter": 15000,
+            "meta": []
+        }
+    ],
+    "audit_logs": [
+        {
+            "id": "aud_8bf751a8d8c1db42",
+            "timestamp": "2026-09-13T16:30:34+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "127.0.0.1",
+            "entity": "TREASURY",
+            "entityId": "mov_f43e095741fc95f2",
+            "action": "PAYMENT",
+            "diff": {
+                "old": null,
+                "new": {
+                    "id": "mov_f43e095741fc95f2",
+                    "timestamp": "2026-09-13T16:30:34+00:00",
+                    "accountId": "acc_cash_1",
+                    "accountName": "Caja General (Efectivo)",
+                    "amount": 15000,
+                    "type": "INCOME",
+                    "concept": "Cobro Test Turno",
+                    "referenceId": "apt-test-1",
+                    "patientId": "pat-101",
+                    "balanceAfter": 15000,
+                    "meta": []
+                }
+            },
+            "meta": {
+                "accountId": "acc_cash_1",
+                "amount": 15000,
+                "type": "INCOME"
+            }
+        }
+    ]
 }

@@ -16,6 +16,25 @@ if ($method === 'GET') {
         exit;
     }
 
+    if ($action === 'get_audit_logs') {
+        $entity = $_GET['entity'] ?? null;
+        $limit = (int)($_GET['limit'] ?? 100);
+        echo json_encode(['success' => true, 'audit_logs' => $db->getAuditLogs($limit, $entity)]);
+        exit;
+    }
+
+    if ($action === 'get_treasury_accounts') {
+        echo json_encode(['success' => true, 'treasury_accounts' => $db->getTreasuryAccounts()]);
+        exit;
+    }
+
+    if ($action === 'get_treasury_movements') {
+        $accountId = $_GET['accountId'] ?? null;
+        $limit = (int)($_GET['limit'] ?? 100);
+        echo json_encode(['success' => true, 'treasury_movements' => $db->getTreasuryMovements($limit, $accountId)]);
+        exit;
+    }
+
     if ($id) {
         $patient = $db->findById('patients', $id);
         if (!$patient) {
@@ -54,11 +73,31 @@ if ($method === 'POST') {
         if ($patientId && $budget) {
             $patient = $db->findById('patients', $patientId);
             if ($patient) {
+                // Backend financial recalculation & validation (prevent client-side tampering)
+                $recalc = TransactSafeDatabase::recalculateBudgetTotals(
+                    $budget['items'] ?? [],
+                    $budget['discountPercent'] ?? 0
+                );
+                $budget['items'] = $recalc['items'];
+                $budget['subtotal'] = $recalc['subtotal'];
+                $budget['discountPercent'] = $recalc['discountPercent'];
+                $budget['discountAmount'] = $recalc['discountAmount'];
+                $budget['total'] = $recalc['total'];
+
                 if (!isset($patient['budgets']) || !is_array($patient['budgets'])) {
                     $patient['budgets'] = [];
                 }
                 array_unshift($patient['budgets'], $budget);
                 $db->update('patients', $patientId, ['budgets' => $patient['budgets']]);
+
+                // Record in immutable audit log
+                $db->logAudit('BUDGET', $budget['id'] ?? 'bdg_' . time(), 'CREATE', null, [
+                    'patientId' => $patientId,
+                    'patientName' => $patient['name'],
+                    'total' => $budget['total'],
+                    'itemsCount' => count($budget['items'])
+                ]);
+
                 echo json_encode(['success' => true, 'budgets' => $patient['budgets']]);
                 exit;
             }
@@ -78,6 +117,12 @@ if ($method === 'POST') {
                 }
                 array_unshift($patient['clinicalNotes'], $note);
                 $db->update('patients', $patientId, ['clinicalNotes' => $patient['clinicalNotes']]);
+
+                $db->logAudit('PATIENT_NOTE', $note['id'] ?? uniqid('note_'), 'CREATE', null, [
+                    'patientId' => $patientId,
+                    'noteDate' => $note['date'] ?? date('Y-m-d')
+                ]);
+
                 echo json_encode(['success' => true, 'clinicalNotes' => $patient['clinicalNotes']]);
                 exit;
             }
@@ -92,7 +137,11 @@ if ($method === 'POST') {
         if ($patientId) {
             $patient = $db->findById('patients', $patientId);
             if ($patient) {
+                $oldPlans = $patient['treatmentPlans'] ?? [];
                 $db->update('patients', $patientId, ['treatmentPlans' => $plans]);
+
+                $db->logAudit('TREATMENT_PLANS', $patientId, 'UPDATE', $oldPlans, $plans);
+
                 echo json_encode(['success' => true, 'treatmentPlans' => $plans]);
                 exit;
             }
@@ -112,6 +161,12 @@ if ($method === 'POST') {
                 }
                 array_unshift($patient['attachments'], $att);
                 $db->update('patients', $patientId, ['attachments' => $patient['attachments']]);
+
+                $db->logAudit('ATTACHMENT', $att['id'] ?? uniqid('att_'), 'CREATE', null, [
+                    'patientId' => $patientId,
+                    'fileName' => $att['name'] ?? 'adjunto'
+                ]);
+
                 echo json_encode(['success' => true, 'attachments' => $patient['attachments']]);
                 exit;
             }
@@ -127,8 +182,12 @@ if ($method === 'POST') {
             $patient = $db->findById('patients', $patientId);
             if ($patient) {
                 $atts = $patient['attachments'] ?? [];
+                $deleted = array_filter($atts, fn($a) => ($a['id'] ?? '') === $attId);
                 $atts = array_values(array_filter($atts, fn($a) => ($a['id'] ?? '') !== $attId));
                 $db->update('patients', $patientId, ['attachments' => $atts]);
+
+                $db->logAudit('ATTACHMENT', $attId, 'DELETE', array_values($deleted)[0] ?? null, null);
+
                 echo json_encode(['success' => true, 'attachments' => $atts]);
                 exit;
             }
@@ -165,6 +224,8 @@ if ($method === 'POST') {
     ];
 
     $db->insert('patients', $newPatient);
+    $db->logAudit('PATIENT', $newPatient['id'], 'CREATE', null, $newPatient);
+
     echo json_encode(['success' => true, 'patient' => $newPatient]);
     exit;
 }
@@ -173,7 +234,9 @@ if ($method === 'PATCH' || $method === 'PUT') {
     $input = json_decode(file_get_contents('php://input'), true);
     $id = $input['id'] ?? $_GET['id'] ?? '';
     if ($id) {
+        $oldPatient = $db->findById('patients', $id);
         $db->update('patients', $id, $input);
+        $db->logAudit('PATIENT', $id, 'UPDATE', $oldPatient, $input);
     }
     echo json_encode(['success' => true]);
     exit;
@@ -181,7 +244,11 @@ if ($method === 'PATCH' || $method === 'PUT') {
 
 if ($method === 'DELETE') {
     $id = $_GET['id'] ?? '';
-    if ($id) $db->delete('patients', $id);
+    if ($id) {
+        $oldPatient = $db->findById('patients', $id);
+        $db->delete('patients', $id);
+        $db->logAudit('PATIENT', $id, 'DELETE', $oldPatient, null);
+    }
     echo json_encode(['success' => true]);
     exit;
 }
