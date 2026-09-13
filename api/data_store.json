@@ -91,6 +91,24 @@
             "notes": "",
             "allergies": "",
             "created_at": "2026-09-13 14:40:56"
+        },
+        {
+            "id": "pat-d5c2e3d5a5",
+            "name": "jhh",
+            "dni": "hjjhhjjhh",
+            "sex": "Femenino",
+            "occupation": "",
+            "phone": "+5939727485443",
+            "email": "Kaelyn86@gmail.com",
+            "birthdate": "2026-09-07",
+            "health_insurance": "jhk",
+            "affiliate_number": "",
+            "representativeName": "",
+            "representativeDni": "",
+            "emergencyPhone": "",
+            "notes": "",
+            "allergies": "",
+            "created_at": "2026-09-13 14:45:00"
         }
     ],
     "appointments": [

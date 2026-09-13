@@ -33,14 +33,26 @@ export function renderPatients() {
   }
 
   tbody.innerHTML = filtered.map(p => `
-    <tr style="cursor:pointer;" onclick="window.selectPatient('${p.id}')">
+    <tr style="cursor:pointer;" class="${state.selectedPatient?.id === p.id ? 'active-row' : ''}" onclick="window.selectPatient('${p.id}')">
       <td><strong>${p.name}</strong></td>
       <td>${p.dni || '-'}</td>
       <td>${p.phone || '-'}</td>
       <td>${p.email || '-'}</td>
       <td>${calculateAge(p.birthdate)}</td>
       <td>${p.health_insurance || 'Particular'}</td>
-      <td><button class="ghost" onclick="event.stopPropagation(); window.selectPatient('${p.id}')"><i class="fas fa-file-medical"></i> Ver ficha</button></td>
+      <td>
+        <div style="display:flex; gap:4px; align-items:center;">
+          <button class="ghost" style="padding:4px 8px; font-size:11px;" title="Ver Historia Clínica" onclick="event.stopPropagation(); window.selectPatient('${p.id}', 'historia')">
+            <i class="fas fa-notes-medical" style="color:var(--primary);"></i> Historia
+          </button>
+          <button class="ghost" style="padding:4px 8px; font-size:11px;" title="Editar Datos" onclick="event.stopPropagation(); window.openEditPatient('${p.id}')">
+            <i class="fas fa-edit" style="color:var(--text);"></i>
+          </button>
+          <button class="ghost" style="padding:4px 8px; font-size:11px; color:var(--danger);" title="Eliminar Paciente" onclick="event.stopPropagation(); window.confirmDeletePatient('${p.id}', '${p.name.replace(/'/g, "\\'")}')">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </td>
     </tr>
   `).join('');
 }
@@ -52,12 +64,13 @@ function calculateAge(birthdate) {
   return Math.abs(ageDate.getUTCFullYear() - 1970) + ' años';
 }
 
-export async function selectPatient(patientId) {
+export async function selectPatient(patientId, defaultTab = 'historia') {
   try {
     const data = await apiFetch(`${api.patients}?id=${patientId}`);
     if (data.patient) {
       state.selectedPatient = data.patient;
-      renderPatientDetail(data.patient);
+      renderPatients();
+      renderPatientDetail(data.patient, defaultTab);
     }
   } catch (err) {
     showToast('No se pudo cargar la ficha del paciente', 'error');
@@ -65,36 +78,108 @@ export async function selectPatient(patientId) {
 }
 window.selectPatient = selectPatient;
 
-export function renderPatientDetail(patient) {
+export function renderPatientDetail(patient, initialTab = 'historia') {
   const container = el('patientDetail');
   if (!container) return;
 
   container.innerHTML = `
-    <div class="patient-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <div class="patient-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
       <div>
-        <h3>${patient.name}</h3>
-        <p class="muted">DNI: ${patient.dni || 'Sin registrar'} · Obra Social: ${patient.health_insurance || patient.insurance || 'Particular'}</p>
+        <h3 style="margin:0 0 4px 0; color:var(--primary); font-size:1.3rem;">${patient.name}</h3>
+        <p class="muted" style="margin:0; font-size:0.85rem;">
+          DNI: <strong>${patient.dni || 'Sin registrar'}</strong> · 
+          Sexo: <strong>${patient.sex || '-'}</strong> · 
+          Obra Social: <strong>${patient.health_insurance || patient.insurance || 'Particular'}</strong>
+        </p>
       </div>
-      <div style="display:flex; gap:8px;">
-        <button class="ghost" onclick="window.openPatientExportModal()"><i class="fas fa-share-alt"></i> Exportar / Compartir</button>
-        <button class="primary" onclick="window.quickNewAptForPatient('${patient.id}', '${patient.name}', '${patient.phone || ''}')"><i class="fas fa-calendar-plus"></i> Dar turno</button>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="ghost" style="font-size:0.85rem;" onclick="window.openEditPatient('${patient.id}')" title="Editar datos del paciente"><i class="fas fa-edit"></i> Editar</button>
+        <button class="ghost" style="font-size:0.85rem; color:var(--danger); border-color:rgba(239,68,68,0.3);" onclick="window.confirmDeletePatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}')" title="Eliminar paciente"><i class="fas fa-trash-alt"></i> Eliminar</button>
+        <button class="ghost" style="font-size:0.85rem;" onclick="window.openPatientExportModal()"><i class="fas fa-share-alt"></i> Exportar / Imprimir</button>
+        <button class="primary" style="font-size:0.85rem;" onclick="window.quickNewAptForPatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}', '${patient.phone || ''}')"><i class="fas fa-calendar-plus"></i> Dar turno</button>
       </div>
     </div>
 
     <div class="patient-tabs">
-      <button class="patient-tab active" onclick="window.switchPatientTab('ficha')"><i class="fas fa-id-card"></i> Ficha</button>
-      <button class="patient-tab" onclick="window.switchPatientTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
-      <button class="patient-tab" onclick="window.switchPatientTab('historia')"><i class="fas fa-notes-medical"></i> Historia Clínica</button>
-      <button class="patient-tab" onclick="window.switchPatientTab('odonto')"><i class="fas fa-tooth"></i> Odontograma</button>
-      <button class="patient-tab" onclick="window.switchPatientTab('presupuestos')"><i class="fas fa-file-invoice-dollar"></i> Presupuestos</button>
-      <button class="patient-tab" onclick="window.switchPatientTab('apts')"><i class="fas fa-calendar-alt"></i> Turnos</button>
+      <button class="patient-tab ${initialTab === 'historia' ? 'active' : ''}" onclick="window.switchPatientTab('historia')"><i class="fas fa-notes-medical"></i> Historia Clínica (12 Sec)</button>
+      <button class="patient-tab ${initialTab === 'ficha' ? 'active' : ''}" onclick="window.switchPatientTab('ficha')"><i class="fas fa-id-card"></i> Ficha y Datos</button>
+      <button class="patient-tab ${initialTab === 'odonto' ? 'active' : ''}" onclick="window.switchPatientTab('odonto')"><i class="fas fa-tooth"></i> Odontograma</button>
+      <button class="patient-tab ${initialTab === 'presupuestos' ? 'active' : ''}" onclick="window.switchPatientTab('presupuestos')"><i class="fas fa-file-invoice-dollar"></i> Presupuestos</button>
+      <button class="patient-tab ${initialTab === 'dashboard' ? 'active' : ''}" onclick="window.switchPatientTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+      <button class="patient-tab ${initialTab === 'apts' ? 'active' : ''}" onclick="window.switchPatientTab('apts')"><i class="fas fa-calendar-alt"></i> Turnos</button>
     </div>
 
     <div id="patientTabContent"></div>
   `;
 
-  window.switchPatientTab('ficha');
+  window.switchPatientTab(initialTab);
 }
+
+window.openEditPatient = async (patientId) => {
+  await selectPatient(patientId, 'ficha');
+  setTimeout(() => {
+    const editBtn = document.querySelector('#editFichaBtn');
+    if (editBtn) editBtn.click();
+  }, 100);
+};
+
+window.confirmDeletePatient = (patientId, patientName) => {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-body" style="max-width: 440px;">
+      <div class="modal-head">
+        <div>
+          <p class="muted" style="color:var(--danger); font-weight:600;"><i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación</p>
+          <h3 style="margin:0;">Eliminar Paciente</h3>
+        </div>
+        <button class="ghost close-del-modal"><i class="fas fa-times"></i></button>
+      </div>
+      <div style="margin: 16px 0; font-size:0.95rem; line-height:1.5;">
+        ¿Estás seguro de que deseas eliminar a <strong>${patientName}</strong>?<br>
+        <small style="color:var(--muted); display:block; margin-top:8px;">Se eliminarán permanentemente su ficha, historia clínica y presupuestos asociados. Esta acción no se puede deshacer.</small>
+      </div>
+      <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="ghost close-del-modal">Cancelar</button>
+        <button class="primary" id="btnConfirmDelete" style="background:var(--danger); border-color:var(--danger);"><i class="fas fa-trash-alt"></i> Sí, Eliminar</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const closeModal = () => modal.remove();
+  modal.querySelectorAll('.close-del-modal').forEach(b => b.addEventListener('click', closeModal));
+
+  modal.querySelector('#btnConfirmDelete')?.addEventListener('click', async () => {
+    const btn = modal.querySelector('#btnConfirmDelete');
+    try {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+      
+      await apiFetch(`${api.patients}?id=${patientId}`, {
+        method: 'DELETE'
+      });
+
+      showToast(`Paciente ${patientName} eliminado correctamente`, 'success');
+      closeModal();
+
+      if (state.selectedPatient?.id === patientId) {
+        state.selectedPatient = null;
+        const container = el('patientDetail');
+        if (container) {
+          container.innerHTML = '<div class="empty">Seleccioná un paciente de la lista para ver su historia clínica y ficha.</div>';
+        }
+      }
+
+      await loadPatients();
+    } catch (err) {
+      showToast(err.message || 'Error al eliminar paciente', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-trash-alt"></i> Sí, Eliminar';
+    }
+  });
+};
 
 window.switchPatientTab = (tab) => {
   const content = el('patientTabContent');

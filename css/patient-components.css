@@ -642,3 +642,8 @@
   background: var(--primary-light);
 }
 
+tr.active-row {
+  background: var(--primary-light) !important;
+  border-left: 3px solid var(--primary);
+}
+
