@@ -1,4 +1,4 @@
-﻿/**
+/**
  * app-budget.js - Gestor de Presupuestos Odontológicos y Médicos
  * Permite confeccionar presupuestos, calcular descuentos, gestionar formas de pago,
  * imprimir/descargar PDF y compartir por WhatsApp / Email.
@@ -184,7 +184,7 @@ export function createBudgetManager(patient, notes = [], plans = [], professiona
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
           <div>
             <h4><i class="fas fa-edit"></i> Confección de Presupuesto Odontológico / Médico</h4>
-            <p class="muted" style="font-size:0.85rem;">Paciente: <strong>${patient?.name || 'Sin Nombre'}</strong> | DNI: ${patient?.dni || '-'}</p>
+            <p class="muted" style="font-size:0.85rem;">Paciente: <strong>${patient?.name || 'Sin Nombre'}</strong> | Cédula: ${patient?.dni || '-'}</p>
           </div>
           <button class="ghost" id="btnBackToList"><i class="fas fa-arrow-left"></i> Volver al listado</button>
         </div>
@@ -448,7 +448,7 @@ export function createBudgetManager(patient, notes = [], plans = [], professiona
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; background:var(--bg-page); padding:16px; border-radius:8px; margin-bottom:20px;">
           <div>
             <strong>Paciente:</strong> ${b.patientName || patient?.name}<br>
-            <span class="muted">DNI: ${b.patientDni || patient?.dni || '-'} | Cel: ${b.patientPhone || patient?.phone || '-'}</span>
+            <span class="muted">Cédula: ${b.patientDni || patient?.dni || '-'} | Cel: ${b.patientPhone || patient?.phone || '-'}</span>
           </div>
           <div>
             <strong>Profesional:</strong> ${b.professionalName}<br>
@@ -555,7 +555,7 @@ export function createBudgetManager(patient, notes = [], plans = [], professiona
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; background:#f8fafc; padding:12px 16px; border-radius:6px; margin-bottom:24px; font-size:13px;">
           <div>
             <strong>Paciente:</strong> ${b.patientName || patient?.name}<br>
-            <strong>DNI:</strong> ${b.patientDni || patient?.dni || 'Sin registrar'}<br>
+            <strong>Cédula / ID:</strong> ${b.patientDni || patient?.dni || 'Sin registrar'}<br>
             <strong>Teléfono:</strong> ${b.patientPhone || patient?.phone || '-'}
           </div>
           <div>

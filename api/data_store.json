@@ -9,7 +9,7 @@
             "email": "contacto@consultorios.pro",
             "phone": "+5491123456789",
             "appearance": {
-                "theme": "dark",
+                "theme": "light",
                 "fontSize": "small",
                 "calendarView": "week",
                 "density": "compact",

@@ -87,9 +87,9 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
       <div>
         <h3 style="margin:0 0 4px 0; color:var(--primary); font-size:1.3rem;">${patient.name}</h3>
         <p class="muted" style="margin:0; font-size:0.85rem;">
-          DNI: <strong>${patient.dni || 'Sin registrar'}</strong> · 
-          Sexo: <strong>${patient.sex || '-'}</strong> · 
-          Obra Social: <strong>${patient.health_insurance || patient.insurance || 'Particular'}</strong>
+          Cédula: <strong>${patient.dni || 'Sin registrar'}</strong> · 
+          Género: <strong>${patient.sex || '-'}</strong> · 
+          Obra Social / Seguro: <strong>${patient.health_insurance || patient.insurance || 'Particular'}</strong>
         </p>
       </div>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">

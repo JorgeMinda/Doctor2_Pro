@@ -115,7 +115,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
         
         <div class="grid">
           <div class="field"><label>Nombre completo</label><span>${patient.name || '-'}</span></div>
-          <div class="field"><label>DNI</label><span>${patient.dni || '-'}</span></div>
+          <div class="field"><label>Cédula / ID</label><span>${patient.dni || '-'}</span></div>
           <div class="field"><label>Teléfono</label><span>${patient.phone || '-'}</span></div>
           <div class="field"><label>Email</label><span>${patient.email || '-'}</span></div>
           <div class="field"><label>Obra Social</label><span>${patient.health_insurance || patient.insurance || 'Particular'}</span></div>
@@ -191,12 +191,12 @@ export function createExportActions(patient, notes = [], plans = [], professiona
           <div class="sec-title">1. Datos de Filiación y Registro</div>
           <div class="sec-body grid-4">
             <div class="data-item"><label>Paciente:</label><span>${patient.name || '-'}</span></div>
-            <div class="data-item"><label>DNI / Documento:</label><span>${patient.dni || '-'}</span></div>
-            <div class="data-item"><label>Sexo / Edad:</label><span>${patient.sex || 'No espec.'} / ${patient.birthdate ? (new Date().getFullYear() - new Date(patient.birthdate).getFullYear()) + ' años' : '-'}</span></div>
+            <div class="data-item"><label>Cédula / ID:</label><span>${patient.dni || '-'}</span></div>
+            <div class="data-item"><label>Género / Edad:</label><span>${patient.sex || 'No espec.'} / ${patient.birthdate ? (new Date().getFullYear() - new Date(patient.birthdate).getFullYear()) + ' años' : '-'}</span></div>
             <div class="data-item"><label>Teléfono:</label><span>${patient.phone || '-'}</span></div>
             <div class="data-item"><label>Ocupación:</label><span>${patient.occupation || '-'}</span></div>
             <div class="data-item"><label>Cobertura:</label><span>${patient.health_insurance || patient.insurance || 'Particular'}</span></div>
-            <div class="data-item"><label>Representante Legal:</label><span>${patient.representativeName ? `${patient.representativeName} (DNI ${patient.representativeDni || '-'})` : 'N/A'}</span></div>
+            <div class="data-item"><label>Representante Legal:</label><span>${patient.representativeName ? `${patient.representativeName} (Cédula ${patient.representativeDni || '-'})` : 'N/A'}</span></div>
             <div class="data-item"><label>Contacto Emergencia:</label><span>${patient.emergencyPhone || '-'}</span></div>
           </div>
         </div>
@@ -476,7 +476,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
       if (currentSendMethod === 'whatsapp') {
         let msg = `🦷 *RESUMEN CLÍNICO - ${patient.name.toUpperCase()}*%0A%0A`;
         if (includeFicha) {
-          msg += `📋 *Datos:* DNI ${patient.dni || '-'} | OS: ${patient.health_insurance || 'Particular'}%0A`;
+          msg += `📋 *Datos:* Cédula ${patient.dni || '-'} | OS: ${patient.health_insurance || 'Particular'}%0A`;
         }
         if (includeHistoria) {
           msg += `🩺 *Evoluciones Registradas:* ${notes.length}%0A`;

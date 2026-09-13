@@ -1,4 +1,4 @@
-﻿/**
+/**
  * import-export-manager.js - Importación y Exportación de Pacientes y Profesionales (Excel / CSV)
  */
 import { showToast } from './app-utils.js';
@@ -136,7 +136,7 @@ export function createImportUI(entityType, expectedFields, onImport) {
       <div class="import-instructions" style="background:var(--bg-page); padding:12px 16px; border-radius:8px; margin-bottom:16px; font-size:0.85rem;">
         <p><strong>Formatos aceptados:</strong> Archivos Excel (.xlsx, .xls) y CSV</p>
         <p>El sistema reconocerá y mapeará automáticamente las columnas de tu planilla.</p>
-        <p class="muted">Columnas soportadas: Nombre, DNI, Teléfono, Email, Fecha de nacimiento, Obra Social, Dirección.</p>
+        <p class="muted">Columnas soportadas: Nombre, Cédula / Identificación, Teléfono, Email, Fecha de nacimiento, Obra Social, Dirección.</p>
       </div>
       
       <div class="file-upload-area" id="fileUploadArea" style="border:2px dashed var(--border); border-radius:12px; padding:32px 16px; text-align:center; cursor:pointer; background:var(--surface);">
@@ -308,7 +308,7 @@ export function createImportUI(entityType, expectedFields, onImport) {
     const fieldLabels = {
       'name': 'Nombre del paciente',
       'lastName': 'Apellido',
-      'dni': 'DNI / Documento',
+      'dni': 'Cédula / Identificación',
       'phone': 'Teléfono / WhatsApp',
       'email': 'Correo electrónico',
       'birthDate': 'Fecha de nacimiento',

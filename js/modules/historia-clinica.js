@@ -40,8 +40,8 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
         <div class="hc-hero-title">
           <h3 style="margin:0; font-size:1.25rem; font-weight:800; color:var(--text); letter-spacing:-0.3px;">${patient.name || 'Paciente sin registrar'}</h3>
           <div class="hc-hero-meta" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; font-size:0.83rem; color:var(--muted);">
-            <span><i class="fas fa-id-card" style="color:var(--primary);"></i> DNI: <strong style="color:var(--text);">${patient.dni || 'Sin DNI'}</strong></span>
-            <span><i class="fas fa-venus-mars" style="color:var(--primary);"></i> Sexo: <strong style="color:var(--text);">${patient.sex || 'No espec.'}</strong></span>
+            <span><i class="fas fa-id-card" style="color:var(--primary);"></i> Cédula: <strong style="color:var(--text);">${patient.dni || 'Sin Cédula'}</strong></span>
+            <span><i class="fas fa-venus-mars" style="color:var(--primary);"></i> Género: <strong style="color:var(--text);">${patient.sex || 'No espec.'}</strong></span>
             <span><i class="fas fa-shield-halved" style="color:var(--primary);"></i> <strong style="color:var(--text);">${patient.health_insurance || patient.insurance || 'Particular'}</strong></span>
             ${patient.phone ? `<span><i class="fab fa-whatsapp" style="color:#22c55e;"></i> ${patient.phone}</span>` : ''}
           </div>
@@ -85,9 +85,9 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
         <div class="hc-accordion-body">
           <div class="grid-3" style="gap:14px;">
             <label class="field"><span>Nombre Completo</span><input type="text" value="${patient.name || ''}" readonly class="field-readonly"></label>
-            <label class="field"><span>Documento de Identidad (DNI)</span><input type="text" value="${patient.dni || ''}" readonly class="field-readonly"></label>
+            <label class="field"><span>Cédula / Identificación</span><input type="text" value="${patient.dni || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Fecha de Nacimiento / Edad</span><input type="text" value="${patient.birth_date || ''} (${patient.age ? patient.age + ' años' : 'Sin edad'})" readonly class="field-readonly"></label>
-            <label class="field"><span>Sexo Biológico</span><input type="text" value="${patient.sex || ''}" readonly class="field-readonly"></label>
+            <label class="field"><span>Género</span><input type="text" value="${patient.sex || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Estado Civil</span><input type="text" value="${patient.civil_status || patient.civilStatus || 'Soltero/a'}" readonly class="field-readonly"></label>
             <label class="field"><span>Ocupación</span><input type="text" value="${patient.occupation || 'No especificada'}" readonly class="field-readonly"></label>
             <label class="field"><span>Teléfono / WhatsApp</span><input type="text" value="${patient.phone || ''}" readonly class="field-readonly"></label>

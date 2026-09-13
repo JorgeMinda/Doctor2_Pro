@@ -102,7 +102,7 @@ function setupPatientAutocomplete() {
         <div class="pat-info">
           <div class="pat-name"><i class="fas fa-user-circle" style="color:var(--primary);"></i> ${p.name}</div>
           <div class="pat-meta">
-            ${p.dni ? `<span>DNI: ${p.dni}</span>` : ''} 
+            ${p.dni ? `<span>Cédula: ${p.dni}</span>` : ''} 
             ${p.phone ? `<span>· 📱 ${p.phone}</span>` : ''}
             ${p.insurance ? `<span>· 🏥 ${p.insurance}</span>` : ''}
           </div>

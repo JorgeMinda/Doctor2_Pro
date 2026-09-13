@@ -41,7 +41,7 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
           <strong style="font-size:1.05rem;">${escapeHtml(patient.name || '-')}</strong>
         </div>
         <div class="ficha-item">
-          <label class="muted" style="font-size:0.8rem; display:block;">DNI / Documento</label>
+          <label class="muted" style="font-size:0.8rem; display:block;">Cédula / Identificación</label>
           <span>${escapeHtml(patient.dni || '-')}</span>
         </div>
         <div class="ficha-item">
@@ -57,7 +57,7 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
           <span class="badge ${patient.health_insurance || patient.insurance ? 'attended' : 'pending'}">${escapeHtml(patient.health_insurance || patient.insurance || 'Particular')}</span>
         </div>
         <div class="ficha-item">
-          <label class="muted" style="font-size:0.8rem; display:block;">Sexo</label>
+          <label class="muted" style="font-size:0.8rem; display:block;">Género</label>
           <span>${escapeHtml(patient.sex || 'No especificado')}</span>
         </div>
         <div class="ficha-item">
@@ -70,7 +70,7 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
         </div>
         <div class="ficha-item">
           <label class="muted" style="font-size:0.8rem; display:block;">Representante Legal</label>
-          <span>${escapeHtml(patient.representativeName ? `${patient.representativeName} (DNI ${patient.representativeDni || '-'})` : 'No aplica')}</span>
+          <span>${escapeHtml(patient.representativeName ? `${patient.representativeName} (Cédula ${patient.representativeDni || '-'})` : 'No aplica')}</span>
         </div>
         <div class="ficha-item">
           <label class="muted" style="font-size:0.8rem; display:block;">N° de Afiliado</label>
@@ -110,11 +110,11 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
           <input type="text" id="fichaName" value="${escapeHtml(patient.name || '')}" class="field-input" required>
         </label>
         <label class="field">
-          <span>DNI / Documento</span>
+          <span>Cédula / Identificación</span>
           <input type="text" id="fichaDni" value="${escapeHtml(patient.dni || '')}" class="field-input">
         </label>
         <label class="field">
-          <span>Sexo</span>
+          <span>Género</span>
           <select id="fichaSex" class="field-input">
             <option value="Femenino" ${patient.sex === 'Femenino' ? 'selected' : ''}>Femenino</option>
             <option value="Masculino" ${patient.sex === 'Masculino' ? 'selected' : ''}>Masculino</option>
@@ -151,7 +151,7 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
         </label>
         <label class="field">
           <span>Representante Legal (si es menor)</span>
-          <input type="text" id="fichaRepresentative" value="${escapeHtml(patient.representativeName || '')}" class="field-input" placeholder="Nombre y DNI tutor">
+          <input type="text" id="fichaRepresentative" value="${escapeHtml(patient.representativeName || '')}" class="field-input" placeholder="Nombre y Cédula tutor">
         </label>
         <label class="field">
           <span>Profesional asignado</span>

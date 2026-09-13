@@ -1,4 +1,4 @@
-﻿/**
+/**
  * patient-charts.js - Gráficos visuales del paciente, Odontograma Interactivo FDI (Adulto/Niño),
  * Resumen clínico, estadísticas de visitas y Línea de tiempo.
  */
@@ -451,7 +451,7 @@ body{font-family:Arial,sans-serif;margin:30px;color:#1e293b;}
 </div>
 <div class="patient-box">
   <div><strong>Paciente:</strong> ${patient.name}</div>
-  <div><strong>DNI:</strong> ${patient.dni || '-'}</div>
+  <div><strong>Cédula / ID:</strong> ${patient.dni || '-'}</div>
   <div><strong>Teléfono:</strong> ${patient.phone || '-'}</div>
   <div><strong>Obra Social:</strong> ${patient.health_insurance || patient.insurance || 'Particular'}</div>
 </div>
