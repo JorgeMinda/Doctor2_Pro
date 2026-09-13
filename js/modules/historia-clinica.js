@@ -1,6 +1,6 @@
 /**
  * historia-clinica.js - Sistema Integral de Historia Clínica Odontológica (12 Secciones Oficiales + CIE-11)
- * Diseñado con interfaz interactiva, Wizard de Pasos y diseño Glass UI de alta estética.
+ * Diseñado con interfaz moderna en formato Accordion Card Deck (desplegable e interactivo)
  */
 import { showToast, apiFetch, formatDate } from './app-utils.js';
 import { CIE11_DENTAL_CATALOGUE, searchCIE11 } from './cie11-catalogue.js';
@@ -34,310 +34,316 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
 
   container.innerHTML = `
     <!-- 1. HÉROE SUPERIOR / RESUMEN DEL PACIENTE -->
-    <div class="hc-hero-banner">
-      <div class="hc-hero-patient">
-        <div class="hc-hero-avatar">${patientInitials}</div>
+    <div class="hc-hero-banner" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:20px; padding:18px 22px; background:var(--glass-bg-card); border:1px solid var(--glass-border); border-radius:18px; box-shadow:var(--glass-shadow);">
+      <div class="hc-hero-patient" style="display:flex; align-items:center; gap:14px;">
+        <div class="hc-hero-avatar" style="width:52px; height:52px; border-radius:14px; background:linear-gradient(135deg, var(--primary), #8b5cf6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.3rem; font-weight:800; box-shadow:0 4px 14px rgba(99,102,241,0.35); flex-shrink:0;">${patientInitials}</div>
         <div class="hc-hero-title">
-          <h3>${patient.name || 'Paciente sin registrar'}</h3>
-          <div class="hc-hero-meta">
-            <span><i class="fas fa-id-card"></i> DNI: <strong>${patient.dni || 'Sin DNI'}</strong></span>
-            <span><i class="fas fa-venus-mars"></i> Sexo: <strong>${patient.sex || 'No espec.'}</strong></span>
-            <span><i class="fas fa-shield-halved"></i> <strong>${patient.health_insurance || patient.insurance || 'Particular'}</strong></span>
+          <h3 style="margin:0; font-size:1.25rem; font-weight:800; color:var(--text); letter-spacing:-0.3px;">${patient.name || 'Paciente sin registrar'}</h3>
+          <div class="hc-hero-meta" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; font-size:0.83rem; color:var(--muted);">
+            <span><i class="fas fa-id-card" style="color:var(--primary);"></i> DNI: <strong style="color:var(--text);">${patient.dni || 'Sin DNI'}</strong></span>
+            <span><i class="fas fa-venus-mars" style="color:var(--primary);"></i> Sexo: <strong style="color:var(--text);">${patient.sex || 'No espec.'}</strong></span>
+            <span><i class="fas fa-shield-halved" style="color:var(--primary);"></i> <strong style="color:var(--text);">${patient.health_insurance || patient.insurance || 'Particular'}</strong></span>
             ${patient.phone ? `<span><i class="fab fa-whatsapp" style="color:#22c55e;"></i> ${patient.phone}</span>` : ''}
           </div>
         </div>
       </div>
-      <div class="hc-hero-actions">
-        <div class="hc-view-mode-toggle">
-          <button type="button" class="hc-view-mode-btn active" data-mode="wizard"><i class="fas fa-layer-group"></i> Por Pasos</button>
-          <button type="button" class="hc-view-mode-btn" data-mode="full"><i class="fas fa-bars-staggered"></i> Ver Todo</button>
-        </div>
+      <div class="hc-hero-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <button type="button" id="hcExpandAllBtn" class="ghost" style="font-size:0.82rem; padding:8px 14px;" title="Desplegar todas las secciones">
+          <i class="fas fa-angles-down"></i> Desplegar Todo
+        </button>
+        <button type="button" id="hcCollapseAllBtn" class="ghost" style="font-size:0.82rem; padding:8px 14px;" title="Colapsar todas las secciones">
+          <i class="fas fa-angles-up"></i> Colapsar Todo
+        </button>
         ${canEdit ? `
-          <button id="hcSaveAllBtn" class="primary" style="box-shadow:0 4px 14px rgba(99,102,241,0.35); padding:10px 18px;">
+          <button id="hcSaveAllBtn" class="primary" style="box-shadow:0 4px 14px rgba(99,102,241,0.35); padding:10px 18px; font-weight:700;">
             <i class="fas fa-save"></i> Guardar Historia
           </button>
         ` : ''}
       </div>
     </div>
 
-    <!-- 2. BARRA DE PASOS / NAVEGACIÓN CLÍNICA -->
-    <div class="hc-tabs-nav" id="hcTabsNav">
-      <button type="button" class="hc-tab-btn active" data-step="1">
-        <div class="hc-tab-icon"><i class="fas fa-clipboard-user"></i></div>
-        <div class="hc-tab-text">
-          <span class="hc-tab-title">1. Anamnesis</span>
-          <span class="hc-tab-sub">Filiación & Antecedentes</span>
-        </div>
-      </button>
-
-      <button type="button" class="hc-tab-btn" data-step="2">
-        <div class="hc-tab-icon"><i class="fas fa-heart-pulse"></i></div>
-        <div class="hc-tab-text">
-          <span class="hc-tab-title">2. Examen Físico</span>
-          <span class="hc-tab-sub">Signos & Estomatognático</span>
-        </div>
-      </button>
-
-      <button type="button" class="hc-tab-btn" data-step="3">
-        <div class="hc-tab-icon"><i class="fas fa-tooth"></i></div>
-        <div class="hc-tab-text">
-          <span class="hc-tab-title">3. Higiene & CPO</span>
-          <span class="hc-tab-sub">IHOS & Índices Dentales</span>
-        </div>
-      </button>
-
-      <button type="button" class="hc-tab-btn" data-step="4">
-        <div class="hc-tab-icon"><i class="fas fa-file-medical-alt"></i></div>
-        <div class="hc-tab-text">
-          <span class="hc-tab-title">4. CIE-11 & Planes</span>
-          <span class="hc-tab-sub">Diagnósticos & Tratamiento</span>
-        </div>
-      </button>
-
-      <button type="button" class="hc-tab-btn" data-step="5">
-        <div class="hc-tab-icon"><i class="fas fa-notes-medical"></i></div>
-        <div class="hc-tab-text">
-          <span class="hc-tab-title">5. Sesiones</span>
-          <span class="hc-tab-sub">Evolución & Firmas</span>
-        </div>
-      </button>
-    </div>
-
-    <!-- ========================================================
-         PASO 1: ANAMNESIS & ANTECEDENTES (Secciones 1, 2, 3, 4)
-         ======================================================== -->
-    <div class="hc-step-pane active" id="paneStep1" data-step="1">
+    <!-- 2. MAZO DE TARJETAS ACORDEÓN (12 SECCIONES CLÍNICAS OFICIALES) -->
+    <div class="hc-accordion-deck">
       
-      <!-- SECCIÓN 1: DATOS DEL PACIENTE -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">1</span> Datos de Filiación y Registro</h4>
-          <small class="muted"><i class="fas fa-info-circle"></i> Para modificar datos de contacto ve a la pestaña "Ficha"</small>
-        </div>
-        <div class="grid-2" style="font-size:0.9rem; gap:12px 20px;">
-          <div><span class="muted" style="font-size:0.8rem; display:block;">Nombre y Apellido</span><strong>${patient.name || 'Sin nombre'}</strong></div>
-          <div><span class="muted" style="font-size:0.8rem; display:block;">Documento de Identidad (DNI)</span><strong>${patient.dni || 'No registrado'}</strong></div>
-          <div><span class="muted" style="font-size:0.8rem; display:block;">Sexo / Edad</span><strong>${patient.sex || 'No especificado'}</strong> · ${patient.birthdate ? calculateAge(patient.birthdate) : 'Edad no reg.'}</div>
-          <div><span class="muted" style="font-size:0.8rem; display:block;">Teléfono / WhatsApp</span><strong>${patient.phone || 'No registrado'}</strong></div>
-          <div><span class="muted" style="font-size:0.8rem; display:block;">Ocupación / Profesión</span><strong>${patient.occupation || 'No registrada'}</strong></div>
-          <div><span class="muted" style="font-size:0.8rem; display:block;">Representante Legal (Menores)</span><strong>${patient.representativeName ? `${patient.representativeName} (DNI: ${patient.representativeDni || '-'})` : 'No aplica (Mayor de edad)'}</strong></div>
-          <div style="grid-column: 1 / -1;"><span class="muted" style="font-size:0.8rem; display:block;">Contacto de Emergencia</span><strong>${patient.emergencyPhone || 'No registrado'}</strong></div>
-        </div>
-      </div>
-
-      <!-- SECCIÓN 2: MOTIVO DE CONSULTA -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">2</span> Motivo de Consulta</h4>
-          <small class="muted">Selecciona un motivo frecuente o redacta en las palabras del paciente</small>
-        </div>
-        <div class="chips-container" id="motivoChips">
-          <span class="chip-toggle" data-val="Control y Chequeo Periódico"><i class="fas fa-stethoscope"></i> Control periódico</span>
-          <span class="chip-toggle" data-val="Dolor Dental Agudo"><i class="fas fa-bolt"></i> Dolor agudo</span>
-          <span class="chip-toggle" data-val="Limpieza / Profilaxis Dental"><i class="fas fa-sparkles"></i> Limpieza / Profilaxis</span>
-          <span class="chip-toggle" data-val="Sangrado de Encías"><i class="fas fa-tint"></i> Sangrado de encías</span>
-          <span class="chip-toggle" data-val="Urgencia / Traumatismo"><i class="fas fa-kit-medical"></i> Urgencia / Trauma</span>
-          <span class="chip-toggle" data-val="Estética Dental / Blanqueamiento"><i class="fas fa-wand-magic-sparkles"></i> Estética / Blanqueamiento</span>
-          <span class="chip-toggle" data-val="Ortodoncia"><i class="fas fa-arrows-alt-h"></i> Ortodoncia</span>
-          <span class="chip-toggle" data-val="Rehabilitación / Prótesis"><i class="fas fa-teeth"></i> Prótesis / Implante</span>
-        </div>
-        <input type="text" id="hcMotivoConsulta" class="field-input" style="width:100%; font-weight:500;" placeholder="Describa el motivo en palabras del paciente..." value="${ch.motivoConsulta || ''}">
-      </div>
-
-      <!-- SECCIÓN 3: ENFERMEDAD ACTUAL -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">3</span> Enfermedad Actual</h4>
-          <small class="muted">Síntomas, cronología, localización, intensidad y evolución</small>
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <span>Cronología y Tiempo de Evolución</span>
-            <input id="hcEaCronologia" type="text" placeholder="Ej: Hace 3 días, inicio insidioso tras masticar" value="${ch.enfermedadActual?.cronologia || ''}">
-          </div>
-          <div class="field">
-            <span>Localización y Zona Afectada</span>
-            <input id="hcEaLocalizacion" type="text" placeholder="Ej: Molar inferior derecho (pieza 46)" value="${ch.enfermedadActual?.localizacion || ''}">
-          </div>
-          <div class="field" style="grid-column: 1 / -1;">
-            <span>Tipo e Intensidad del Dolor (Escala EVA)</span>
-            <div class="chips-container" id="evaChips" style="margin-bottom:0;">
-              <span class="chip-toggle" data-val="Sin dolor (0/10)">0 - Sin dolor</span>
-              <span class="chip-toggle" data-val="Leve (1-3/10)">Leve (1-3)</span>
-              <span class="chip-toggle warning" data-val="Moderado (4-6/10)">Moderado (4-6)</span>
-              <span class="chip-toggle danger" data-val="Severo / Intenso (7-10/10)">Severo (7-10)</span>
-              <span class="chip-toggle" data-val="Pulsátil">Pulsátil</span>
-              <span class="chip-toggle" data-val="Provocado por frío/calor">Provocado (Frío/Calor)</span>
-              <span class="chip-toggle" data-val="Espontáneo y Nocturno">Espontáneo / Nocturno</span>
+      <!-- ========================================================
+           SECCIÓN 1: DATOS DE FILIACIÓN Y REGISTRO
+           ======================================================== -->
+      <div class="hc-accordion-card open" data-section="1">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-id-card"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">1.</span> Datos de Filiación y Registro</span>
+              <span class="hc-acc-sub">Identificación, edad, ocupación, residencia y contacto</span>
             </div>
           </div>
-          <div class="field" style="grid-column: 1 / -1;">
-            <span>Evolución, Causas Aparentes y Estado Actual</span>
-            <textarea id="hcEaEvolucion" rows="2" placeholder="Detalles de analgesia previa, respuesta a medicamentos, estado al momento del examen...">${ch.enfermedadActual?.evolucion || ''}</textarea>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Filiación</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
+        </div>
+        <div class="hc-accordion-body">
+          <div class="grid-3" style="gap:14px;">
+            <label class="field"><span>Nombre Completo</span><input type="text" value="${patient.name || ''}" readonly class="field-readonly"></label>
+            <label class="field"><span>Documento de Identidad (DNI)</span><input type="text" value="${patient.dni || ''}" readonly class="field-readonly"></label>
+            <label class="field"><span>Fecha de Nacimiento / Edad</span><input type="text" value="${patient.birth_date || ''} (${patient.age ? patient.age + ' años' : 'Sin edad'})" readonly class="field-readonly"></label>
+            <label class="field"><span>Sexo Biológico</span><input type="text" value="${patient.sex || ''}" readonly class="field-readonly"></label>
+            <label class="field"><span>Estado Civil</span><input type="text" value="${patient.civil_status || patient.civilStatus || 'Soltero/a'}" readonly class="field-readonly"></label>
+            <label class="field"><span>Ocupación</span><input type="text" value="${patient.occupation || 'No especificada'}" readonly class="field-readonly"></label>
+            <label class="field"><span>Teléfono / WhatsApp</span><input type="text" value="${patient.phone || ''}" readonly class="field-readonly"></label>
+            <label class="field"><span>Email</span><input type="text" value="${patient.email || ''}" readonly class="field-readonly"></label>
+            <label class="field"><span>Cobertura / Seguro Dental</span><input type="text" value="${patient.health_insurance || patient.insurance || 'Particular'}" readonly class="field-readonly"></label>
+            <label class="field" style="grid-column:1/-1;"><span>Dirección de Residencia</span><input type="text" value="${patient.address || 'No registrada'}" readonly class="field-readonly"></label>
+            <label class="field" style="grid-column:1/-1;"><span>Contacto de Emergencia</span><input type="text" value="${patient.emergency_contact || patient.emergencyContact || 'No especificado'}" readonly class="field-readonly"></label>
           </div>
         </div>
       </div>
 
-      <!-- SECCIÓN 4: ANTECEDENTES PERSONALES Y FAMILIARES -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">4</span> Antecedentes Personales y Familiares</h4>
-          <small class="muted">Toca para activar o desactivar condiciones médicas</small>
-        </div>
-        <div class="chips-container" id="antecedentesChips">
-          <span class="chip-toggle danger ${ant.alergiaAntibiotico ? 'active' : ''}" data-key="alergiaAntibiotico"><i class="fas fa-allergies"></i> 1. Alergia Antibiótico</span>
-          <span class="chip-toggle danger ${ant.alergiaAnestesia ? 'active' : ''}" data-key="alergiaAnestesia"><i class="fas fa-syringe"></i> 2. Alergia Anestesia</span>
-          <span class="chip-toggle warning ${ant.hemorragias ? 'active' : ''}" data-key="hemorragias"><i class="fas fa-droplet"></i> 3. Hemorragias / Coagulación</span>
-          <span class="chip-toggle warning ${ant.vih ? 'active' : ''}" data-key="vih"><i class="fas fa-ribbon"></i> 4. VIH / SIDA</span>
-          <span class="chip-toggle warning ${ant.tuberculosis ? 'active' : ''}" data-key="tuberculosis"><i class="fas fa-lungs"></i> 5. Tuberculosis</span>
-          <span class="chip-toggle warning ${ant.asma ? 'active' : ''}" data-key="asma"><i class="fas fa-wind"></i> 6. Asma</span>
-          <span class="chip-toggle warning ${ant.diabetes ? 'active' : ''}" data-key="diabetes"><i class="fas fa-cubes-stacked"></i> 7. Diabetes</span>
-          <span class="chip-toggle warning ${ant.hipertension ? 'active' : ''}" data-key="hipertension"><i class="fas fa-heart-pulse"></i> 8. Hipertensión</span>
-          <span class="chip-toggle warning ${ant.cardiaca ? 'active' : ''}" data-key="cardiaca"><i class="fas fa-heart"></i> 9. Enf. Cardíaca</span>
-          <span class="chip-toggle ${ant.otro ? 'active' : ''}" data-key="otro"><i class="fas fa-plus"></i> 10. Otro Antecedente</span>
-        </div>
-
-        <div class="grid-2" style="margin-top:12px;">
-          <div class="field">
-            <span>¿Se ha operado anteriormente? / Cirugías</span>
-            <input id="hcCirugias" type="text" placeholder="Ej: Apendicectomía hace 5 años / Ninguna" value="${ant.cirugias || ''}">
+      <!-- ========================================================
+           SECCIÓN 2: MOTIVO DE CONSULTA
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="2">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-comment-medical"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">2.</span> Motivo de Consulta</span>
+              <span class="hc-acc-sub">Queja principal anotada con las palabras del paciente</span>
+            </div>
           </div>
-          <div class="field">
-            <span>¿Cómo le fue en la recuperación post-quirúrgica?</span>
-            <input id="hcRecuperacion" type="text" placeholder="Ej: Buena, sin complicaciones / Sangrado prolongado" value="${ant.recuperacion || ''}">
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Motivo</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
           </div>
         </div>
+        <div class="hc-accordion-body">
+          <div class="chips-container" id="motivoChips" style="margin-bottom:12px;">
+            <span class="chip-toggle" data-val="Dolor dental agudo"><i class="fas fa-bolt"></i> Dolor Agudo</span>
+            <span class="chip-toggle" data-val="Control y Limpieza Bucal"><i class="fas fa-sparkles"></i> Control y Limpieza</span>
+            <span class="chip-toggle" data-val="Sangrado o inflamación de encías"><i class="fas fa-droplet"></i> Sangrado Encías</span>
+            <span class="chip-toggle" data-val="Restauración / Calce caído"><i class="fas fa-tooth"></i> Calce Caído</span>
+            <span class="chip-toggle" data-val="Estética / Blanqueamiento"><i class="fas fa-wand-magic-sparkles"></i> Estética</span>
+            <span class="chip-toggle" data-val="Prótesis / Implante dental"><i class="fas fa-cubes"></i> Prótesis / Implantes</span>
+            <span class="chip-toggle" data-val="Traumatismo dental"><i class="fas fa-car-burst"></i> Traumatismo</span>
+          </div>
+          <label class="field">
+            <span>Descripción del Motivo (Palabras textuales del paciente)</span>
+            <textarea id="hcMotivoConsulta" rows="2" placeholder="Describa la molestia principal..." style="width:100%;">${ch.motivoConsulta || ''}</textarea>
+          </label>
+        </div>
+      </div>
 
-        <!-- Alerta Crítica de Bifosfonatos -->
-        <div class="bifosfonatos-alert-box">
-          <i class="fas fa-triangle-exclamation" style="font-size:1.4rem; margin-top:2px;"></i>
-          <div style="flex:1;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
-              <strong>¿Le han recetado Bifosfonatos / Tratamiento antirresortivo óseo?</strong>
-              <div class="chips-container" id="bifosfonatosChips" style="margin:0;">
-                <span class="chip-toggle danger ${ant.bifosfonatos ? 'active' : ''}" data-val="si">⚠️ Sí, toma/tomó</span>
-                <span class="chip-toggle ${!ant.bifosfonatos ? 'active' : ''}" data-val="no">No</span>
+      <!-- ========================================================
+           SECCIÓN 3: ENFERMEDAD O PROBLEMA ACTUAL
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="3">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-timeline"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">3.</span> Enfermedad o Problema Actual</span>
+              <span class="hc-acc-sub">Cronología, localización, evolución y escala de dolor</span>
+            </div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Evolución</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
+        </div>
+        <div class="hc-accordion-body">
+          <div class="grid-2" style="gap:14px;">
+            <label class="field"><span>Cronología / Tiempo de Evolución</span><input id="hcEaCronologia" type="text" placeholder="Ej: Hace 3 días, empeoró anoche" value="${ch.enfermedadActual?.cronologia || ''}"></label>
+            <label class="field"><span>Localización y Síntomas</span><input id="hcEaLocalizacion" type="text" placeholder="Ej: Molar inferior derecha, pulsátil al calor/frío" value="${ch.enfermedadActual?.localizacion || ''}"></label>
+          </div>
+          <div style="margin-top:14px;">
+            <label class="field" style="margin-bottom:6px;"><span>Escala Visual Analógica de Dolor (EVA 0-10)</span></label>
+            <div class="chips-container" id="evaChips">
+              <span class="chip-toggle ${ch.enfermedadActual?.eva === '0' ? 'active' : ''}" data-val="0">0 - Sin dolor</span>
+              <span class="chip-toggle ${ch.enfermedadActual?.eva === '1-3' ? 'active' : ''}" data-val="1-3">1-3 Leve</span>
+              <span class="chip-toggle warning ${ch.enfermedadActual?.eva === '4-6' ? 'active' : ''}" data-val="4-6">4-6 Moderado</span>
+              <span class="chip-toggle danger ${ch.enfermedadActual?.eva === '7-9' ? 'active' : ''}" data-val="7-9">7-9 Severo</span>
+              <span class="chip-toggle danger ${ch.enfermedadActual?.eva === '10' ? 'active' : ''}" data-val="10">10 Insupportable</span>
+            </div>
+          </div>
+          <label class="field" style="margin-top:14px;">
+            <span>Evolución y Medicación Tomada</span>
+            <textarea id="hcEaEvolucion" rows="2" placeholder="Detalles de analgesia previa recibida o progresión..." style="width:100%;">${ch.enfermedadActual?.evolucion || ''}</textarea>
+          </label>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           SECCIÓN 4: ANTECEDENTES PERSONALES Y FAMILIARES
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="4">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-notes-medical"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">4.</span> Antecedentes Personales y Familiares</span>
+              <span class="hc-acc-sub">Patologías sistémicas, alergias, cirugías y alerta de bifosfonatos</span>
+            </div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Antecedentes</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
+        </div>
+        <div class="hc-accordion-body">
+          <p class="muted" style="font-size:0.85rem; margin-bottom:12px;">Haga clic sobre las condiciones que apliquen al paciente:</p>
+          <div class="chips-container" id="antecedentesChips">
+            <span class="chip-toggle danger ${ant.alergiaAntibiotico ? 'active' : ''}" data-key="alergiaAntibiotico"><i class="fas fa-pills"></i> Alergia Antibióticos</span>
+            <span class="chip-toggle danger ${ant.alergiaAnestesia ? 'active' : ''}" data-key="alergiaAnestesia"><i class="fas fa-syringe"></i> Alergia Anestesia</span>
+            <span class="chip-toggle danger ${ant.hemorragias ? 'active' : ''}" data-key="hemorragias"><i class="fas fa-droplet"></i> Hemorragias / Anticoagulados</span>
+            <span class="chip-toggle warning ${ant.diabetes ? 'active' : ''}" data-key="diabetes"><i class="fas fa-cube"></i> Diabetes</span>
+            <span class="chip-toggle warning ${ant.hipertension ? 'active' : ''}" data-key="hipertension"><i class="fas fa-heart"></i> Hipertensión Arterial</span>
+            <span class="chip-toggle warning ${ant.cardiaca ? 'active' : ''}" data-key="cardiaca"><i class="fas fa-heart-pulse"></i> Enfermedad Cardíaca</span>
+            <span class="chip-toggle ${ant.asma ? 'active' : ''}" data-key="asma"><i class="fas fa-lungs"></i> Asma / Respiratorio</span>
+            <span class="chip-toggle ${ant.vih ? 'active' : ''}" data-key="vih"><i class="fas fa-shield-virus"></i> VIH / ITS</span>
+            <span class="chip-toggle ${ant.tuberculosis ? 'active' : ''}" data-key="tuberculosis"><i class="fas fa-virus"></i> Tuberculosis</span>
+            <span class="chip-toggle ${ant.otro ? 'active' : ''}" data-key="otro"><i class="fas fa-plus"></i> Otro Antecedente</span>
+          </div>
+
+          <!-- ALERTA CRÍTICA: TRATAMIENTO CON BIFOSFONATOS -->
+          <div class="critical-alert-box" style="margin-top:16px; border:1px solid #fecaca; background:rgba(239,68,68,0.06); border-radius:12px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+              <div>
+                <strong style="color:var(--danger); display:flex; align-items:center; gap:6px;">
+                  <i class="fas fa-triangle-exclamation"></i> ¿Recibe o recibió tratamiento con Bifosfonatos?
+                </strong>
+                <small class="muted" style="display:block; margin-top:2px;">Riesgo alto de Osteonecrosis Maxilar por medicamentos (ONM).</small>
+              </div>
+              <div class="chips-container" id="bifosfonatosChips">
+                <span class="chip-toggle ${!ant.bifosfonatos ? 'active' : ''}" data-val="no">NO</span>
+                <span class="chip-toggle danger ${ant.bifosfonatos ? 'active' : ''}" data-val="si">SÍ</span>
               </div>
             </div>
-            <small>Fundamental para prevenir <strong>osteonecrosis maxilar</strong> ante extracciones o implantes (Ácido zoledrónico, Alendronato, etc.).</small>
-            <input id="hcBifosfonatosDetalle" type="text" placeholder="Fármaco, vía (oral/EV), tiempo de administración..." value="${ant.bifosfonatosDetalle || ''}" style="margin-top:8px; width:100%; display:${ant.bifosfonatos ? 'block' : 'none'};">
+            <input id="hcBifosfonatosDetalle" type="text" class="field-input" placeholder="Especifique fármaco (ej. Ácido Zoledrónico, Alendronato), vía y duración..." value="${ant.bifosfonatosDetalle || ''}" style="width:100%; margin-top:10px; display:${ant.bifosfonatos ? 'block' : 'none'};">
+          </div>
+
+          <div class="grid-2" style="margin-top:14px; gap:14px;">
+            <label class="field"><span>Cirugías y Hospitalizaciones Previas</span><input id="hcCirugias" type="text" placeholder="Ej: Apendicectomía (2020)" value="${ant.cirugias || ''}"></label>
+            <label class="field"><span>Complicaciones en Anestesia / Cicatrización</span><input id="hcRecuperacion" type="text" placeholder="Ej: Cicatrización lenta, mareos con anestésico" value="${ant.recuperacion || ''}"></label>
           </div>
         </div>
       </div>
 
-      <div class="hc-step-footer">
-        <div></div>
-        <button type="button" class="primary hc-next-step-btn" data-next="2">
-          Siguiente: Examen Físico <i class="fas fa-arrow-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- ========================================================
-         PASO 2: EXAMEN FÍSICO & ESTOMATOGNÁTICO (Secciones 5, 6)
-         ======================================================== -->
-    <div class="hc-step-pane" id="paneStep2" data-step="2">
-      
-      <!-- SECCIÓN 5: SIGNOS VITALES Y DATOS ANTROPOMÉTRICOS -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">5</span> Signos Vitales y Datos Antropométricos</h4>
-          <div id="hcImcBadge" class="imc-badge" style="background:var(--primary-light); color:var(--primary);">IMC: —</div>
+      <!-- ========================================================
+           SECCIÓN 5: SIGNOS VITALES Y SOMATOMETRÍA
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="5">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-heart-pulse"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">5.</span> Signos Vitales y Somatometría</span>
+              <span class="hc-acc-sub">PA, FC, FR, Temp, SpO2, Talla, Peso y cálculo automático de IMC</span>
+            </div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Signos Vitales</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
         </div>
-        <div class="vital-signs-grid">
-          <div class="vital-input-card">
-            <span>Presión Art. (PA)</span>
-            <input id="hcPa" type="text" placeholder="120/80" value="${sig.pa || ''}">
-            <small class="muted">mmHg</small>
+        <div class="hc-accordion-body">
+          <div class="vital-signs-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px;">
+            <div class="vital-card"><div class="vital-label"><i class="fas fa-stethoscope"></i> Presión Art.</div><input id="hcPa" type="text" placeholder="120/80" value="${sig.pa || ''}"><span class="vital-unit">mmHg</span></div>
+            <div class="vital-card"><div class="vital-label"><i class="fas fa-heart"></i> Frec. Cardíaca</div><input id="hcFc" type="number" placeholder="72" value="${sig.fc || ''}"><span class="vital-unit">lpm</span></div>
+            <div class="vital-card"><div class="vital-label"><i class="fas fa-lungs"></i> Frec. Resp.</div><input id="hcFr" type="number" placeholder="16" value="${sig.fr || ''}"><span class="vital-unit">rpm</span></div>
+            <div class="vital-card"><div class="vital-label"><i class="fas fa-temperature-half"></i> Temperatura</div><input id="hcTemp" type="text" placeholder="36.5" value="${sig.temp || ''}"><span class="vital-unit">°C</span></div>
+            <div class="vital-card"><div class="vital-label"><i class="fas fa-lungs"></i> SpO2</div><input id="hcSpo2" type="number" placeholder="98" value="${sig.spo2 || ''}"><span class="vital-unit">%</span></div>
+            <div class="vital-card"><div class="vital-label"><i class="fas fa-ruler-vertical"></i> Talla</div><input id="hcTalla" type="number" step="0.01" placeholder="1.70" value="${sig.talla || ''}"><span class="vital-unit">m</span></div>
+            <div class="vital-card"><div class="vital-label"><i class="fas fa-weight-scale"></i> Peso</div><input id="hcPeso" type="number" step="0.1" placeholder="70.5" value="${sig.peso || ''}"><span class="vital-unit">kg</span></div>
           </div>
-          <div class="vital-input-card">
-            <span>Frec. Cardíaca (FC)</span>
-            <input id="hcFc" type="number" placeholder="75" value="${sig.fc || ''}">
-            <small class="muted">lpm</small>
-          </div>
-          <div class="vital-input-card">
-            <span>Frec. Resp. (FR)</span>
-            <input id="hcFr" type="number" placeholder="18" value="${sig.fr || ''}">
-            <small class="muted">rpm</small>
-          </div>
-          <div class="vital-input-card">
-            <span>Temperatura</span>
-            <input id="hcTemp" type="number" step="0.1" placeholder="36.5" value="${sig.temp || ''}">
-            <small class="muted">°C</small>
-          </div>
-          <div class="vital-input-card">
-            <span>Saturación SpO2</span>
-            <input id="hcSpo2" type="number" placeholder="98" value="${sig.spo2 || ''}">
-            <small class="muted">%</small>
-          </div>
-          <div class="vital-input-card">
-            <span>Talla (Estatura)</span>
-            <input id="hcTalla" type="number" step="0.01" placeholder="1.70" value="${sig.talla || ''}">
-            <small class="muted">metros</small>
-          </div>
-          <div class="vital-input-card">
-            <span>Peso</span>
-            <input id="hcPeso" type="number" step="0.5" placeholder="70" value="${sig.peso || ''}">
-            <small class="muted">kg</small>
+          <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+            <div id="hcImcBadge" class="badge" style="font-size:0.92rem; padding:6px 14px; font-weight:700; background:var(--primary-light); color:var(--primary);">
+              IMC: —
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- SECCIÓN 6: EXAMEN DEL SISTEMA ESTOMATOGNÁTICO -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">6</span> Examen del Sistema Estomatognático</h4>
-          <small class="muted">12 Estructuras Anatómicas (Marca Patológico si hay lesión)</small>
+      <!-- ========================================================
+           SECCIÓN 6: EXAMEN DEL SISTEMA ESTOMATOGNÁTICO
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="6">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-head-side-medical"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">6.</span> Examen del Sistema Estomatognático</span>
+              <span class="hc-acc-sub">12 estructuras anatómicas con switches Sano / Patológico</span>
+            </div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Examen Físico</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
         </div>
-        <div class="estomato-grid" id="estomatoGridContainer">
-          ${renderEstomatoItems(est)}
+        <div class="hc-accordion-body">
+          <div class="estomato-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+            ${renderEstomatognaticoItems(est)}
+          </div>
         </div>
       </div>
 
-      <div class="hc-step-footer">
-        <button type="button" class="ghost hc-prev-step-btn" data-prev="1">
-          <i class="fas fa-arrow-left"></i> Anterior: Anamnesis
-        </button>
-        <button type="button" class="primary hc-next-step-btn" data-next="3">
-          Siguiente: Higiene & CPO <i class="fas fa-arrow-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- ========================================================
-         PASO 3: ODONTO & ÍNDICES DE SALUD (Secciones 7, 8, 9)
-         ======================================================== -->
-    <div class="hc-step-pane" id="paneStep3" data-step="3">
-      
-      <!-- SECCIÓN 7: ODONTOGRAMA -->
-      <div class="hc-section-card" style="background:linear-gradient(135deg, rgba(99,102,241,0.06), rgba(16,185,129,0.06)); border-color:rgba(99,102,241,0.25);">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">7</span> Odontograma FDI (Permanente y Temporal)</h4>
-          <button type="button" class="primary" onclick="window.switchPatientTab && window.switchPatientTab('odonto')" style="font-size:0.85rem;">
-            <i class="fas fa-tooth"></i> Abrir Odontograma Gráfico Completo
-          </button>
+      <!-- ========================================================
+           SECCIÓN 7: ODONTOGRAMA FDI
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="7">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-tooth"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">7.</span> Odontograma FDI (Permanente y Temporal)</span>
+              <span class="hc-acc-sub">Piezas permanentes (11-48), temporales (51-85) y mapeo gráfico</span>
+            </div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Odontograma</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
         </div>
-        <p class="muted" style="margin:0; font-size:0.88rem;">
-          El esquema interactivo permite registrar patologías por caras (Vestibular, Lingual, Oclusal, Mesial, Distal) y sincroniza automáticamente las intervenciones con los índices CPO.
-        </p>
+        <div class="hc-accordion-body">
+          <div style="background:linear-gradient(135deg, rgba(99,102,241,0.06), rgba(16,185,129,0.06)); border:1px solid rgba(99,102,241,0.25); border-radius:14px; padding:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+              <h4 style="margin:0 0 6px 0; color:var(--primary); font-size:1.05rem;"><i class="fas fa-teeth-open"></i> Odontograma Interactivo FDI</h4>
+              <p class="muted" style="margin:0; font-size:0.88rem; max-width:550px;">
+                Permite registrar patologías por caras anatómicas (Vestibular, Lingual/Palatina, Oclusal, Mesial, Distal) y sincroniza automáticamente las intervenciones con los índices CPO.
+              </p>
+            </div>
+            <button type="button" class="primary" onclick="window.switchPatientTab && window.switchPatientTab('odonto')" style="box-shadow:0 4px 14px rgba(99,102,241,0.35);">
+              <i class="fas fa-tooth"></i> Abrir Odontograma Gráfico
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- SECCIÓN 8 & 9: INDICADORES DE SALUD BUCAL E ÍNDICES CPO-ceo -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">8 & 9</span> Indicadores de Salud Bucal e Índices CPO / ceo</h4>
+      <!-- ========================================================
+           SECCIÓN 8: INDICADORES DE SALUD BUCAL (IHOS)
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="8">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-broom"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">8.</span> Indicadores de Salud Bucal (IHOS)</span>
+              <span class="hc-acc-sub">Índice de Higiene Oral Simplificado: placa, cálculo y gingivitis</span>
+            </div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Higiene Oral</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
         </div>
-
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
-          <!-- Higiene Oral Simplificada -->
-          <div>
-            <h5 style="margin-bottom:10px; font-weight:700; color:var(--text);"><i class="fas fa-broom" style="color:var(--primary);"></i> Higiene Oral Simplificada (Piezas Índice)</h5>
-            <table class="ihos-table">
+        <div class="hc-accordion-body">
+          <div style="overflow-x:auto;">
+            <table class="ihos-table" style="width:100%;">
               <thead>
                 <tr>
-                  <th>Piezas</th>
-                  <th>Placa (0-3)</th>
-                  <th>Cálculo (0-3)</th>
+                  <th>Piezas Índice</th>
+                  <th>Placa Bacteriana (0-3)</th>
+                  <th>Cálculo / Tártaro (0-3)</th>
                   <th>Gingivitis (0-1)</th>
                 </tr>
               </thead>
@@ -346,42 +352,61 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
 
-          <!-- Condiciones Generales & Índices CPO -->
-          <div>
-            <h5 style="margin-bottom:10px; font-weight:700; color:var(--text);"><i class="fas fa-chart-pie" style="color:var(--primary);"></i> Diagnóstico Oclusal y Periodontal</h5>
-            
-            <label class="field"><span>Oclusión (Clasificación de Angle)</span>
-              <div class="chips-container" id="oclusionChips" style="margin:4px 0 12px;">
-                <span class="chip-toggle ${(!ind.oclusion || ind.oclusion === 'Angle I') ? 'active' : ''}" data-val="Angle I">Angle I</span>
-                <span class="chip-toggle ${ind.oclusion === 'Angle II' ? 'active' : ''}" data-val="Angle II">Angle II</span>
-                <span class="chip-toggle ${ind.oclusion === 'Angle III' ? 'active' : ''}" data-val="Angle III">Angle III</span>
-              </div>
-            </label>
+      <!-- ========================================================
+           SECCIÓN 9: DIAGNÓSTICO OCLUSAL & ÍNDICES CPO
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="9">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-chart-pie"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">9.</span> Diagnóstico Oclusal & Índices CPO</span>
+              <span class="hc-acc-sub">Clasificación de Angle, periodonto, fluorosis y calculadora CPO/ceo</span>
+            </div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">CPO & Oclusión</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
+        </div>
+        <div class="hc-accordion-body">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+            <div>
+              <label class="field"><span>Oclusión (Clasificación de Angle)</span>
+                <div class="chips-container" id="oclusionChips" style="margin:4px 0 12px;">
+                  <span class="chip-toggle ${(!ind.oclusion || ind.oclusion === 'Angle I') ? 'active' : ''}" data-val="Angle I">Angle I</span>
+                  <span class="chip-toggle ${ind.oclusion === 'Angle II' ? 'active' : ''}" data-val="Angle II">Angle II</span>
+                  <span class="chip-toggle ${ind.oclusion === 'Angle III' ? 'active' : ''}" data-val="Angle III">Angle III</span>
+                </div>
+              </label>
 
-            <label class="field"><span>Enfermedad Periodontal</span>
-              <div class="chips-container" id="periodontalChips" style="margin:4px 0 12px;">
-                <span class="chip-toggle ${(!ind.periodontal || ind.periodontal === 'Sano') ? 'active' : ''}" data-val="Sano">Sano</span>
-                <span class="chip-toggle warning ${ind.periodontal === 'Leve' ? 'active' : ''}" data-val="Leve">Leve</span>
-                <span class="chip-toggle warning ${ind.periodontal === 'Moderada' ? 'active' : ''}" data-val="Moderada">Moderada</span>
-                <span class="chip-toggle danger ${ind.periodontal === 'Severa' ? 'active' : ''}" data-val="Severa">Severa</span>
-              </div>
-            </label>
+              <label class="field"><span>Enfermedad Periodontal</span>
+                <div class="chips-container" id="periodontalChips" style="margin:4px 0 12px;">
+                  <span class="chip-toggle ${(!ind.periodontal || ind.periodontal === 'Sano') ? 'active' : ''}" data-val="Sano">Sano</span>
+                  <span class="chip-toggle warning ${ind.periodontal === 'Leve' ? 'active' : ''}" data-val="Leve">Leve</span>
+                  <span class="chip-toggle warning ${ind.periodontal === 'Moderada' ? 'active' : ''}" data-val="Moderada">Moderada</span>
+                  <span class="chip-toggle danger ${ind.periodontal === 'Severa' ? 'active' : ''}" data-val="Severa">Severa</span>
+                </div>
+              </label>
 
-            <label class="field"><span>Fluorosis Dental</span>
-              <div class="chips-container" id="fluorosisChips" style="margin:4px 0 14px;">
-                <span class="chip-toggle ${(!ind.fluorosis || ind.fluorosis === 'Ausente') ? 'active' : ''}" data-val="Ausente">Ausente</span>
-                <span class="chip-toggle ${ind.fluorosis === 'Leve' ? 'active' : ''}" data-val="Leve">Leve</span>
-                <span class="chip-toggle warning ${ind.fluorosis === 'Moderada' ? 'active' : ''}" data-val="Moderada">Moderada</span>
-                <span class="chip-toggle danger ${ind.fluorosis === 'Severa' ? 'active' : ''}" data-val="Severa">Severa</span>
-              </div>
-            </label>
+              <label class="field"><span>Fluorosis Dental</span>
+                <div class="chips-container" id="fluorosisChips" style="margin:4px 0 14px;">
+                  <span class="chip-toggle ${(!ind.fluorosis || ind.fluorosis === 'Ausente') ? 'active' : ''}" data-val="Ausente">Ausente</span>
+                  <span class="chip-toggle ${ind.fluorosis === 'Leve' ? 'active' : ''}" data-val="Leve">Leve</span>
+                  <span class="chip-toggle warning ${ind.fluorosis === 'Moderada' ? 'active' : ''}" data-val="Moderada">Moderada</span>
+                  <span class="chip-toggle danger ${ind.fluorosis === 'Severa' ? 'active' : ''}" data-val="Severa">Severa</span>
+                </div>
+              </label>
+            </div>
 
-            <!-- Tarjetas CPO / ceo -->
-            <div class="cpo-grid">
+            <!-- Calculadoras CPO / ceo -->
+            <div class="cpo-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <div class="cpo-card">
                 <div class="cpo-card-head">
-                  <span>Índice CPO (Permanente)</span>
+                  <span>Índice CPO (Adulto)</span>
                   <span class="cpo-total-badge" id="cpoTotalBadge">${cpoData.totalCPO || 0}</span>
                 </div>
                 <div class="cpo-row"><span>Cariados (C):</span> <input id="cpoC" type="number" min="0" value="${cpoData.c || 0}" style="width:55px; text-align:center;"></div>
@@ -391,7 +416,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
 
               <div class="cpo-card">
                 <div class="cpo-card-head">
-                  <span>Índice ceo (Temporal)</span>
+                  <span>Índice ceo (Niño)</span>
                   <span class="cpo-total-badge" id="ceoTotalBadge">${cpoData.totalCeo || 0}</span>
                 </div>
                 <div class="cpo-row"><span>cariados (c):</span> <input id="ceoC" type="number" min="0" value="${cpoData.c_min || 0}" style="width:55px; text-align:center;"></div>
@@ -403,122 +428,136 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
         </div>
       </div>
 
-      <div class="hc-step-footer">
-        <button type="button" class="ghost hc-prev-step-btn" data-prev="2">
-          <i class="fas fa-arrow-left"></i> Anterior: Examen Físico
-        </button>
-        <button type="button" class="primary hc-next-step-btn" data-next="4">
-          Siguiente: CIE-11 & Planes <i class="fas fa-arrow-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- ========================================================
-         PASO 4: CIE-11 & PLANES DE TRATAMIENTO (Secciones 10, 11)
-         ======================================================== -->
-    <div class="hc-step-pane" id="paneStep4" data-step="4">
-      
-      <!-- SECCIÓN 10: PLANES DE DIAGNÓSTICO, TERAPÉUTICO Y EDUCACIONAL -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">10</span> Planes de Diagnóstico, Terapéutico y Educacional</h4>
-          <small class="muted">Exámenes complementarios solicitados antes o durante el tratamiento</small>
-        </div>
-        <div class="chips-container" id="planesDxChips">
-          <span class="chip-toggle ${planesDx.biometria ? 'active' : ''}" data-key="biometria"><i class="fas fa-vial"></i> Biometría Hemática</span>
-          <span class="chip-toggle ${planesDx.quimica ? 'active' : ''}" data-key="quimica"><i class="fas fa-flask"></i> Química Sanguínea / Glucosa</span>
-          <span class="chip-toggle ${planesDx.rayosXPeriapical ? 'active' : ''}" data-key="rayosXPeriapical"><i class="fas fa-x-ray"></i> Rayos X Periapical</span>
-          <span class="chip-toggle ${planesDx.rayosXPanoramica ? 'active' : ''}" data-key="rayosXPanoramica"><i class="fas fa-film"></i> Rayos X Panorámica</span>
-          <span class="chip-toggle ${planesDx.cbct ? 'active' : ''}" data-key="cbct"><i class="fas fa-cube"></i> Tomografía Dental CBCT</span>
-          <span class="chip-toggle ${planesDx.educacion ? 'active' : ''}" data-key="educacion"><i class="fas fa-chalkboard-user"></i> Educación en Higiene Oral</span>
-        </div>
-        <input id="hcPlanesOtros" type="text" class="field-input" placeholder="Otros exámenes, interconsultas médicas o indicaciones preoperatorias..." value="${planesDx.otros || ''}" style="width:100%; margin-top:8px;">
-      </div>
-
-      <!-- SECCIÓN 11: DIAGNÓSTICO CON CODIFICACIÓN CIE-11 -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">11</span> Diagnósticos (Clasificación CIE-11 Bucal)</h4>
-          <small class="muted">Búsqueda predictiva oficial OMS · Presuntivo (PRE) / Definitivo (DEF)</small>
-        </div>
-        <div id="cie11Container">
-          ${renderCIE11Rows(diagList)}
-        </div>
-      </div>
-
-      <div class="hc-step-footer">
-        <button type="button" class="ghost hc-prev-step-btn" data-prev="3">
-          <i class="fas fa-arrow-left"></i> Anterior: Higiene & CPO
-        </button>
-        <button type="button" class="primary hc-next-step-btn" data-next="5">
-          Siguiente: Sesiones Clínicas <i class="fas fa-arrow-right"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- ========================================================
-         PASO 5: TRATAMIENTO, SESIONES Y FIRMAS (Sección 12)
-         ======================================================== -->
-    <div class="hc-step-pane" id="paneStep5" data-step="5">
-      
-      <!-- SECCIÓN 12: TRATAMIENTO Y EVOLUCIÓN (Sesiones de Consulta) -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><span class="hc-section-num">12</span> Tratamiento y Evolución de Sesiones</h4>
-          <button type="button" id="hcNewSessionBtn" class="primary" style="font-size:0.85rem;"><i class="fas fa-plus"></i> Registrar Nueva Sesión</button>
-        </div>
-        
-        <!-- Formulario para Nueva Sesión -->
-        <div id="newSessionFormArea" style="display:none; background:var(--bg-page); border:1.5px dashed var(--primary); border-radius:14px; padding:18px; margin-bottom:20px;">
-          <h5 style="margin-bottom:14px; color:var(--primary); font-size:1rem;"><i class="fas fa-calendar-plus"></i> Registrar Nueva Sesión de Tratamiento</h5>
-          <div class="grid-2" style="gap:12px;">
-            <label class="field"><span>Fecha de Sesión</span><input id="sesDate" type="date" value="${formatDate(new Date())}"></label>
-            <label class="field"><span>Diagnóstico y Complicaciones</span><input id="sesDx" type="text" placeholder="Ej: Caries oclusal profunda en 36, sin sangrado"></label>
-            <label class="field" style="grid-column:1/-1;"><span>Procedimiento Clínico Ejecutado *</span><input id="sesProc" type="text" placeholder="Ej: Apertura, aislamiento absoluto, obturación composite fotocurable"></label>
-            <label class="field" style="grid-column:1/-1;"><span>Prescripciones Farmacológicas (Receta médica)</span><input id="sesRx" type="text" placeholder="Ej: Amoxicilina 500mg c/8h x 7 días + Ibuprofeno 400mg c/8h x dolor"></label>
-            <label class="field"><span>Código de Procedimiento</span><input id="sesCode" type="text" placeholder="Ej: OBT-036 / CIR-01"></label>
-            <label class="field"><span>Firma Profesional</span><input id="sesSign" type="text" value="${patient.assignedProfessionalName || 'Dr. Asignado'}"></label>
-          </div>
-          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
-            <button type="button" id="sesCancelBtn" class="ghost">Cancelar</button>
-            <button type="button" id="sesSaveBtn" class="primary"><i class="fas fa-check"></i> Guardar Sesión</button>
-          </div>
-        </div>
-
-        <div id="sessionHistoryList">
-          ${renderSessionHistory(notes)}
-        </div>
-      </div>
-
-      <!-- Área de Adjuntos y Radiografías -->
-      <div class="hc-section-card">
-        <div class="hc-section-header">
-          <h4><i class="fas fa-images" style="color:var(--primary);"></i> Estudios Radiográficos y Fotos Clínicas</h4>
-          <button type="button" id="hcShowAttachments" class="ghost" style="font-size:0.85rem;"><i class="fas fa-folder-open"></i> Ver adjuntos (0)</button>
-        </div>
-        <div id="hcAttachmentsArea" style="display:none; margin-top:12px;">
-          ${canEdit ? `
-            <div style="margin-bottom:12px; display:flex; gap:10px; align-items:center;">
-              <input type="file" id="hcFileInput" multiple accept="image/*,.pdf" style="display:none;">
-              <button type="button" class="ghost" onclick="this.previousElementSibling.click()"><i class="fas fa-upload"></i> Subir Foto o Radiografía</button>
-              <small class="muted">Formatos admitidos: JPG, PNG, PDF</small>
+      <!-- ========================================================
+           SECCIÓN 10: PLANES DE DIAGNÓSTICO, TERAPÉUTICO Y EDUCACIONAL
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="10">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-list-check"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">10.</span> Planes de Diagnóstico, Terapéutico y Educacional</span>
+              <span class="hc-acc-sub">Exámenes complementarios, radiografías y recomendaciones</span>
             </div>
-          ` : ''}
-          <div id="hcAttachmentsList" class="attachments-grid"></div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Plan Clínico</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
+        </div>
+        <div class="hc-accordion-body">
+          <div class="chips-container" id="planesDxChips" style="margin-bottom:12px;">
+            <span class="chip-toggle ${planesDx.biometria ? 'active' : ''}" data-key="biometria"><i class="fas fa-vial"></i> Biometría Hemática</span>
+            <span class="chip-toggle ${planesDx.quimica ? 'active' : ''}" data-key="quimica"><i class="fas fa-flask"></i> Química Sanguínea / Glucosa</span>
+            <span class="chip-toggle ${planesDx.rayosXPeriapical ? 'active' : ''}" data-key="rayosXPeriapical"><i class="fas fa-x-ray"></i> Rayos X Periapical</span>
+            <span class="chip-toggle ${planesDx.rayosXPanoramica ? 'active' : ''}" data-key="rayosXPanoramica"><i class="fas fa-film"></i> Rayos X Panorámica</span>
+            <span class="chip-toggle ${planesDx.cbct ? 'active' : ''}" data-key="cbct"><i class="fas fa-cube"></i> Tomografía Dental CBCT</span>
+            <span class="chip-toggle ${planesDx.educacion ? 'active' : ''}" data-key="educacion"><i class="fas fa-chalkboard-user"></i> Educación en Higiene Oral</span>
+          </div>
+          <input id="hcPlanesOtros" type="text" class="field-input" placeholder="Otros exámenes, interconsultas médicas o indicaciones preoperatorias..." value="${planesDx.otros || ''}" style="width:100%;">
         </div>
       </div>
 
-      <div class="hc-step-footer">
-        <button type="button" class="ghost hc-prev-step-btn" data-prev="4">
-          <i class="fas fa-arrow-left"></i> Anterior: CIE-11 & Planes
-        </button>
-        ${canEdit ? `
-          <button type="button" id="hcBottomSaveBtn" class="primary" style="box-shadow:0 4px 14px rgba(99,102,241,0.35);">
-            <i class="fas fa-save"></i> Guardar Historia Clínica Completa
-          </button>
-        ` : '<div></div>'}
+      <!-- ========================================================
+           SECCIÓN 11: DIAGNÓSTICOS ODONTOLÓGICOS (CIE-11 OMS)
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="11">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-stethoscope"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">11.</span> Diagnósticos Odontológicos (CIE-11 OMS)</span>
+              <span class="hc-acc-sub">Buscador predictivo oficial OMS y asignación Presuntivo / Definitivo</span>
+            </div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">CIE-11 OMS</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
+        </div>
+        <div class="hc-accordion-body">
+          <p class="muted" style="font-size:0.85rem; margin-bottom:12px;">Escriba para autocompletar diagnósticos del catálogo internacional CIE-11 de la OMS:</p>
+          <div id="cie11Container">
+            ${renderCIE11Rows(diagList)}
+          </div>
+        </div>
       </div>
+
+      <!-- ========================================================
+           SECCIÓN 12: TRATAMIENTO, SESIONES CLÍNICAS & PRESCRIPCIONES
+           ======================================================== -->
+      <div class="hc-accordion-card" data-section="12">
+        <div class="hc-accordion-header" role="button" tabindex="0">
+          <div class="hc-acc-left">
+            <div class="hc-acc-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="hc-acc-text">
+              <span class="hc-acc-title"><span class="hc-acc-num">12.</span> Tratamiento, Sesiones Clínicas & Prescripciones</span>
+              <span class="hc-acc-sub">Evoluciones cronológicas, notas clínicas y recetas farmacológicas</span>
+            </div>
+          </div>
+          <div class="hc-acc-right">
+            <span class="hc-acc-badge">Sesiones & Recetas</span>
+            <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
+          </div>
+        </div>
+        <div class="hc-accordion-body">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+            <p class="muted" style="margin:0; font-size:0.88rem;">Historial de atenciones, evolución y recetas médicas emitidas:</p>
+            <button type="button" id="hcNewSessionBtn" class="primary" style="font-size:0.85rem;"><i class="fas fa-plus"></i> Registrar Nueva Sesión</button>
+          </div>
+          
+          <!-- Formulario para Nueva Sesión -->
+          <div id="newSessionFormArea" style="display:none; background:var(--bg-page); border:1.5px dashed var(--primary); border-radius:14px; padding:18px; margin-bottom:20px;">
+            <h5 style="margin-bottom:14px; color:var(--primary); font-size:1rem;"><i class="fas fa-calendar-plus"></i> Registrar Nueva Sesión de Tratamiento</h5>
+            <div class="grid-2" style="gap:12px;">
+              <label class="field"><span>Fecha de Sesión</span><input id="sesDate" type="date" value="${formatDate(new Date())}"></label>
+              <label class="field"><span>Diagnóstico y Complicaciones</span><input id="sesDx" type="text" placeholder="Ej: Caries oclusal profunda en 36, sin sangrado"></label>
+              <label class="field" style="grid-column:1/-1;"><span>Procedimiento Clínico Ejecutado *</span><input id="sesProc" type="text" placeholder="Ej: Apertura, aislamiento absoluto, obturación composite fotocurable"></label>
+              <label class="field" style="grid-column:1/-1;"><span>Prescripciones Farmacológicas (Receta médica)</span><input id="sesRx" type="text" placeholder="Ej: Amoxicilina 500mg c/8h x 7 días + Ibuprofeno 400mg c/8h x dolor"></label>
+              <label class="field"><span>Código de Procedimiento</span><input id="sesCode" type="text" placeholder="Ej: OBT-036 / CIR-01"></label>
+              <label class="field"><span>Firma Profesional</span><input id="sesSign" type="text" value="${patient.assignedProfessionalName || 'Dr. Asignado'}"></label>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+              <button type="button" id="sesCancelBtn" class="ghost">Cancelar</button>
+              <button type="button" id="sesSaveBtn" class="primary"><i class="fas fa-check"></i> Guardar Sesión</button>
+            </div>
+          </div>
+
+          <div id="sessionHistoryList">
+            ${renderSessionHistory(notes)}
+          </div>
+
+          <!-- Área de Adjuntos y Radiografías -->
+          <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h5 style="margin:0; font-size:0.95rem; font-weight:700;"><i class="fas fa-images" style="color:var(--primary);"></i> Radiografías y Fotos Clínicas</h5>
+              <button type="button" id="hcShowAttachments" class="ghost" style="font-size:0.85rem;"><i class="fas fa-folder-open"></i> Ver adjuntos (0)</button>
+            </div>
+            <div id="hcAttachmentsArea" style="display:none; margin-top:12px;">
+              ${canEdit ? `
+                <div class="upload-box" style="border:2px dashed var(--border); border-radius:12px; padding:20px; text-align:center; background:var(--bg-page); margin-bottom:16px; cursor:pointer;" onclick="document.getElementById('hcFileInput').click()">
+                  <i class="fas fa-cloud-upload-alt" style="font-size:2rem; color:var(--primary); margin-bottom:8px;"></i>
+                  <p style="margin:0; font-weight:600; font-size:0.9rem;">Haz clic o arrastra radiografías / fotos aquí</p>
+                  <small class="muted">PNG, JPG, JPEG, WEBP, PDF</small>
+                  <input type="file" id="hcFileInput" multiple accept="image/*,application/pdf" style="display:none;">
+                </div>
+              ` : ''}
+              <div id="hcAttachmentsList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
+
+    <!-- 3. BARRA INFERIOR DE GUARDADO -->
+    ${canEdit ? `
+      <div style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">
+        <button id="hcBottomSaveBtn" class="primary" style="box-shadow:0 4px 14px rgba(99,102,241,0.35); padding:12px 24px; font-weight:700;">
+          <i class="fas fa-save"></i> Guardar Historia Clínica Completa
+        </button>
+      </div>
+    ` : ''}
   `;
 
   setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit, onSaveFullHistory);
@@ -526,42 +565,34 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
   return container;
 }
 
-function calculateAge(birthdate) {
-  if (!birthdate) return '—';
-  const diff = Date.now() - new Date(birthdate).getTime();
-  const ageDate = new Date(diff);
-  return Math.abs(ageDate.getUTCFullYear() - 1970) + ' años';
-}
-
-function renderEstomatoItems(est = {}) {
+function renderEstomatognaticoItems(est = {}) {
   const items = [
-    { key: 'labios', name: '1. Labios' },
-    { key: 'mejillas', name: '2. Mejillas' },
-    { key: 'maxilarSup', name: '3. Maxilar Superior' },
-    { key: 'maxilarInf', name: '4. Maxilar Inferior' },
-    { key: 'lengua', name: '5. Lengua' },
-    { key: 'paladar', name: '6. Paladar' },
-    { key: 'piso', name: '7. Piso de Boca' },
-    { key: 'carrillos', name: '8. Carrillos' },
-    { key: 'glandulas', name: '9. Glándulas Salivales' },
-    { key: 'orofaringe', name: '10. Orofaringe' },
-    { key: 'atm', name: '11. ATM' },
-    { key: 'ganglios', name: '12. Ganglios' }
+    { key: 'labios', label: '1. Labios' },
+    { key: 'mejillas', label: '2. Mejillas' },
+    { key: 'maxilarSup', label: '3. Maxilar Superior' },
+    { key: 'maxilarInf', label: '4. Maxilar Inferior' },
+    { key: 'lengua', label: '5. Lengua' },
+    { key: 'paladar', label: '6. Paladar' },
+    { key: 'pisoBoca', label: '7. Piso de Boca' },
+    { key: 'carrillos', label: '8. Carrillos' },
+    { key: 'glandulas', label: '9. Glándulas Salivales' },
+    { key: 'orofaringe', label: '10. Orofaringe' },
+    { key: 'atm', label: '11. ATM (Articulación)' },
+    { key: 'ganglios', label: '12. Ganglios Linfáticos' }
   ];
 
-  return items.map(it => {
-    const isPat = est[it.key]?.estado === 'patologico';
-    const obs = est[it.key]?.obs || '';
+  return items.map(item => {
+    const val = est[item.key] || { estado: 'normal', obs: '' };
+    const isPat = val.estado === 'patologico';
+
     return `
-      <div class="estomato-item" data-key="${it.key}">
-        <div class="estomato-item-head">
-          <span class="estomato-title">${it.name}</span>
-          <div class="estomato-switch">
-            <button type="button" class="estomato-switch-btn normal ${!isPat ? 'active' : ''}" data-val="normal">Sano</button>
-            <button type="button" class="estomato-switch-btn patologico ${isPat ? 'active' : ''}" data-val="patologico">Patol.</button>
-          </div>
+      <div class="estomato-item" data-key="${item.key}">
+        <span class="estomato-label">${item.label}</span>
+        <div class="estomato-switch-group">
+          <button type="button" class="estomato-switch-btn sano ${!isPat ? 'active' : ''}" data-val="normal">Sano</button>
+          <button type="button" class="estomato-switch-btn patologico ${isPat ? 'active' : ''}" data-val="patologico">Patológico</button>
         </div>
-        <input type="text" class="estomato-obs field-input" placeholder="Detalles de la lesión..." value="${obs}" style="display:${isPat ? 'block' : 'none'}; font-size:0.8rem; margin-top:4px;">
+        <input type="text" class="field-input estomato-obs" placeholder="Describa la lesión o anomalía..." value="${val.obs || ''}" style="width:100%; margin-top:8px; display:${isPat ? 'block' : 'none'}; font-size:0.85rem;">
       </div>
     `;
   }).join('');
@@ -569,12 +600,12 @@ function renderEstomatoItems(est = {}) {
 
 function renderIHOSTableRows(ihos = {}) {
   const pieces = [
-    { key: 'p16_17_55', label: '16 / 17 / 55' },
-    { key: 'p11_21_51', label: '11 / 21 / 51' },
-    { key: 'p26_27_65', label: '26 / 27 / 65' },
-    { key: 'p36_37_75', label: '36 / 37 / 75' },
-    { key: 'p31_41_71', label: '31 / 41 / 71' },
-    { key: 'p46_47_85', label: '46 / 47 / 85' }
+    { key: 'p16', label: 'Pieza 16 / 55' },
+    { key: 'p11', label: 'Pieza 11 / 51' },
+    { key: 'p26', label: 'Pieza 26 / 65' },
+    { key: 'p36', label: 'Pieza 36 / 75' },
+    { key: 'p31', label: 'Pieza 31 / 71' },
+    { key: 'p46', label: 'Pieza 46 / 85' }
   ];
 
   return pieces.map(p => {
@@ -584,18 +615,18 @@ function renderIHOSTableRows(ihos = {}) {
         <td><strong>${p.label}</strong></td>
         <td>
           <select class="ihos-placa">
-            <option value="0" ${row.placa == 0 ? 'selected' : ''}>0 - Sin placa</option>
-            <option value="1" ${row.placa == 1 ? 'selected' : ''}>1 - 1/3 corona</option>
-            <option value="2" ${row.placa == 2 ? 'selected' : ''}>2 - 2/3 corona</option>
-            <option value="3" ${row.placa == 3 ? 'selected' : ''}>3 - > 2/3</option>
+            <option value="0" ${row.placa == 0 ? 'selected' : ''}>0 - Ausente</option>
+            <option value="1" ${row.placa == 1 ? 'selected' : ''}>1 - 1/3 de corona</option>
+            <option value="2" ${row.placa == 2 ? 'selected' : ''}>2 - 2/3 de corona</option>
+            <option value="3" ${row.placa == 3 ? 'selected' : ''}>3 - Más de 2/3</option>
           </select>
         </td>
         <td>
           <select class="ihos-calculo">
-            <option value="0" ${row.calculo == 0 ? 'selected' : ''}>0 - Sin cálculo</option>
+            <option value="0" ${row.calculo == 0 ? 'selected' : ''}>0 - Ausente</option>
             <option value="1" ${row.calculo == 1 ? 'selected' : ''}>1 - Supragingival 1/3</option>
             <option value="2" ${row.calculo == 2 ? 'selected' : ''}>2 - Supragingival 2/3</option>
-            <option value="3" ${row.calculo == 3 ? 'selected' : ''}>3 - Subgingival continuo</option>
+            <option value="3" ${row.calculo == 3 ? 'selected' : ''}>3 - Subgingival / Abundante</option>
           </select>
         </td>
         <td>
@@ -662,53 +693,35 @@ function calculateCPOFromNotes(notes = []) {
 }
 
 function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit = true, onSaveFullHistory) {
-  // 0. Navegación por Pasos (Wizard)
-  const tabBtns = container.querySelectorAll('.hc-tab-btn');
-  const panes = container.querySelectorAll('.hc-step-pane');
-  const viewModeBtns = container.querySelectorAll('.hc-view-mode-btn');
-
-  function goToStep(stepNum) {
-    tabBtns.forEach(b => b.classList.toggle('active', b.dataset.step === String(stepNum)));
-    panes.forEach(p => p.classList.toggle('active', p.dataset.step === String(stepNum)));
-  }
-
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      goToStep(btn.dataset.step);
-    });
+  // 0. Interacción Acordeón de 12 Secciones
+  const cards = container.querySelectorAll('.hc-accordion-card');
+  cards.forEach(card => {
+    const header = card.querySelector('.hc-accordion-header');
+    if (header) {
+      header.addEventListener('click', () => {
+        // Toggle card open state
+        card.classList.toggle('open');
+      });
+      // Accessibility: toggle on Enter / Space
+      header.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.classList.toggle('open');
+        }
+      });
+    }
   });
 
-  container.querySelectorAll('.hc-next-step-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      goToStep(btn.dataset.next);
-      window.scrollTo({ top: container.offsetTop - 20, behavior: 'smooth' });
-    });
+  // Botones Desplegar Todo / Colapsar Todo
+  const expandAllBtn = container.querySelector('#hcExpandAllBtn');
+  const collapseAllBtn = container.querySelector('#hcCollapseAllBtn');
+
+  expandAllBtn?.addEventListener('click', () => {
+    cards.forEach(c => c.classList.add('open'));
   });
 
-  container.querySelectorAll('.hc-prev-step-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      goToStep(btn.dataset.prev);
-      window.scrollTo({ top: container.offsetTop - 20, behavior: 'smooth' });
-    });
-  });
-
-  // Toggle Modo Vista: Wizard vs Full
-  viewModeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      viewModeBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const mode = btn.dataset.mode;
-      if (mode === 'full') {
-        panes.forEach(p => p.style.display = 'block');
-        const nav = container.querySelector('#hcTabsNav');
-        if (nav) nav.style.display = 'none';
-      } else {
-        const nav = container.querySelector('#hcTabsNav');
-        if (nav) nav.style.display = 'flex';
-        panes.forEach(p => p.style.display = '');
-        goToStep(1);
-      }
-    });
+  collapseAllBtn?.addEventListener('click', () => {
+    cards.forEach(c => c.classList.remove('open'));
   });
 
   // 1. Chips de Motivo de Consulta
@@ -726,7 +739,8 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   // 2. Chips de Dolor EVA
   container.querySelectorAll('#evaChips .chip-toggle').forEach(chip => {
     chip.addEventListener('click', () => {
-      chip.classList.toggle('active');
+      container.querySelectorAll('#evaChips .chip-toggle').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
     });
   });
 
@@ -1044,6 +1058,7 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
       enfermedadActual: {
         cronologia: container.querySelector('#hcEaCronologia')?.value.trim() || '',
         localizacion: container.querySelector('#hcEaLocalizacion')?.value.trim() || '',
+        eva: container.querySelector('#evaChips .chip-toggle.active')?.dataset.val || '0',
         evolucion: container.querySelector('#hcEaEvolucion')?.value.trim() || ''
       },
       antecedentes,

@@ -859,9 +859,170 @@ tr.active-row {
   transition: all 0.15s;
 }
 
-.hc-view-mode-btn.active {
+/* =========================================================
+   HISTORIA CLÍNICA - ACCORDION CARDS UI
+   ========================================================= */
+
+.hc-accordion-deck {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hc-accordion-card {
+  background: var(--glass-bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hc-accordion-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.hc-accordion-card.open {
+  border-color: var(--primary);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.12);
+}
+
+.hc-accordion-header {
+  width: 100%;
+  padding: 14px 18px;
+  background: transparent;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
+  transition: background 0.2s;
+  gap: 12px;
+}
+
+.hc-accordion-header:hover {
+  background: var(--bg-page);
+}
+
+.hc-accordion-card.open .hc-accordion-header {
+  background: var(--primary-light);
+  border-bottom: 1px solid var(--border);
+}
+
+.hc-acc-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.hc-acc-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
   color: var(--primary);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.hc-accordion-card.open .hc-acc-icon {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.hc-acc-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.hc-acc-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hc-acc-num {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.hc-acc-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.hc-acc-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hc-acc-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.hc-accordion-card.open .hc-acc-badge {
+  background: var(--surface);
+  color: var(--primary-strong);
+  border-color: var(--primary-light);
+}
+
+.hc-acc-chevron {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s;
+}
+
+.hc-accordion-card.open .hc-acc-chevron {
+  transform: rotate(180deg);
+  color: var(--primary);
+  background: rgba(99, 102, 241, 0.15);
+}
+
+.hc-accordion-body {
+  display: none;
+  padding: 20px;
+  animation: hcSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hc-accordion-card.open .hc-accordion-body {
+  display: block;
+}
+
+@keyframes hcSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
