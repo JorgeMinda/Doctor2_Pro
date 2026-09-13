@@ -346,6 +346,73 @@ class TransactSafeDatabase {
         return array_slice($movs, 0, (int)$limit);
     }
 
+    public function recordCashClosure($accountId, $countedAmount, $notes = '', $closedBy = null) {
+        $countedAmount = (float)$countedAmount;
+        $autoTx = !$this->inTransaction;
+        if ($autoTx) $this->beginTransaction();
+
+        $accounts = &$this->data['treasury_accounts'];
+        $targetAccount = null;
+        foreach ($accounts as &$acc) {
+            if ($acc['id'] === $accountId) {
+                $targetAccount = &$acc;
+                break;
+            }
+        }
+
+        if (!$targetAccount) {
+            $targetAccount = &$accounts[0];
+            $accountId = $targetAccount['id'];
+        }
+
+        $expectedBalance = (float)($targetAccount['balance'] ?? 0);
+        $difference = round($countedAmount - $expectedBalance, 2);
+
+        $status = 'CUADRADO';
+        if ($difference > 0) $status = 'SOBRANTE';
+        elseif ($difference < 0) $status = 'FALTANTE';
+
+        $closure = [
+            'id' => 'cls_' . bin2hex(random_bytes(8)),
+            'timestamp' => date('c'),
+            'date' => date('Y-m-d'),
+            'time' => date('H:i:s'),
+            'accountId' => $accountId,
+            'accountName' => $targetAccount['name'],
+            'expectedBalance' => $expectedBalance,
+            'countedAmount' => $countedAmount,
+            'difference' => $difference,
+            'status' => $status,
+            'notes' => trim($notes),
+            'closedBy' => $closedBy ?? 'Dr. Jorge Valenzuela'
+        ];
+
+        if (!isset($this->data['treasury_closures'])) {
+            $this->data['treasury_closures'] = [];
+        }
+        array_unshift($this->data['treasury_closures'], $closure);
+
+        // Audit log for cash closure
+        $this->logAudit('TREASURY', $closure['id'], 'CASH_CLOSURE', [
+            'expectedBalance' => $expectedBalance
+        ], [
+            'countedAmount' => $countedAmount,
+            'difference' => $difference,
+            'status' => $status
+        ], null, ['accountId' => $accountId, 'notes' => $notes]);
+
+        if ($autoTx) $this->commit();
+        return $closure;
+    }
+
+    public function getTreasuryClosures($limit = 100, $accountId = null) {
+        $closures = $this->getCollection('treasury_closures');
+        if ($accountId) {
+            $closures = array_values(array_filter($closures, fn($c) => ($c['accountId'] ?? '') === $accountId));
+        }
+        return array_slice($closures, 0, (int)$limit);
+    }
+
     /**
      * Map payment method string to treasury account ID
      */

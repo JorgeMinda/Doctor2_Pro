@@ -29,5 +29,7 @@ export const api = {
   inventory: 'api/inventory.php',
   notifications: 'api/notifications.php',
   suscripcion: 'api/suscripcion.php',
-  galiciaNave: 'api/galicia-nave.php'
+  galiciaNave: 'api/galicia-nave.php',
+  treasury: 'api/treasury.php'
 };
+

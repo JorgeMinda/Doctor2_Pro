@@ -17,6 +17,7 @@ import { initBlockedDays } from './modules/app-blocked-days.js';
 import { SuscripcionManager } from './modules/app-subscription.js';
 import { initAgendaPrint } from './modules/app-agenda-print.js';
 import { initAIAssistant } from './modules/app-ai-assistant.js';
+import { initTreasuryModule, loadTreasuryData } from './modules/app-treasury.js';
 import {
   openModal,
   closeModal,
@@ -83,6 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAgendaPrint();
   setupInventoryListeners();
   SuscripcionManager.init();
+  initTreasuryModule();
 
   // 3. Cargar datos iniciales
   await Promise.allSettled([
@@ -90,7 +92,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadPatients(),
     loadMonth(),
     loadNotifications(),
-    loadInventory()
+    loadInventory(),
+    loadTreasuryData()
   ]);
 
   initChat();
@@ -106,6 +109,7 @@ el('logoutBtn')?.addEventListener('click', logout);
 el('navAgenda')?.addEventListener('click', () => setNav('agenda'));
 el('navPatients')?.addEventListener('click', () => setNav('patients'));
 el('navPros')?.addEventListener('click', () => setNav('professionals'));
+el('navTreasury')?.addEventListener('click', () => { setNav('treasury'); loadTreasuryData(); });
 el('navInventory')?.addEventListener('click', () => { setNav('inventory'); loadInventory(); });
 el('navAnalytics')?.addEventListener('click', () => { setNav('analytics'); renderAnalytics(); });
 el('navConfig')?.addEventListener('click', () => setNav('notifications'));
