@@ -75,32 +75,14 @@
             ]
         },
         {
-            "id": "pat-3f60933a62",
-            "name": "jhh",
-            "dni": "hjjhhjjhh",
-            "sex": "",
-            "occupation": "",
-            "phone": "+5939727485443",
-            "email": "Kaelyn86@gmail.com",
-            "birthdate": "2026-09-13",
-            "health_insurance": "jhk",
-            "affiliate_number": "",
-            "representativeName": "",
-            "representativeDni": "",
-            "emergencyPhone": "",
-            "notes": "",
-            "allergies": "",
-            "created_at": "2026-09-13 14:40:56"
-        },
-        {
-            "id": "pat-d5c2e3d5a5",
+            "id": "pat-a0f1df7fd2",
             "name": "jhh",
             "dni": "hjjhhjjhh",
             "sex": "Femenino",
             "occupation": "",
             "phone": "+5939727485443",
             "email": "Kaelyn86@gmail.com",
-            "birthdate": "2026-09-07",
+            "birthdate": "2026-09-01",
             "health_insurance": "jhk",
             "affiliate_number": "",
             "representativeName": "",
@@ -108,7 +90,7 @@
             "emergencyPhone": "",
             "notes": "",
             "allergies": "",
-            "created_at": "2026-09-13 14:45:00"
+            "created_at": "2026-09-13 14:51:48"
         }
     ],
     "appointments": [

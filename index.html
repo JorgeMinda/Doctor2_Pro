@@ -714,14 +714,15 @@
           <h3>Mi Perfil</h3>
         </div>
         <button id="closeProfile" class="ghost"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="field"><span>Email de Notificaciones</span><input type="email" value="contacto@consultorios.pro"></div>
-      <div class="field"><span>Teléfono / WhatsApp</span><input type="tel" value="+5491123456789"></div>
-      <div class="field"><span>Cambiar Contraseña</span><input type="password" placeholder="Nueva contraseña"></div>
-      <div class="modal-actions">
-        <button id="saveProfile" class="primary"><i class="fas fa-save"></i> Guardar</button>
-        <button id="cancelProfile" class="ghost">Cerrar</button>
-      </div>
+      <form id="profileForm" onsubmit="event.preventDefault();">
+        <div class="field"><span>Email de Notificaciones</span><input type="email" value="contacto@consultorios.pro" autocomplete="email"></div>
+        <div class="field"><span>Teléfono / WhatsApp</span><input type="tel" value="+5491123456789" autocomplete="tel"></div>
+        <div class="field"><span>Cambiar Contraseña</span><input type="password" placeholder="Nueva contraseña" autocomplete="new-password"></div>
+        <div class="modal-actions" style="margin-top:16px;">
+          <button id="saveProfile" type="button" class="primary"><i class="fas fa-save"></i> Guardar</button>
+          <button id="cancelProfile" type="button" class="ghost">Cerrar</button>
+        </div>
+      </form>
     </div>
   </div>
 

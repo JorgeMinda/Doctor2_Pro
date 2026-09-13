@@ -715,6 +715,47 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote) {
   container.querySelector('#hcSaveAllBtn')?.addEventListener('click', async () => {
     await saveFullClinicalHistory(container, patient);
   });
+
+  const notesContainer = container.querySelector('#hcNotesList');
+  if (notesContainer) {
+    const planMap = (plans || []).reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
+    renderNotesList(notesContainer, notes, planMap);
+  }
+
+  loadAttachments(patient.id, container, canEdit);
+
+  return container;
+}
+
+function renderNotesList(notesContainer, notes = [], planMap = {}) {
+  if (!notesContainer) return;
+  notesContainer.innerHTML = '';
+  notes.forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'evolucion-note';
+    div.style.cssText = 'background:var(--bg-page); border:1px solid var(--border); border-left:4px solid var(--primary); border-radius:8px; padding:14px; margin-bottom:12px;';
+    
+    const planTxt = n.planId && planMap[n.planId] 
+      ? `<span class="badge" style="margin-top:6px; display:inline-block;"><i class="fas fa-clipboard-list"></i> Plan: ${planMap[n.planId].title}</span>` 
+      : '';
+    
+    div.innerHTML = `
+      <div class="note-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <strong><i class="fas fa-calendar-day" style="color:var(--primary);"></i> ${n.date || 'Sin fecha'}</strong>
+        ${n.pieza ? `<span class="badge pending">Pieza Dental #${n.pieza}${n.superficie ? ` (${n.superficie})` : ''}</span>` : ''}
+      </div>
+      <div class="note-content" style="font-size:0.9rem; display:grid; gap:4px;">
+        ${n.motivoTipo ? `<div><strong class="muted">Motivo:</strong> ${n.motivoTipo}${n.motivoTexto ? ' · ' + n.motivoTexto : ''}</div>` : ''}
+        ${n.diagnosticoTipo ? `<div><strong class="muted">Diagnóstico:</strong> ${n.diagnosticoTipo}${n.diagnosticoTexto ? ' · ' + n.diagnosticoTexto : ''}</div>` : ''}
+        ${n.procedimiento ? `<div><strong class="muted">Procedimiento:</strong> <span style="color:var(--primary-strong); font-weight:600;">${n.procedimiento}</span></div>` : ''}
+        ${n.observaciones ? `<div><strong class="muted">Observaciones:</strong> ${n.observaciones}</div>` : ''}
+        ${n.notaAdicional ? `<div><strong class="muted">Indicaciones:</strong> ${n.notaAdicional}</div>` : ''}
+        ${n.proximoControl ? `<div><strong class="muted">Próximo Control:</strong> <span style="color:var(--warning); font-weight:600;">${n.proximoControl}</span></div>` : ''}
+        ${planTxt}
+      </div>
+    `;
+    notesContainer.appendChild(div);
+  });
 }
 
 async function saveFullClinicalHistory(container, patient) {
@@ -826,35 +867,6 @@ async function saveFullClinicalHistory(container, patient) {
   } catch (err) {
     showToast(err.message || 'Error al guardar la Historia Clínica', 'error');
   }
-}
-  
-  container.innerHTML = '';
-  notes.forEach(n => {
-    const div = document.createElement('div');
-    div.className = 'evolucion-note';
-    div.style.cssText = 'background:var(--bg-page); border:1px solid var(--border); border-left:4px solid var(--primary); border-radius:8px; padding:14px; margin-bottom:12px;';
-    
-    const planTxt = n.planId && planMap[n.planId] 
-      ? `<span class="badge" style="margin-top:6px; display:inline-block;"><i class="fas fa-clipboard-list"></i> Plan: ${planMap[n.planId].title}</span>` 
-      : '';
-    
-    div.innerHTML = `
-      <div class="note-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <strong><i class="fas fa-calendar-day" style="color:var(--primary);"></i> ${n.date || 'Sin fecha'}</strong>
-        ${n.pieza ? `<span class="badge pending">Pieza Dental #${n.pieza}${n.superficie ? ` (${n.superficie})` : ''}</span>` : ''}
-      </div>
-      <div class="note-content" style="font-size:0.9rem; display:grid; gap:4px;">
-        ${n.motivoTipo ? `<div><strong class="muted">Motivo:</strong> ${n.motivoTipo}${n.motivoTexto ? ' · ' + n.motivoTexto : ''}</div>` : ''}
-        ${n.diagnosticoTipo ? `<div><strong class="muted">Diagnóstico:</strong> ${n.diagnosticoTipo}${n.diagnosticoTexto ? ' · ' + n.diagnosticoTexto : ''}</div>` : ''}
-        ${n.procedimiento ? `<div><strong class="muted">Procedimiento:</strong> <span style="color:var(--primary-strong); font-weight:600;">${n.procedimiento}</span></div>` : ''}
-        ${n.observaciones ? `<div><strong class="muted">Observaciones:</strong> ${n.observaciones}</div>` : ''}
-        ${n.notaAdicional ? `<div><strong class="muted">Indicaciones:</strong> ${n.notaAdicional}</div>` : ''}
-        ${n.proximoControl ? `<div><strong class="muted">Próximo Control:</strong> <span style="color:var(--warning); font-weight:600;">${n.proximoControl}</span></div>` : ''}
-        ${planTxt}
-      </div>
-    `;
-    container.appendChild(div);
-  });
 }
 
 function parseJsonSafe(text) {
