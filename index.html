@@ -454,24 +454,42 @@
 
   <!-- Modal Nuevo Paciente -->
   <div id="patientModal" class="modal hidden">
-    <div class="modal-body">
+    <div class="modal-body" style="max-width: 680px;">
       <div class="modal-head">
         <div>
-          <p class="muted">Padrón</p>
+          <p class="muted">Padrón de Pacientes · Sección 1 Filiación</p>
           <h3>Registrar Nuevo Paciente</h3>
         </div>
         <button id="closeNewPatient" class="ghost"><i class="fas fa-times"></i></button>
       </div>
       <div class="grid-2">
-        <label class="field"><span>Nombre y Apellido</span><input id="newPatName" type="text" placeholder="Ej: María Gómez"></label>
+        <label class="field"><span>Nombre y Apellido *</span><input id="newPatName" type="text" placeholder="Ej: María Gómez" required></label>
         <label class="field"><span>DNI / Documento</span><input id="newPatDni" type="text" placeholder="Número de documento"></label>
+        <label class="field"><span>Sexo</span>
+          <select id="newPatSex" class="field-input">
+            <option value="Femenino">Femenino</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Otro">Otro / No especificado</option>
+          </select>
+        </label>
+        <label class="field"><span>Fecha de Nacimiento</span><input id="newPatBirthdate" type="date"></label>
         <label class="field"><span>Teléfono / WhatsApp</span><input id="newPatPhone" type="tel" placeholder="+549..."></label>
         <label class="field"><span>Email</span><input id="newPatEmail" type="email" placeholder="correo@gmail.com"></label>
-        <label class="field"><span>Fecha de Nacimiento</span><input id="newPatBirthdate" type="date"></label>
-        <label class="field"><span>Obra Social / Prepaga</span><input id="newPatInsurance" type="text" placeholder="OSDE, Swiss Medical, Particular..."></label>
-        <label class="field" style="grid-column:1 / -1;"><span>Notas Médicas / Antecedentes</span><textarea id="newPatNotes" rows="2" placeholder="Alergias, medicación o antecedentes relevantes"></textarea></label>
+        <label class="field"><span>Ocupación</span><input id="newPatOccupation" type="text" placeholder="Ej: Docente, Estudiante"></label>
+        <label class="field"><span>Obra Social / Cobertura</span><input id="newPatInsurance" type="text" placeholder="OSDE, Swiss Medical, Particular..."></label>
+        <label class="field"><span>N° de Afiliado</span><input id="newPatInsuranceNumber" type="text" placeholder="Número de carnet o póliza"></label>
+        <label class="field"><span>Contacto de Emergencia</span><input id="newPatEmergency" type="tel" placeholder="Nombre y Teléfono familiar"></label>
+        <label class="field" style="grid-column:1 / -1;"><span>Representante Legal (si es menor o dependiente)</span><input id="newPatRepresentative" type="text" placeholder="Nombre y DNI del padre, madre o tutor"></label>
+        <label class="field" style="grid-column:1 / -1;"><span>Alergias / Advertencias Clínicas Especiales</span><input id="newPatAllergies" type="text" placeholder="Ej: Penicilina, Látex, Bifosfonatos, Hipertenso" style="border-color: rgba(239, 68, 68, 0.4);"></label>
+        <label class="field" style="grid-column:1 / -1;"><span>Motivo de Consulta Inicial / Observaciones</span><textarea id="newPatNotes" rows="2" placeholder="Motivo inicial de consulta o notas clínicas de ingreso"></textarea></label>
+        <div style="grid-column:1 / -1; background: var(--bg-page); padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border);">
+          <input type="checkbox" id="newPatOpenHC" checked style="width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;">
+          <label for="newPatOpenHC" style="font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text);">
+            <i class="fas fa-notes-medical" style="color: var(--primary); margin-right: 4px;"></i> Abrir Historia Clínica Odontológica (12 Secciones + CIE-11) al guardar
+          </label>
+        </div>
       </div>
-      <div class="modal-actions">
+      <div class="modal-actions" style="margin-top: 16px;">
         <button id="saveNewPatient" class="primary"><i class="fas fa-save"></i> Guardar Paciente</button>
         <button id="cancelNewPatient" class="ghost">Cancelar</button>
       </div>

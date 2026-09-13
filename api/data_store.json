@@ -9,7 +9,7 @@
             "email": "contacto@consultorios.pro",
             "phone": "+5491123456789",
             "appearance": {
-                "theme": "light",
+                "theme": "dark",
                 "fontSize": "small",
                 "calendarView": "week",
                 "density": "compact",
@@ -73,6 +73,24 @@
                     "status": "Pendiente"
                 }
             ]
+        },
+        {
+            "id": "pat-3f60933a62",
+            "name": "jhh",
+            "dni": "hjjhhjjhh",
+            "sex": "",
+            "occupation": "",
+            "phone": "+5939727485443",
+            "email": "Kaelyn86@gmail.com",
+            "birthdate": "2026-09-13",
+            "health_insurance": "jhk",
+            "affiliate_number": "",
+            "representativeName": "",
+            "representativeDni": "",
+            "emergencyPhone": "",
+            "notes": "",
+            "allergies": "",
+            "created_at": "2026-09-13 14:40:56"
         }
     ],
     "appointments": [

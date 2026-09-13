@@ -100,10 +100,12 @@ window.switchPatientTab = (tab) => {
   const content = el('patientTabContent');
   if (!content || !state.selectedPatient) return;
 
-  document.querySelectorAll('.patient-tab').forEach(b => b.classList.remove('active'));
-  if (event && event.target && event.target.classList) {
-    event.target.closest('.patient-tab')?.classList.add('active');
-  }
+  document.querySelectorAll('.patient-tab').forEach(b => {
+    b.classList.remove('active');
+    if (b.getAttribute('onclick')?.includes(`'${tab}'`)) {
+      b.classList.add('active');
+    }
+  });
 
   const patient = state.selectedPatient;
   const userRole = state.user?.role || 'admin';
@@ -254,11 +256,18 @@ export function closeNewPatientModal() {
 export async function saveNewPatient() {
   const name = el('newPatName')?.value.trim();
   const dni = el('newPatDni')?.value.trim();
+  const sex = el('newPatSex')?.value;
+  const birthdate = el('newPatBirthdate')?.value;
   const phone = el('newPatPhone')?.value.trim();
   const email = el('newPatEmail')?.value.trim();
-  const birthdate = el('newPatBirthdate')?.value;
+  const occupation = el('newPatOccupation')?.value.trim();
   const insurance = el('newPatInsurance')?.value.trim();
+  const affiliate_number = el('newPatInsuranceNumber')?.value.trim();
+  const emergencyPhone = el('newPatEmergency')?.value.trim();
+  const representativeName = el('newPatRepresentative')?.value.trim();
+  const allergies = el('newPatAllergies')?.value.trim();
   const notes = el('newPatNotes')?.value.trim();
+  const openHC = el('newPatOpenHC')?.checked;
 
   if (!name) {
     showToast('El nombre del paciente es requerido', 'warning');
@@ -266,13 +275,35 @@ export async function saveNewPatient() {
   }
 
   try {
-    await apiFetch(api.patients, {
+    const res = await apiFetch(api.patients, {
       method: 'POST',
-      body: JSON.stringify({ name, dni, phone, email, birthdate, health_insurance: insurance, notes })
+      body: JSON.stringify({
+        name,
+        dni,
+        sex,
+        birthdate,
+        phone,
+        email,
+        occupation,
+        health_insurance: insurance,
+        affiliate_number,
+        emergencyPhone,
+        representativeName,
+        allergies,
+        notes
+      })
     });
+
     showToast('Paciente guardado exitosamente', 'success');
     closeNewPatientModal();
-    loadPatients();
+    await loadPatients();
+
+    if (res?.patient?.id) {
+      await selectPatient(res.patient.id);
+      if (openHC) {
+        window.switchPatientTab('historia');
+      }
+    }
   } catch (err) {
     showToast(err.message || 'Error al guardar paciente', 'error');
   }
