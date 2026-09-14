@@ -137,6 +137,9 @@ function updateVoiceUI(listening, message) {
 /**
  * Sintetizador de voz nativo (TTS)
  */
+/**
+ * Sintetizador de voz nativo (TTS)
+ */
 export function speakText(text) {
   if (!window.speechSynthesis) return;
 
@@ -157,13 +160,16 @@ export function speakText(text) {
 }
 
 /**
- * Normaliza cadenas para comparación fonética e insensible a tildes
+ * Limpieza rigurosa de texto para comandos y búsquedas por voz
+ * Elimina tildes, signos de puntuación (. , ? ! etc), y espacios redundantes
  */
-function normalizeText(str) {
+export function cleanVoiceQuery(str) {
   return (str || '')
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u0300-\u036f]/g, '') // Quitar tildes
+    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'¿¡]/g, ' ') // Quitar signos de puntuación
     .toLowerCase()
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
@@ -220,19 +226,106 @@ function insertTextIntoInput(inputElem, textToInsert) {
 }
 
 /**
+ * Muestra tarjeta de decisiones del asistente para el paciente encontrado
+ */
+function showVoicePatientOptions(patient) {
+  const popup = document.getElementById('voiceFeedbackPopup');
+  if (!popup) return;
+
+  popup.classList.remove('hidden');
+  popup.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="voice-dot-live"></span>
+        <strong style="font-size:0.9rem; color:var(--text);">${patient.name}</strong>
+      </div>
+      <button class="ghost" style="padding:2px 6px; font-size:0.75rem;" onclick="document.getElementById('voiceFeedbackPopup').classList.add('hidden')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <p style="margin:0 0 10px; font-size:0.8rem; color:var(--muted);">¿Qué deseas consultar de este paciente?</p>
+    <div style="display:flex; flex-direction:column; gap:6px;">
+      <button class="primary" style="padding:6px 12px; font-size:0.82rem; text-align:left; display:flex; align-items:center; gap:8px; justify-content:flex-start;" onclick="window.voiceOpenPatientHistory('${patient.id}')">
+        <i class="fas fa-file-medical"></i> <span>Ver Historia Clínica y Ficha</span>
+      </button>
+      <button class="ghost" style="padding:6px 12px; font-size:0.82rem; text-align:left; display:flex; align-items:center; gap:8px; justify-content:flex-start;" onclick="window.voiceSearchPatientAppointments('${patient.name.replace(/'/g, "\\'")}')">
+        <i class="fas fa-calendar-check"></i> <span>Ver Citas y Turnos Agendados</span>
+      </button>
+      <button class="ghost" style="padding:6px 12px; font-size:0.82rem; text-align:left; display:flex; align-items:center; gap:8px; justify-content:flex-start;" onclick="window.voiceNewAppointmentForPatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}', '${patient.phone || ''}')">
+        <i class="fas fa-calendar-plus"></i> <span>Dar Nuevo Turno</span>
+      </button>
+    </div>
+  `;
+}
+
+// Acciones globales invocables desde la tarjeta de voz
+window.voiceOpenPatientHistory = (patientId) => {
+  setNav('patients');
+  if (typeof window.selectPatient === 'function') {
+    window.selectPatient(patientId, 'historia');
+  }
+  document.getElementById('voiceFeedbackPopup')?.classList.add('hidden');
+};
+
+window.voiceSearchPatientAppointments = (patientName) => {
+  setNav('agenda');
+  const searchInp = el('agendaPatientSearch');
+  if (searchInp) {
+    searchInp.value = patientName;
+    searchInp.dispatchEvent(new Event('input'));
+  }
+  document.getElementById('voiceFeedbackPopup')?.classList.add('hidden');
+};
+
+window.voiceNewAppointmentForPatient = (id, name, phone) => {
+  if (typeof window.quickNewAptForPatient === 'function') {
+    window.quickNewAptForPatient(id, name, phone);
+  }
+  document.getElementById('voiceFeedbackPopup')?.classList.add('hidden');
+};
+
+/**
  * Orquestador de Intents y Comandos Clínicos
  */
 export function handleVoiceIntent(rawText) {
-  const norm = normalizeText(rawText);
+  // Limpieza rigurosa sin tildes ni puntos finales que agrega el navegador
+  const clean = cleanVoiceQuery(rawText);
+  console.log('🎤 Query procesado y sanitizado:', clean);
 
-  // 1. INTENT: BUSCAR PACIENTE / ABRIR FICHA / HISTORIA CLÍNICA
-  const searchTriggers = ['buscar paciente', 'busca paciente', 'buscar a', 'busca a', 'abrir ficha de', 'abrir ficha', 'abrir historia de', 'abrir historia', 'historia clinica de', 'historia clinica', 'ver paciente', 'paciente'];
-  const hasSearchTrigger = searchTriggers.some(t => norm.includes(t));
+  // 1. INTENT: BUSCAR CITAS / TURNOS EN AGENDA
+  const isAptSearch = clean.includes('cita') || clean.includes('turno') || clean.includes('turnos') || clean.includes('citas') || clean.includes('agenda de');
+  if (isAptSearch && !clean.includes('agendar') && !clean.includes('nuevo')) {
+    let nameQuery = clean
+      .replace(/buscar citas de|buscar cita de|buscar turnos de|buscar turno de|ver citas de|ver cita de|ver turnos de|ver turno de|citas de|cita de|turnos de|turno de|agenda de|citas|turnos/gi, '')
+      .replace(/^(el|la|al|a|de|del|para)\s+/i, '')
+      .trim();
+
+    if (nameQuery) {
+      setNav('agenda');
+      const searchInp = el('agendaPatientSearch');
+      if (searchInp) {
+        searchInp.value = nameQuery;
+        searchInp.dispatchEvent(new Event('input'));
+      }
+      speakText(`Mostrando las citas y turnos agendados de ${nameQuery}`);
+      showToast(`Turnos de: "${nameQuery}"`, 'info');
+      return;
+    }
+  }
+
+  // 2. INTENT: BUSCAR PACIENTE / ABRIR FICHA / HISTORIA CLÍNICA
+  const searchPatientTriggers = [
+    'buscar paciente', 'busca paciente', 'buscar a', 'busca a',
+    'abrir ficha de', 'abrir ficha', 'abrir historia de', 'abrir historia',
+    'historia clinica de', 'historia clinica', 'ficha de', 'ficha medica de',
+    'ver paciente', 'paciente'
+  ];
+  const hasSearchTrigger = searchPatientTriggers.some(t => clean.includes(t));
 
   if (hasSearchTrigger) {
-    let query = norm
-      .replace(/buscar paciente|busca paciente|abrir ficha de|abrir ficha|abrir historia de|abrir historia|historia clinica de|historia clinica|ver paciente|buscar a|busca a|paciente/gi, '')
-      .replace(/^(el|la|al|a|de)\s+/i, '')
+    let query = clean
+      .replace(/buscar paciente|busca paciente|abrir ficha de|abrir ficha|abrir historia de|abrir historia|historia clinica de|historia clinica|ficha de|ficha medica de|ver paciente|buscar a|busca a|paciente/gi, '')
+      .replace(/^(el|la|al|a|de|del)\s+/i, '')
       .trim();
 
     setNav('patients');
@@ -240,18 +333,25 @@ export function handleVoiceIntent(rawText) {
 
     if (query) {
       if (searchInp) {
-        searchInp.value = query;
+        searchInp.value = query; // ¡Limpio sin puntos finales!
         searchInp.dispatchEvent(new Event('input'));
       }
 
-      // Buscar coincidencia directa en state.patients
+      // Buscar coincidencia directa en state.patients (comparando sin tildes ni puntuación)
       let matchedPatient = null;
       if (state.patients && state.patients.length > 0) {
-        // Prioridad 1: Coincidencia de nombre exacto o que comience con el query
-        matchedPatient = state.patients.find(p => normalizeText(p.name).startsWith(query) || normalizeText(p.name) === query);
+        // Prioridad 1: Coincidencia exacta o que comience con el nombre buscado
+        matchedPatient = state.patients.find(p => {
+          const pName = cleanVoiceQuery(p.name);
+          return pName === query || pName.startsWith(query);
+        });
         // Prioridad 2: Substring en el nombre o coincidencia en DNI
         if (!matchedPatient) {
-          matchedPatient = state.patients.find(p => normalizeText(p.name).includes(query) || (p.dni && p.dni.includes(query)));
+          matchedPatient = state.patients.find(p => {
+            const pName = cleanVoiceQuery(p.name);
+            const pDni = cleanVoiceQuery(p.dni || '');
+            return pName.includes(query) || (pDni && pDni === query);
+          });
         }
       }
 
@@ -259,11 +359,29 @@ export function handleVoiceIntent(rawText) {
         if (typeof window.selectPatient === 'function') {
           window.selectPatient(matchedPatient.id, 'historia');
         }
-        speakText(`Abriendo historia clínica de ${matchedPatient.name}`);
-        showToast(`✓ Ficha abierta: ${matchedPatient.name}`, 'success');
+        
+        // Mostrar tarjeta interactiva con opciones de acción rápida
+        showVoicePatientOptions(matchedPatient);
+
+        speakText(`Encontré a ${matchedPatient.name}. ¿Deseas ver su historia clínica o sus citas agendadas?`);
+        showToast(`✓ Ficha cargada: ${matchedPatient.name}`, 'success');
         return;
       } else {
-        speakText(`Buscando pacientes con ${query}`);
+        // Si no está en el padrón, revisar si tiene turnos agendados en la clínica
+        const hasApt = state.appointments && state.appointments.find(a => cleanVoiceQuery(a.patient_name).includes(query));
+        if (hasApt) {
+          setNav('agenda');
+          const aptSearch = el('agendaPatientSearch');
+          if (aptSearch) {
+            aptSearch.value = query;
+            aptSearch.dispatchEvent(new Event('input'));
+          }
+          speakText(`No está registrado en el padrón de pacientes, pero encontré citas agendadas para ${query}`);
+          showToast(`Turnos encontrados para: "${query}"`, 'info');
+          return;
+        }
+
+        speakText(`Buscando ${query} en el padrón de pacientes`);
         showToast(`Filtrando lista por: "${query}"`, 'info');
         return;
       }
@@ -273,8 +391,8 @@ export function handleVoiceIntent(rawText) {
     }
   }
 
-  // 2. INTENT: VERIFICACIÓN FARMACOLÓGICA / ALERGIAS
-  if (norm.includes('recetar') || norm.includes('medicamento') || norm.includes('alergia') || norm.includes('puedo darle') || norm.includes('contraindicad') || norm.includes('interaccion')) {
+  // 3. INTENT: VERIFICACIÓN FARMACOLÓGICA / ALERGIAS
+  if (clean.includes('recetar') || clean.includes('medicamento') || clean.includes('alergia') || clean.includes('puedo darle') || clean.includes('contraindicad') || clean.includes('interaccion')) {
     const detected = detectDrugsInText(rawText);
     if (detected.length > 0) {
       const currentPatient = state.selectedPatient || (state.patients && state.patients[0]);
@@ -300,8 +418,8 @@ export function handleVoiceIntent(rawText) {
     }
   }
 
-  // 3. INTENT: AGENDAR TURNO / NUEVO TURNO
-  if (norm.includes('agendar turno') || norm.includes('nuevo turno') || norm.includes('crear cita') || norm.includes('agendar cita')) {
+  // 4. INTENT: AGENDAR TURNO / NUEVO TURNO
+  if (clean.includes('agendar turno') || clean.includes('nuevo turno') || clean.includes('crear cita') || clean.includes('agendar cita')) {
     setNav('agenda');
     const quickBtn = el('newAptBtn');
     quickBtn?.click();
@@ -309,31 +427,31 @@ export function handleVoiceIntent(rawText) {
     return;
   }
 
-  // 4. INTENT: CONSULTAR SALDO DE CAJA / TESORERÍA / ARQUEO
-  if (norm.includes('caja') || norm.includes('tesoreria') || norm.includes('saldo') || norm.includes('arqueo') || norm.includes('cuanto hay')) {
+  // 5. INTENT: CONSULTAR SALDO DE CAJA / TESORERÍA / ARQUEO
+  if (clean.includes('caja') || clean.includes('tesoreria') || clean.includes('saldo') || clean.includes('arqueo') || clean.includes('cuanto hay')) {
     setNav('treasury');
     speakText('Abriendo el módulo de Tesorería y Cajas');
     return;
   }
 
-  // 5. INTENT: NAVEGACIÓN GENERAL
-  if (norm.startsWith('ir a agenda') || norm === 'agenda' || norm === 'calendario') {
+  // 6. INTENT: NAVEGACIÓN GENERAL
+  if (clean.startsWith('ir a agenda') || clean === 'agenda' || clean === 'calendario') {
     setNav('agenda');
     speakText('Cargando la agenda');
     return;
   }
-  if (norm.startsWith('ir a inventario') || norm === 'inventario' || norm === 'stock') {
+  if (clean.startsWith('ir a inventario') || clean === 'inventario' || clean === 'stock') {
     setNav('inventory');
     speakText('Abriendo inventario');
     return;
   }
-  if (norm.startsWith('ir a estadisticas') || norm === 'estadisticas' || norm === 'reportes') {
+  if (clean.startsWith('ir a estadisticas') || clean === 'estadisticas' || clean === 'reportes') {
     setNav('analytics');
     speakText('Mostrando estadísticas');
     return;
   }
 
-  // 6. DICTADO DIRECTO EN CAMPO DE TEXTO / NOTA CLÍNICA
+  // 7. DICTADO DIRECTO EN CAMPO DE TEXTO / NOTA CLÍNICA
   // Si el usuario tenía foco en un textarea o input (ej: evolución clínica, diagnóstico, observaciones)
   if (lastFocusedElement && document.body.contains(lastFocusedElement)) {
     const formattedNote = formatClinicalDictation(rawText);
@@ -348,4 +466,5 @@ export function handleVoiceIntent(rawText) {
   speakText(`Comando: ${rawText}`);
   showToast(`Dictado: "${rawText}"`, 'info');
 }
+
 
