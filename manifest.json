@@ -1,0 +1,26 @@
+{
+  "name": "Doctor2_Pro - Gestión Médica y Odontológica",
+  "short_name": "Doctor2_Pro",
+  "description": "Sistema Clínico Integral, Historias Clínicas, Odontograma, Tesorería y Asistente de Voz para Consultorios",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "orientation": "any",
+  "categories": ["medical", "health", "productivity", "business"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%236366f1'/><path d='M60 40 C35 50, 30 90, 40 130 C45 155, 55 175, 75 178 C90 180, 95 145, 105 145 C115 145, 120 180, 135 178 C155 175, 165 155, 170 130 C180 90, 175 50, 150 40 C130 30, 115 42, 105 42 C95 42, 80 30, 60 40 Z' fill='white'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%236366f1'/><path d='M160 100 C95 125, 80 230, 105 335 C120 400, 145 450, 195 460 C235 465, 245 375, 270 375 C295 375, 305 465, 345 460 C395 450, 420 400, 435 335 C460 230, 445 125, 385 100 C335 75, 295 105, 270 105 C245 105, 205 75, 160 100 Z' fill='white'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

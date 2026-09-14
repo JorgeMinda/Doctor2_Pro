@@ -18,6 +18,7 @@ import { SuscripcionManager } from './modules/app-subscription.js';
 import { initAgendaPrint } from './modules/app-agenda-print.js';
 import { initAIAssistant } from './modules/app-ai-assistant.js';
 import { initTreasuryModule, loadTreasuryData } from './modules/app-treasury.js';
+import { initVoiceAssistant } from './modules/app-voice-assistant.js';
 import {
   openModal,
   closeModal,
@@ -71,13 +72,27 @@ function initAgendaSplitter() {
   });
 }
 
+// ========== REGISTRO DE PWA SERVICE WORKER ==========
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then((reg) => console.log('📱 [PWA] Service Worker registrado con éxito:', reg.scope))
+        .catch((err) => console.warn('⚠️ [PWA] Error registrando Service Worker:', err));
+    });
+  }
+}
+
 // ========== INICIALIZACIÓN DE LA APLICACIÓN ==========
 document.addEventListener('DOMContentLoaded', async () => {
-  // 1. Verificar sesión de usuario
+  // 1. PWA & Service Worker
+  registerServiceWorker();
+
+  // 2. Verificar sesión de usuario
   checkSession();
   setupLoginListeners();
 
-  // 2. Inicializar componentes y utilitarios
+  // 3. Inicializar componentes y utilitarios
   initAppearance();
   initAgendaSplitter();
   initBlockedDays();
@@ -85,8 +100,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupInventoryListeners();
   SuscripcionManager.init();
   initTreasuryModule();
+  initVoiceAssistant();
 
-  // 3. Cargar datos iniciales
+  // 4. Cargar datos iniciales
   await Promise.allSettled([
     loadProfessionals(),
     loadPatients(),
