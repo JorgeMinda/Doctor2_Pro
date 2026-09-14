@@ -10,6 +10,17 @@ import { evaluatePrescriptionSafety, showClinicalSafetyModal, detectDrugsInText 
 let recognition = null;
 let isListening = false;
 let isSpeaking = false;
+let lastFocusedElement = null;
+
+// Rastrear el último input o textarea activo para el dictado directo
+document.addEventListener('focusin', (e) => {
+  const target = e.target;
+  if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+    if (target.id !== 'floatingVoiceBtn' && target.id !== 'patientSearch') {
+      lastFocusedElement = target;
+    }
+  }
+});
 
 export function initVoiceAssistant() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -31,7 +42,7 @@ export function initVoiceAssistant() {
 
   recognition.onresult = (event) => {
     const transcript = event.results[0][0].transcript;
-    console.log('🎤 Dictado por voz:', transcript);
+    console.log('🎤 Dictado por voz recibido:', transcript);
     updateVoiceUI(false, `"${transcript}"`);
     handleVoiceIntent(transcript);
   };
@@ -59,7 +70,7 @@ function injectVoiceWidget() {
   const widget = document.createElement('div');
   widget.id = 'floatingVoiceAssistant';
   widget.innerHTML = `
-    <button id="floatingVoiceBtn" class="voice-btn-pulse" title="Asistente de Voz Clínico (Presioná para hablar)">
+    <button id="floatingVoiceBtn" class="voice-btn-pulse" type="button" title="Asistente de Voz Clínico (Presioná para hablar)">
       <i class="fas fa-microphone" id="voiceMicIcon"></i>
       <span class="voice-wave-ring"></span>
     </button>
@@ -68,13 +79,17 @@ function injectVoiceWidget() {
         <span class="voice-dot-live"></span>
         <strong id="voiceStatusText" style="font-size:0.85rem; color:var(--text);">Asistente Clínico Doctor2</strong>
       </div>
-      <p id="voiceTranscriptText" style="margin:4px 0 0; font-size:0.8rem; color:var(--muted);">Decí: "Agendar turno...", "Buscar paciente...", o "Verificar Amoxicilina"</p>
+      <p id="voiceTranscriptText" style="margin:4px 0 0; font-size:0.8rem; color:var(--muted);">Decí: "Buscar paciente María...", "Agendar turno...", o dictá directamente tu nota clínica.</p>
     </div>
   `;
 
   document.body.appendChild(widget);
 
   const btn = document.getElementById('floatingVoiceBtn');
+  // Evitar que el click en el botón descarte el foco del elemento previo
+  btn?.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+  });
   btn?.addEventListener('click', toggleVoiceRecognition);
 }
 
@@ -142,16 +157,127 @@ export function speakText(text) {
 }
 
 /**
+ * Normaliza cadenas para comparación fonética e insensible a tildes
+ */
+function normalizeText(str) {
+  return (str || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * Formateador de dictado clínico inteligente (convierte puntuación verbal en signos reales)
+ */
+export function formatClinicalDictation(text) {
+  let formatted = text
+    .replace(/\bpunto y aparte\b|\bpunto aparte\b|\bnueva l[ií]nea\b|\bsalto de l[ií]nea\b/gi, '\n\n')
+    .replace(/\bpunto y seguido\b|\bpunto seguido\b/gi, '. ')
+    .replace(/\bpunto\b/gi, '. ')
+    .replace(/\bcoma\b/gi, ', ')
+    .replace(/\bdos puntos\b/gi, ': ')
+    .replace(/\bpunto y coma\b/gi, '; ')
+    .replace(/\babrir signo de pregunta\b|\babrir signo de interrogaci[oó]n\b|\babre interrogaci[oó]n\b/gi, ' ¿')
+    .replace(/\bcerrar signo de pregunta\b|\bcerrar signo de interrogaci[oó]n\b|\bsigno de pregunta\b|\bcierra interrogaci[oó]n\b/gi, '? ')
+    .replace(/\babrir signo de exclamaci[oó]n\b|\babre exclamaci[oó]n\b/gi, ' ¡')
+    .replace(/\bcerrar signo de exclamaci[oó]n\b|\bsigno de admiraci[oó]n\b|\bcierra exclamaci[oó]n\b/gi, '! ')
+    .replace(/\babrir par[eé]ntesis\b|\babre par[eé]ntesis\b/gi, ' (')
+    .replace(/\bcerrar par[eé]ntesis\b|\bcierra par[eé]ntesis\b/gi, ') ')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([.,;:?!])/g, '$1')
+    .replace(/([.,?!])\s*([a-z])/g, (m, p1, p2) => `${p1} ${p2.toUpperCase()}`)
+    .trim();
+
+  if (formatted.length > 0) {
+    formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  }
+  return formatted;
+}
+
+/**
+ * Inserta texto en el elemento de entrada preservando el cursor y disparando eventos
+ */
+function insertTextIntoInput(inputElem, textToInsert) {
+  if (!inputElem) return false;
+  inputElem.focus();
+
+  if (typeof inputElem.selectionStart === 'number' && typeof inputElem.selectionEnd === 'number') {
+    const start = inputElem.selectionStart;
+    const end = inputElem.selectionEnd;
+    const currentVal = inputElem.value;
+    const prefix = (start > 0 && currentVal.charAt(start - 1) !== ' ' && currentVal.charAt(start - 1) !== '\n') ? ' ' : '';
+    const newText = prefix + textToInsert;
+    inputElem.setRangeText(newText, start, end, 'end');
+  } else {
+    inputElem.value += (inputElem.value ? ' ' : '') + textToInsert;
+  }
+
+  // Disparar eventos de input y change para reactividad y autoguardado
+  inputElem.dispatchEvent(new Event('input', { bubbles: true }));
+  inputElem.dispatchEvent(new Event('change', { bubbles: true }));
+  return true;
+}
+
+/**
  * Orquestador de Intents y Comandos Clínicos
  */
 export function handleVoiceIntent(rawText) {
-  const text = rawText.toLowerCase().trim();
+  const norm = normalizeText(rawText);
 
-  // 1. INTENT: VERIFICACIÓN FARMACOLÓGICA / ALERGIAS
-  if (text.includes('recetar') || text.includes('medicamento') || text.includes('alergia') || text.includes('puedo darle') || text.includes('contraindicad')) {
-    const detected = detectDrugsInText(text);
+  // 1. INTENT: BUSCAR PACIENTE / ABRIR FICHA / HISTORIA CLÍNICA
+  const searchTriggers = ['buscar paciente', 'busca paciente', 'buscar a', 'busca a', 'abrir ficha de', 'abrir ficha', 'abrir historia de', 'abrir historia', 'historia clinica de', 'historia clinica', 'ver paciente', 'paciente'];
+  const hasSearchTrigger = searchTriggers.some(t => norm.includes(t));
+
+  if (hasSearchTrigger) {
+    let query = norm
+      .replace(/buscar paciente|busca paciente|abrir ficha de|abrir ficha|abrir historia de|abrir historia|historia clinica de|historia clinica|ver paciente|buscar a|busca a|paciente/gi, '')
+      .replace(/^(el|la|al|a|de)\s+/i, '')
+      .trim();
+
+    setNav('patients');
+    const searchInp = el('patientSearch');
+
+    if (query) {
+      if (searchInp) {
+        searchInp.value = query;
+        searchInp.dispatchEvent(new Event('input'));
+      }
+
+      // Buscar coincidencia directa en state.patients
+      let matchedPatient = null;
+      if (state.patients && state.patients.length > 0) {
+        // Prioridad 1: Coincidencia de nombre exacto o que comience con el query
+        matchedPatient = state.patients.find(p => normalizeText(p.name).startsWith(query) || normalizeText(p.name) === query);
+        // Prioridad 2: Substring en el nombre o coincidencia en DNI
+        if (!matchedPatient) {
+          matchedPatient = state.patients.find(p => normalizeText(p.name).includes(query) || (p.dni && p.dni.includes(query)));
+        }
+      }
+
+      if (matchedPatient) {
+        if (typeof window.selectPatient === 'function') {
+          window.selectPatient(matchedPatient.id, 'historia');
+        }
+        speakText(`Abriendo historia clínica de ${matchedPatient.name}`);
+        showToast(`✓ Ficha abierta: ${matchedPatient.name}`, 'success');
+        return;
+      } else {
+        speakText(`Buscando pacientes con ${query}`);
+        showToast(`Filtrando lista por: "${query}"`, 'info');
+        return;
+      }
+    } else {
+      speakText('Abriendo padrón de pacientes');
+      return;
+    }
+  }
+
+  // 2. INTENT: VERIFICACIÓN FARMACOLÓGICA / ALERGIAS
+  if (norm.includes('recetar') || norm.includes('medicamento') || norm.includes('alergia') || norm.includes('puedo darle') || norm.includes('contraindicad') || norm.includes('interaccion')) {
+    const detected = detectDrugsInText(rawText);
     if (detected.length > 0) {
-      const currentPatient = state.selectedPatient || state.patients[0];
+      const currentPatient = state.selectedPatient || (state.patients && state.patients[0]);
       if (currentPatient) {
         const safety = evaluatePrescriptionSafety(detected, currentPatient);
         if (!safety.isSafe) {
@@ -174,23 +300,8 @@ export function handleVoiceIntent(rawText) {
     }
   }
 
-  // 2. INTENT: BUSCAR PACIENTE / ABRIR FICHA
-  if (text.includes('buscar paciente') || text.includes('abrir ficha') || text.includes('paciente')) {
-    const query = text.replace(/buscar paciente|abrir ficha|paciente/gi, '').trim();
-    setNav('patients');
-    const searchInp = el('patientSearch');
-    if (searchInp && query) {
-      searchInp.value = query;
-      searchInp.dispatchEvent(new Event('input'));
-      speakText(`Buscando paciente ${query}`);
-    } else {
-      speakText('Abriendo padrón de pacientes');
-    }
-    return;
-  }
-
   // 3. INTENT: AGENDAR TURNO / NUEVO TURNO
-  if (text.includes('agendar turno') || text.includes('nuevo turno') || text.includes('crear cita')) {
+  if (norm.includes('agendar turno') || norm.includes('nuevo turno') || norm.includes('crear cita') || norm.includes('agendar cita')) {
     setNav('agenda');
     const quickBtn = el('newAptBtn');
     quickBtn?.click();
@@ -198,40 +309,43 @@ export function handleVoiceIntent(rawText) {
     return;
   }
 
-  // 4. INTENT: CONSULTAR SALDO DE CAJA / TESORERÍA
-  if (text.includes('caja') || text.includes('tesoreria') || text.includes('saldo') || text.includes('cuanto hay')) {
+  // 4. INTENT: CONSULTAR SALDO DE CAJA / TESORERÍA / ARQUEO
+  if (norm.includes('caja') || norm.includes('tesoreria') || norm.includes('saldo') || norm.includes('arqueo') || norm.includes('cuanto hay')) {
     setNav('treasury');
     speakText('Abriendo el módulo de Tesorería y Cajas');
     return;
   }
 
   // 5. INTENT: NAVEGACIÓN GENERAL
-  if (text.includes('agenda') || text.includes('calendario')) {
+  if (norm.startsWith('ir a agenda') || norm === 'agenda' || norm === 'calendario') {
     setNav('agenda');
     speakText('Cargando la agenda');
     return;
   }
-  if (text.includes('inventario') || text.includes('stock')) {
+  if (norm.startsWith('ir a inventario') || norm === 'inventario' || norm === 'stock') {
     setNav('inventory');
     speakText('Abriendo inventario');
     return;
   }
-  if (text.includes('estadistica') || text.includes('reporte')) {
+  if (norm.startsWith('ir a estadisticas') || norm === 'estadisticas' || norm === 'reportes') {
     setNav('analytics');
     speakText('Mostrando estadísticas');
     return;
   }
 
-  // 6. DICTADO EN CAMPO DE TEXTO ACTIVO (Si el foco está en un textarea o input)
-  const activeElem = document.activeElement;
-  if (activeElem && (activeElem.tagName === 'INPUT' || activeElem.tagName === 'TEXTAREA') && activeElem.id !== 'patientSearch') {
-    activeElem.value += (activeElem.value ? ' ' : '') + rawText;
-    activeElem.dispatchEvent(new Event('input'));
-    showToast('Texto dictado con éxito', 'info');
-    return;
+  // 6. DICTADO DIRECTO EN CAMPO DE TEXTO / NOTA CLÍNICA
+  // Si el usuario tenía foco en un textarea o input (ej: evolución clínica, diagnóstico, observaciones)
+  if (lastFocusedElement && document.body.contains(lastFocusedElement)) {
+    const formattedNote = formatClinicalDictation(rawText);
+    const inserted = insertTextIntoInput(lastFocusedElement, formattedNote);
+    if (inserted) {
+      showToast('✓ Texto dictado e insertado en la nota', 'success');
+      return;
+    }
   }
 
-  // Fallback conversacional
-  speakText(`Comando recibido: ${rawText}`);
-  showToast(`Comando: "${rawText}"`, 'info');
+  // Fallback conversacional si no es un comando ni había un campo activo
+  speakText(`Comando: ${rawText}`);
+  showToast(`Dictado: "${rawText}"`, 'info');
 }
+

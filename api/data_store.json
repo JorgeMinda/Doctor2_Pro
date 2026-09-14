@@ -10,10 +10,10 @@
             "phone": "+5491123456789",
             "appearance": {
                 "theme": "light",
-                "fontSize": "small",
+                "fontSize": "normal",
                 "calendarView": "week",
-                "density": "compact",
-                "sidebar": "auto"
+                "density": "normal",
+                "sidebar": "fixed"
             }
         }
     ],
@@ -73,6 +73,24 @@
                     "status": "Pendiente"
                 }
             ]
+        },
+        {
+            "id": "pat-be7c09b37d",
+            "name": "Jorge Minda",
+            "dni": "172555656556",
+            "sex": "Masculino",
+            "occupation": "",
+            "phone": "",
+            "email": "",
+            "birthdate": "2026-09-13",
+            "health_insurance": "",
+            "affiliate_number": "",
+            "representativeName": "",
+            "representativeDni": "",
+            "emergencyPhone": "",
+            "notes": "",
+            "allergies": "",
+            "created_at": "2026-09-14 01:21:16"
         }
     ],
     "appointments": [
@@ -214,6 +232,223 @@
     ],
     "audit_logs": [
         {
+            "id": "aud_a00231b290e79bb3",
+            "timestamp": "2026-09-14T01:21:16+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "CREATE",
+            "diff": {
+                "old": null,
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_eea4861572e2afee",
+            "timestamp": "2026-09-14T01:13:38+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "TREASURY",
+            "entityId": "cls_cf786b24be0d7b43",
+            "action": "CASH_CLOSURE",
+            "diff": {
+                "old": {
+                    "expectedBalance": 15000
+                },
+                "new": {
+                    "countedAmount": 250,
+                    "difference": -14750,
+                    "status": "FALTANTE"
+                }
+            },
+            "meta": {
+                "accountId": "acc_cash_1",
+                "notes": ""
+            }
+        },
+        {
+            "id": "aud_992c826ba496d406",
+            "timestamp": "2026-09-14T00:56:27+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH",
+            "entityId": "usr-admin-1",
+            "action": "LOGIN",
+            "diff": {
+                "old": null,
+                "new": {
+                    "username": "admin",
+                    "status": "SUCCESS"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_b85fac9944b0a748",
+            "timestamp": "2026-09-14T00:56:13+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH",
+            "entityId": "ad",
+            "action": "LOGIN",
+            "diff": {
+                "old": null,
+                "new": {
+                    "username": "ad",
+                    "status": "FAILED_BAD_CREDENTIALS"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_6ec64ebc1936cc6c",
+            "timestamp": "2026-09-14T00:56:10+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH",
+            "entityId": "ad",
+            "action": "LOGIN",
+            "diff": {
+                "old": null,
+                "new": {
+                    "username": "ad",
+                    "status": "FAILED_BAD_CREDENTIALS"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_6bc213781c96af63",
+            "timestamp": "2026-09-14T00:56:08+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH",
+            "entityId": "ad",
+            "action": "LOGIN",
+            "diff": {
+                "old": null,
+                "new": {
+                    "username": "ad",
+                    "status": "FAILED_BAD_CREDENTIALS"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_ccdcf37308e81b14",
+            "timestamp": "2026-09-14T00:56:05+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH",
+            "entityId": "ad",
+            "action": "LOGIN",
+            "diff": {
+                "old": null,
+                "new": {
+                    "username": "ad",
+                    "status": "FAILED_BAD_CREDENTIALS"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_a41ab503fea531e8",
+            "timestamp": "2026-09-14T00:46:47+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH",
+            "entityId": "usr-admin-1",
+            "action": "LOGIN",
+            "diff": {
+                "old": null,
+                "new": {
+                    "username": "admin",
+                    "status": "SUCCESS"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_0178f652048dc4b1",
+            "timestamp": "2026-09-13T16:41:39+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH",
+            "entityId": "usr-admin-1",
+            "action": "LOGIN",
+            "diff": {
+                "old": null,
+                "new": {
+                    "username": "admin",
+                    "status": "SUCCESS"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_a3f6a08a5d68d339",
+            "timestamp": "2026-09-13T16:40:56+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH_PROFILE",
+            "entityId": "usr-admin-1",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "email": "contacto@consultorios.pro",
+                    "phone": "+5491123456789",
+                    "appearance": {
+                        "theme": "light",
+                        "fontSize": "small",
+                        "calendarView": "week",
+                        "density": "compact",
+                        "sidebar": "auto"
+                    }
+                },
+                "new": {
+                    "email": "contacto@consultorios.pro",
+                    "phone": "+5491123456789",
+                    "appearance": {
+                        "theme": "light",
+                        "fontSize": "normal",
+                        "calendarView": "week",
+                        "density": "normal",
+                        "sidebar": "fixed"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
             "id": "aud_8bf751a8d8c1db42",
             "timestamp": "2026-09-13T16:30:34+00:00",
             "userId": "usr-admin-1",
@@ -243,6 +478,22 @@
                 "amount": 15000,
                 "type": "INCOME"
             }
+        }
+    ],
+    "treasury_closures": [
+        {
+            "id": "cls_cf786b24be0d7b43",
+            "timestamp": "2026-09-14T01:13:38+00:00",
+            "date": "2026-09-14",
+            "time": "01:13:38",
+            "accountId": "acc_cash_1",
+            "accountName": "Caja General (Efectivo)",
+            "expectedBalance": 15000,
+            "countedAmount": 250,
+            "difference": -14750,
+            "status": "FALTANTE",
+            "notes": "",
+            "closedBy": "Dr. Jorge Valenzuela"
         }
     ]
 }
