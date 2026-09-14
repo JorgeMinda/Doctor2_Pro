@@ -1,6 +1,6 @@
 /**
  * whatsapp-manager.js - Gestor de Conexión de WhatsApp y Envío de Reportes / Recordatorios
- * Soporta conexión por código QR (Baileys/WppConnect), Meta Cloud API oficial y Twilio.
+ * Soporta Modo Directo Web/App (sin servidor), microservicio QR (Baileys) y Meta Cloud API.
  */
 import { showToast, apiFetch } from './app-utils.js';
 
@@ -11,8 +11,7 @@ export function createWhatsAppManager(onStatusChange) {
   container.className = 'whatsapp-manager';
   
   let pollingInterval = null;
-  let currentStatus = 'disconnected';
-  let isWaitingForConnection = false;
+  let currentStatus = 'direct_ready';
   
   container.innerHTML = `
     <div class="wa-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
@@ -23,147 +22,172 @@ export function createWhatsAppManager(onStatusChange) {
           <p class="muted" style="font-size:0.85rem; margin:0;">Recordatorios automáticos, confirmaciones de turnos y presupuestos</p>
         </div>
       </div>
-      <div class="wa-status-badge badge" id="waStatusBadge">
+      <div class="wa-status-badge badge attended" id="waStatusBadge">
         <span class="status-dot"></span>
-        <span class="status-text">Verificando...</span>
+        <span class="status-text">Modo Directo Activo</span>
       </div>
     </div>
 
-    <div class="wa-content" style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; text-align:center;">
-      <div id="waLoading" class="wa-loading hidden">
-        <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--primary); margin-bottom:12px;"></i>
-        <p>Conectando con el servicio de mensajería...</p>
-      </div>
-
-      <div id="waDisconnected" class="wa-section">
-        <div style="font-size:3rem; color:var(--muted); margin-bottom:12px;"><i class="fab fa-whatsapp"></i></div>
-        <h4>WhatsApp no vinculado</h4>
-        <p class="muted" style="max-width:400px; margin:0 auto 16px;">Conectá WhatsApp para enviar presupuestos, turnos y fichas automáticamente a tus pacientes.</p>
-        <button class="primary" id="waConnectBtn" style="background:#25d366; border-color:#25d366;"><i class="fas fa-qrcode"></i> Generar código QR para Vincular</button>
-      </div>
-
-      <div id="waQRCode" class="wa-section hidden">
-        <div class="qr-container" style="background:#fff; padding:16px; display:inline-block; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:16px;">
-          <img id="waQRImage" src="" alt="QR Code" style="width:220px; height:220px; display:block;" />
-        </div>
-        <h4>Escaneá el código QR</h4>
-        <p class="muted" style="font-size:0.9rem;">Abrí WhatsApp en tu celular → Ajustes / Menú → Dispositivos vinculados → Vincular dispositivo</p>
-        <div style="margin-top:12px;">
-          <button class="ghost" id="waCancelBtn"><i class="fas fa-times"></i> Cancelar</button>
-        </div>
-      </div>
-
-      <div id="waConnected" class="wa-section hidden">
-        <div style="font-size:3rem; color:#25d366; margin-bottom:12px;"><i class="fas fa-check-circle"></i></div>
-        <h4 style="color:#25d366;">WhatsApp Conectado y Operativo</h4>
-        <p class="muted" style="margin-bottom:16px;">Número vinculado: <strong id="waNumber" style="color:var(--text);">+54 9 11 ...</strong></p>
-        <div style="display:flex; justify-content:center; gap:16px; margin-bottom:20px;">
-          <div class="badge attended"><i class="fas fa-file-pdf"></i> Envío de Fichas/PDFs</div>
-          <div class="badge attended"><i class="fas fa-calendar-check"></i> Recordatorios 24h</div>
-          <div class="badge attended"><i class="fas fa-calculator"></i> Presupuestos</div>
-        </div>
-        <button class="ghost" id="waDisconnectBtn" style="color:var(--danger);"><i class="fas fa-unlink"></i> Desvincular WhatsApp</button>
-      </div>
+    <!-- Pestañas de Modo -->
+    <div style="display:flex; gap:8px; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+      <button id="tabWaDirect" class="primary" style="font-size:0.82rem; padding:6px 12px;"><i class="fas fa-bolt"></i> Modo Directo (Recomendado)</button>
+      <button id="tabWaService" class="ghost" style="font-size:0.82rem; padding:6px 12px;"><i class="fas fa-qrcode"></i> Microservicio QR (Baileys / Node)</button>
+      <button id="tabWaMeta" class="ghost" style="font-size:0.82rem; padding:6px 12px;"><i class="fab fa-meta"></i> Meta Cloud API</button>
     </div>
 
-    <!-- Panel de Meta WhatsApp Cloud API -->
-    <div id="metaCapabilityCard" style="margin-top:16px; padding:16px; background:var(--surface); border:1px solid var(--border); border-radius:12px; display:flex; justify-content:space-between; align-items:center;">
-      <div>
-        <div style="font-weight:600; font-size:0.95rem;"><i class="fab fa-meta" style="color:#0081fb;"></i> Meta WhatsApp Cloud API (Oficial)</div>
-        <div class="muted" style="font-size:0.85rem;">Canal oficial de WhatsApp Business para alto volumen y plantillas aprobadas</div>
+    <div class="wa-content" style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; text-align:left;">
+      
+      <!-- 1. MODO DIRECTO (100% OPERATIVO SIN SERVIDORES EXTERNOS) -->
+      <div id="waDirectPanel" class="wa-mode-panel">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+          <div style="width:40px; height:40px; border-radius:50%; background:rgba(37,211,102,0.15); display:flex; align-items:center; justify-content:center; color:#25d366; font-size:1.4rem;">
+            <i class="fas fa-check"></i>
+          </div>
+          <div>
+            <h4 style="margin:0; color:var(--text);">Modo Directo WhatsApp Web / App</h4>
+            <p class="muted" style="font-size:0.85rem; margin:0;">100% Gratuito · 0 Configuración · Sin APIs de pago ni servidores adicionales</p>
+          </div>
+        </div>
+
+        <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 16px; margin-bottom:14px; font-size:0.85rem; line-height:1.5;">
+          <strong style="color:var(--primary);">¿Cómo funciona?</strong><br>
+          Al presionar enviar en turnos, presupuestos o mensajes del chat, el sistema abre directamente <strong>WhatsApp Web</strong> en tu computadora o la aplicación de <strong>WhatsApp en tu celular</strong> con el número y el mensaje redactado listos para enviar.
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+          <div class="badge attended"><i class="fas fa-check"></i> Envío de Presupuestos</div>
+          <div class="badge attended"><i class="fas fa-check"></i> Recordatorios de Turnos</div>
+          <div class="badge attended"><i class="fas fa-check"></i> Indicaciones Clínicas</div>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input type="tel" id="waTestPhone" placeholder="Número de prueba (ej: 5491112345678)" style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.85rem;">
+          <button class="primary" id="waTestSendBtn" style="background:#25d366; border-color:#25d366; font-size:0.85rem; white-space:nowrap;"><i class="fab fa-whatsapp"></i> Probar Envío</button>
+        </div>
       </div>
-      <label class="toggle-switch" style="display:flex; align-items:center; cursor:pointer;">
-        <input type="checkbox" id="metaEnabledToggle" style="width:18px; height:18px; margin-right:8px;">
-        <span style="font-size:0.85rem; font-weight:600;">Habilitar Meta API</span>
-      </label>
+
+      <!-- 2. MODO MICROSERVICIO QR (BAILEYS / NODE.JS) -->
+      <div id="waServicePanel" class="wa-mode-panel hidden" style="text-align:center;">
+        <div id="waLoading" class="wa-loading hidden">
+          <i class="fas fa-spinner fa-spin" style="font-size:2rem; color:var(--primary); margin-bottom:12px;"></i>
+          <p>Consultando microservicio local en el puerto 3000...</p>
+        </div>
+
+        <div id="waServiceOffline" class="wa-service-status">
+          <div style="font-size:2.5rem; color:var(--muted); margin-bottom:10px;"><i class="fas fa-server"></i></div>
+          <h4>Microservicio Node.js no detectado</h4>
+          <p class="muted" style="max-width:440px; margin:0 auto 12px; font-size:0.85rem;">
+            WhatsApp requiere una sesión criptográfica en vivo generada por un servidor Node.js (Baileys) para escanear el QR desde tu celular.
+          </p>
+          <div style="background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px; max-width:420px; margin:0 auto 14px; text-align:left; font-size:0.8rem; font-family:monospace;">
+            # Para iniciar el bot de WhatsApp en segundo plano:<br>
+            <strong>npm run wa-server</strong>
+          </div>
+          <button class="ghost" id="waRetryConnectBtn"><i class="fas fa-sync-alt"></i> Reintentar Conexión</button>
+        </div>
+
+        <div id="waQRCode" class="wa-service-status hidden">
+          <div class="qr-container" style="background:#fff; padding:14px; display:inline-block; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-bottom:12px;">
+            <img id="waQRImage" src="" alt="WhatsApp QR" style="width:200px; height:200px; display:block;" />
+          </div>
+          <h4>Escaneá con tu WhatsApp</h4>
+          <p class="muted" style="font-size:0.85rem; margin:0;">WhatsApp → Dispositivos vinculados → Vincular dispositivo</p>
+        </div>
+      </div>
+
+      <!-- 3. MODO META CLOUD API -->
+      <div id="waMetaPanel" class="wa-mode-panel hidden">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+          <i class="fab fa-meta" style="font-size:1.8rem; color:#0081fb;"></i>
+          <div>
+            <h4 style="margin:0;">Meta WhatsApp Cloud API (Oficial)</h4>
+            <p class="muted" style="font-size:0.85rem; margin:0;">Para cuentas de WhatsApp Business con Token de Desarrollador de Facebook</p>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:0.85rem;">
+          <label>Phone Number ID (Meta):
+            <input type="text" id="metaPhoneId" placeholder="Ej: 104592837492019" style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); margin-top:4px;">
+          </label>
+          <label>Access Token (Bearer):
+            <input type="password" id="metaToken" placeholder="EAABwz..." style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); margin-top:4px;">
+          </label>
+          <button class="primary" style="align-self:flex-start; margin-top:6px;"><i class="fas fa-save"></i> Guardar Credenciales Meta</button>
+        </div>
+      </div>
+
     </div>
   `;
 
-  async function checkStatus() {
-    try {
-      const res = await fetch(`${WA_SERVICE}/api/whatsapp/status`);
-      if (res.ok) {
-        const data = await res.json();
-        updateUIStatus(data.status || 'disconnected', data.number);
-      } else {
-        updateUIStatus('disconnected');
-      }
-    } catch (e) {
-      updateUIStatus('disconnected');
-    }
+  // Cambio de pestañas
+  const tabDirect = container.querySelector('#tabWaDirect');
+  const tabService = container.querySelector('#tabWaService');
+  const tabMeta = container.querySelector('#tabWaMeta');
+  const pnlDirect = container.querySelector('#waDirectPanel');
+  const pnlService = container.querySelector('#waServicePanel');
+  const pnlMeta = container.querySelector('#waMetaPanel');
+
+  function selectTab(activeBtn, activePnl) {
+    [tabDirect, tabService, tabMeta].forEach(b => {
+      b.className = 'ghost';
+      b.style.fontSize = '0.82rem';
+    });
+    [pnlDirect, pnlService, pnlMeta].forEach(p => p.classList.add('hidden'));
+
+    activeBtn.className = 'primary';
+    activeBtn.style.fontSize = '0.82rem';
+    activePnl.classList.remove('hidden');
   }
 
-  function updateUIStatus(status, number = '') {
-    currentStatus = status;
-    const badge = container.querySelector('#waStatusBadge');
-    const badgeText = badge.querySelector('.status-text');
-    
-    container.querySelectorAll('.wa-section').forEach(s => s.classList.add('hidden'));
-    
-    if (status === 'connected' || status === 'meta' || status === 'twilio') {
-      badge.className = 'badge attended';
-      badgeText.textContent = 'Conectado';
-      container.querySelector('#waConnected').classList.remove('hidden');
-      if (number) container.querySelector('#waNumber').textContent = number;
-      if (onStatusChange) onStatusChange('connected');
-    } else if (status === 'waiting_qr') {
-      badge.className = 'badge pending';
-      badgeText.textContent = 'Esperando QR';
-      container.querySelector('#waQRCode').classList.remove('hidden');
-    } else {
-      badge.className = 'badge cancelled';
-      badgeText.textContent = 'Desconectado';
-      container.querySelector('#waDisconnected').classList.remove('hidden');
-      if (onStatusChange) onStatusChange('disconnected');
-    }
-  }
+  tabDirect?.addEventListener('click', () => selectTab(tabDirect, pnlDirect));
+  tabService?.addEventListener('click', () => {
+    selectTab(tabService, pnlService);
+    checkMicroservice();
+  });
+  tabMeta?.addEventListener('click', () => selectTab(tabMeta, pnlMeta));
 
-  // Connect QR Handler
-  container.querySelector('#waConnectBtn')?.addEventListener('click', async () => {
-    container.querySelector('#waDisconnected').classList.add('hidden');
-    container.querySelector('#waLoading').classList.remove('hidden');
-    
+  // Botón de prueba de envío en Modo Directo
+  container.querySelector('#waTestSendBtn')?.addEventListener('click', () => {
+    const phoneInput = container.querySelector('#waTestPhone');
+    const phone = phoneInput?.value.trim();
+    if (!phone) {
+      showToast('Ingresá un número de teléfono con código de país', 'warning');
+      return;
+    }
+    sendWhatsAppReport(phone, 'Paciente de Prueba', '¡Hola! Este es un mensaje de prueba desde Doctor2 Pro.');
+  });
+
+  // Chequeo de microservicio Node si está corriendo
+  async function checkMicroservice() {
+    const loading = container.querySelector('#waLoading');
+    const offline = container.querySelector('#waServiceOffline');
+    const qrSection = container.querySelector('#waQRCode');
+
+    loading?.classList.remove('hidden');
+    offline?.classList.add('hidden');
+    qrSection?.classList.add('hidden');
+
     try {
       const res = await fetch(`${WA_SERVICE}/api/whatsapp/connect`, { method: 'POST' });
-      const data = await res.json();
-      container.querySelector('#waLoading').classList.add('hidden');
-      
-      if (data.qrCode) {
-        container.querySelector('#waQRImage').src = data.qrCode;
-        updateUIStatus('waiting_qr');
-        if (!pollingInterval) pollingInterval = setInterval(checkStatus, 2000);
-      } else if (data.status === 'connected') {
-        updateUIStatus('connected', data.number);
+      if (res.ok) {
+        const data = await res.json();
+        loading?.classList.add('hidden');
+        if (data.qrCode) {
+          container.querySelector('#waQRImage').src = data.qrCode;
+          qrSection?.classList.remove('hidden');
+        } else if (data.status === 'connected') {
+          showToast(`WhatsApp conectado: ${data.number}`, 'success');
+        }
       } else {
-        // Fallback demo simulator for direct local execution without node microservice
-        container.querySelector('#waQRImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=DOCTOR2_WA_SESSION_${Date.now()}`;
-        updateUIStatus('waiting_qr');
-        showToast('Escanee el código QR simulado o configure el microservicio Node /wa-api', 'info');
+        throw new Error('Offline');
       }
     } catch (e) {
-      container.querySelector('#waLoading').classList.add('hidden');
-      // Graceful offline mock so user can still test UI
-      container.querySelector('#waQRImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=DOCTOR2_DEMO_QR`;
-      updateUIStatus('waiting_qr');
+      loading?.classList.add('hidden');
+      offline?.classList.remove('hidden');
     }
-  });
+  }
 
-  container.querySelector('#waCancelBtn')?.addEventListener('click', () => {
-    if (pollingInterval) clearInterval(pollingInterval);
-    updateUIStatus('disconnected');
-  });
-
-  container.querySelector('#waDisconnectBtn')?.addEventListener('click', async () => {
-    if (confirm('¿Desconectar la sesión de WhatsApp?')) {
-      try {
-        await fetch(`${WA_SERVICE}/api/whatsapp/disconnect`, { method: 'POST' });
-      } catch (e) {}
-      updateUIStatus('disconnected');
-      showToast('WhatsApp desconectado', 'info');
-    }
-  });
-
-  checkStatus();
+  container.querySelector('#waRetryConnectBtn')?.addEventListener('click', checkMicroservice);
 
   container.destroy = () => {
     if (pollingInterval) clearInterval(pollingInterval);
@@ -173,32 +197,23 @@ export function createWhatsAppManager(onStatusChange) {
 }
 
 // Global WhatsApp Report Sender Helper
-export async function getWhatsAppStatus() {
-  try {
-    const res = await fetch(`${WA_SERVICE}/api/whatsapp/status`);
-    if (res.ok) {
-      const data = await res.json();
-      return data;
-    }
-  } catch (e) {}
-  return { status: 'disconnected' };
-}
-
-export async function sendWhatsAppReport(phone, patientName, customMessage = '', reportType = 'presupuesto') {
+export async function sendWhatsAppReport(phone, patientName, customMessage = '') {
   let cleanPhone = (phone || '').replace(/\D/g, '');
   if (!cleanPhone) {
-    showToast('El paciente no tiene un teléfono válido registrado', 'warning');
+    showToast('El paciente no tiene un número telefónico válido registrado', 'warning');
     return false;
   }
   
   if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
-  if (!cleanPhone.startsWith('54')) cleanPhone = '549' + cleanPhone;
+  if (!cleanPhone.startsWith('54') && cleanPhone.length === 10) cleanPhone = '549' + cleanPhone;
   if (cleanPhone.startsWith('54') && !cleanPhone.startsWith('549') && cleanPhone.length === 12) {
     cleanPhone = '549' + cleanPhone.substring(2);
   }
 
-  const textEncoded = encodeURIComponent(customMessage || `Hola ${patientName}, te contactamos desde Consultorios.pro para compartirte información sobre tu turno/presupuesto.`);
+  const textEncoded = encodeURIComponent(customMessage || `Hola ${patientName}, te contactamos desde Consultorios Doctor2 para enviarte información de tu atención clínica.`);
   const url = `https://wa.me/${cleanPhone}?text=${textEncoded}`;
   window.open(url, '_blank');
+  showToast('Abriendo WhatsApp...', 'success');
   return true;
 }
+

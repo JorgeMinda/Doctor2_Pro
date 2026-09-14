@@ -10,9 +10,9 @@
             "phone": "+5491123456789",
             "appearance": {
                 "theme": "light",
-                "fontSize": "normal",
+                "fontSize": "small",
                 "calendarView": "week",
-                "density": "normal",
+                "density": "compact",
                 "sidebar": "fixed"
             }
         }
@@ -231,6 +231,41 @@
         }
     ],
     "audit_logs": [
+        {
+            "id": "aud_1c0fc05ee1093a6a",
+            "timestamp": "2026-09-14T01:43:00+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH_PROFILE",
+            "entityId": "usr-admin-1",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "email": "contacto@consultorios.pro",
+                    "phone": "+5491123456789",
+                    "appearance": {
+                        "theme": "light",
+                        "fontSize": "normal",
+                        "calendarView": "week",
+                        "density": "normal",
+                        "sidebar": "fixed"
+                    }
+                },
+                "new": {
+                    "email": "contacto@consultorios.pro",
+                    "phone": "+5491123456789",
+                    "appearance": {
+                        "theme": "light",
+                        "fontSize": "small",
+                        "calendarView": "week",
+                        "density": "compact",
+                        "sidebar": "fixed"
+                    }
+                }
+            },
+            "meta": []
+        },
         {
             "id": "aud_a00231b290e79bb3",
             "timestamp": "2026-09-14T01:21:16+00:00",

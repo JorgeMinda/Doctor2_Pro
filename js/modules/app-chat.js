@@ -3,6 +3,8 @@
  */
 import { state } from './app-state.js';
 import { el, showToast } from './app-utils.js';
+import { sendWhatsAppReport } from './whatsapp-manager.js';
+
 
 const mockChats = [
   { id: '1', name: 'María Rodríguez', phone: '+5491155551234', lastMsg: 'Hola, quería confirmar mi turno para mañana', time: '10:45' },
@@ -139,5 +141,10 @@ window.sendWaMessage = () => {
   }
 
   input.value = '';
-  showToast('Mensaje enviado por WhatsApp', 'success');
+  if (activeChat && activeChat.phone) {
+    sendWhatsAppReport(activeChat.phone, activeChat.name, text);
+  } else {
+    showToast('Mensaje registrado', 'success');
+  }
 };
+
