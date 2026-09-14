@@ -29,6 +29,11 @@
   <div id="app">
     <!-- Pantalla de Login Dinámico e Interactivo -->
     <div id="loginBox" class="login-modal-overlay hidden">
+      <!-- Esferas Ambientales Flotantes -->
+      <div class="login-bg-sphere sphere-1"></div>
+      <div class="login-bg-sphere sphere-2"></div>
+      <div class="login-bg-sphere sphere-3"></div>
+
       <div class="login-split-card state-idle" id="loginSplitCard">
         
         <!-- Columna Izquierda: Formulario de Autenticación -->
@@ -48,6 +53,8 @@
               <div class="login-input-group">
                 <label for="loginUser">Usuario o Correo Profesional</label>
                 <div class="login-input-wrapper">
+                  <div class="electric-glow"></div>
+                  <div class="electric-border"></div>
                   <i class="fas fa-user-md login-input-icon"></i>
                   <input id="loginUser" type="text" class="login-input-field" placeholder="admin" value="admin" autocomplete="username" required>
                 </div>
@@ -56,6 +63,8 @@
               <div class="login-input-group">
                 <label for="loginPass">Contraseña de Acceso</label>
                 <div class="login-input-wrapper">
+                  <div class="electric-glow"></div>
+                  <div class="electric-border"></div>
                   <i class="fas fa-key login-input-icon"></i>
                   <input id="loginPass" type="password" class="login-input-field" placeholder="••••••••" value="admin123" autocomplete="current-password" required>
                   <button type="button" class="login-toggle-pass-btn" id="toggleLoginPassBtn" title="Mostrar/Ocultar contraseña">
