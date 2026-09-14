@@ -173,21 +173,23 @@
 .electric-border::before {
   content: "";
   position: absolute;
-  width: 200%;
-  height: 200%;
-  left: -50%;
-  top: -50%;
+  width: 600px;
+  height: 600px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    transparent 40deg,
-    #00eaff 55deg,
-    #6366f1 75deg,
-    #10b981 95deg,
-    transparent 115deg,
+    transparent 55deg,
+    #00eaff 75deg,
+    #6366f1 95deg,
+    #10b981 115deg,
+    transparent 135deg,
     transparent 360deg
   );
-  animation: electricRotate 1.2s linear infinite;
+  animation: electricRotate 1.5s linear infinite;
 }
 
 .electric-border::after {
@@ -200,21 +202,35 @@
 
 .electric-glow {
   position: absolute;
-  inset: -4px;
-  border-radius: 16px;
+  inset: -3px;
+  border-radius: 15px;
+  overflow: hidden;
   pointer-events: none;
   opacity: 0;
-  filter: blur(8px);
+  filter: blur(6px);
+  transition: opacity 0.25s ease;
+  z-index: 0;
+}
+
+.electric-glow::before {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    #00eaff 60deg,
-    #6366f1 85deg,
-    transparent 120deg,
+    #00eaff 70deg,
+    #6366f1 95deg,
+    #10b981 120deg,
+    transparent 145deg,
     transparent 360deg
   );
-  transition: opacity 0.25s ease;
-  z-index: 0;
+  animation: electricRotate 1.5s linear infinite;
 }
 
 .login-input-wrapper:focus-within .electric-border {
@@ -222,15 +238,16 @@
 }
 
 .login-input-wrapper:focus-within .electric-glow {
-  opacity: 0.75;
-  animation: electricRotate 1.2s linear infinite;
+  opacity: 0.7;
 }
 
 .login-input-icon {
   position: absolute;
-  left: 14px;
+  left: 16px;
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
   pointer-events: none;
   transition: color 0.2s;
   z-index: 5;
@@ -240,13 +257,14 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  padding: 12px 14px 12px 42px;
+  padding: 13px 46px 13px 50px;
   border-radius: 12px;
   border: 1.5px solid var(--border);
   background: var(--bg-page);
   color: var(--text);
   font-size: 0.95rem;
   font-weight: 500;
+  letter-spacing: 0.2px;
   outline: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -263,13 +281,13 @@
 
 .login-toggle-pass-btn {
   position: absolute;
-  right: 12px;
+  right: 14px;
   background: transparent;
   border: none;
   color: var(--muted);
   cursor: pointer;
   padding: 6px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -599,10 +617,10 @@
 
 @keyframes electricRotate {
   from {
-    transform: rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
   }
   to {
-    transform: rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
