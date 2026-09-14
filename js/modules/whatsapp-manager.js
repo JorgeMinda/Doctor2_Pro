@@ -247,6 +247,18 @@ export function createWhatsAppManager(onStatusChange) {
   return container;
 }
 
+// Global WhatsApp Status Helper
+export async function getWhatsAppStatus() {
+  try {
+    const res = await fetch(`${WA_NODE_API}/api/whatsapp/status`);
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+  } catch (e) {}
+  return { status: 'direct_ready', number: '' };
+}
+
 // Global WhatsApp Report Sender Helper
 export async function sendWhatsAppReport(phone, patientName, customMessage = '') {
   let cleanPhone = (phone || '').replace(/\D/g, '');
@@ -267,5 +279,6 @@ export async function sendWhatsAppReport(phone, patientName, customMessage = '')
   showToast('Abriendo WhatsApp...', 'success');
   return true;
 }
+
 
 

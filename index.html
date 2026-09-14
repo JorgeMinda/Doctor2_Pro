@@ -8,9 +8,11 @@
   <!-- PWA & Mobile Web App Meta -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#6366f1">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Doctor2_Pro">
+
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%236366f1'/><path d='M60 40 C35 50, 30 90, 40 130 C45 155, 55 175, 75 178 C90 180, 95 145, 105 145 C115 145, 120 180, 135 178 C155 175, 165 155, 170 130 C180 90, 175 50, 150 40 C130 30, 115 42, 105 42 C95 42, 80 30, 60 40 Z' fill='white'/></svg>">
 
   <!-- FontAwesome Icons -->
@@ -57,7 +59,7 @@
               </div>
             </div>
 
-            <div class="login-fields-wrap">
+            <form id="loginForm" class="login-fields-wrap" onsubmit="event.preventDefault(); window.login && window.login();">
               <div class="login-input-group">
                 <div class="login-input-wrapper">
                   <div class="electric-glow"></div>
@@ -81,12 +83,12 @@
                 </div>
               </div>
 
-              <button id="loginBtn" class="login-submit-btn">
+              <button id="loginBtn" type="submit" class="login-submit-btn">
                 <i class="fas fa-arrow-right-to-bracket"></i> Iniciar Sesión
               </button>
 
               <div id="loginMsg" class="login-msg-box"></div>
-            </div>
+            </form>
           </div>
 
           <div class="login-footer-info">

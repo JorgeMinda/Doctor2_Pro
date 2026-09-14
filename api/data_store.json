@@ -140,6 +140,23 @@
             "cost": 0,
             "observation": "",
             "created_at": "2026-09-12 01:47:17"
+        },
+        {
+            "id": "apt-96b9b95e9f",
+            "patient_id": null,
+            "patient_name": "Jorge Minda",
+            "patient_phone": "+593987077452",
+            "patient_email": "jls.minda@yavirac.edu.ec",
+            "professional_id": "prof-378c0d79a7",
+            "date": "2026-09-13",
+            "time": "08:00",
+            "duration": 30,
+            "reason": "nada",
+            "status": "Reservado",
+            "cost": 20,
+            "payments": [],
+            "observation": "nada",
+            "created_at": "2026-09-14 02:11:21"
         }
     ],
     "inventory": [
@@ -183,7 +200,16 @@
             "location": "Gabinete 2 - Estante A"
         }
     ],
-    "notifications": [],
+    "notifications": [
+        {
+            "id": "notif-6aa757ca2f045",
+            "title": "Nuevo Turno Agendado",
+            "message": "Jorge Minda · 2026-09-13 08:00 hs",
+            "type": "success",
+            "is_read": 0,
+            "created_at": "2026-09-14 02:11"
+        }
+    ],
     "inventory_movements": [],
     "treasury_accounts": [
         {
@@ -231,6 +257,37 @@
         }
     ],
     "audit_logs": [
+        {
+            "id": "aud_e24db285c3d4acde",
+            "timestamp": "2026-09-14T02:11:21+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "APPOINTMENT",
+            "entityId": "apt-96b9b95e9f",
+            "action": "CREATE",
+            "diff": {
+                "old": null,
+                "new": {
+                    "id": "apt-96b9b95e9f",
+                    "patient_id": null,
+                    "patient_name": "Jorge Minda",
+                    "patient_phone": "+593987077452",
+                    "patient_email": "jls.minda@yavirac.edu.ec",
+                    "professional_id": "prof-378c0d79a7",
+                    "date": "2026-09-13",
+                    "time": "08:00",
+                    "duration": 30,
+                    "reason": "nada",
+                    "status": "Reservado",
+                    "cost": 20,
+                    "payments": [],
+                    "observation": "nada",
+                    "created_at": "2026-09-14 02:11:21"
+                }
+            },
+            "meta": []
+        },
         {
             "id": "aud_1c0fc05ee1093a6a",
             "timestamp": "2026-09-14T01:43:00+00:00",
