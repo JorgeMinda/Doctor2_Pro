@@ -1,0 +1,19 @@
+{
+  "name": "doctor2-pro",
+  "version": "2.0.0",
+  "description": "Doctor2 Pro - Sistema Integral de Gestión Médica y Odontológica",
+  "main": "wa-server.js",
+  "scripts": {
+    "start": "php -S localhost:8000",
+    "wa-server": "node wa-server.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.8",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "pino": "^9.0.0"
+  },
+  "keywords": ["medical", "clinic", "whatsapp", "doctor"],
+  "author": "Jorge Minda",
+  "license": "MIT"
+}
