@@ -11,11 +11,14 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
 
   const ch = patient.clinicalHistory || {};
   const ant = ch.antecedentes || {};
+  const antDet = ant.detalles || {};
   const sig = ch.signosVitales || {};
   const est = ch.estomatognatico || {};
   const ind = ch.indicadoresSalud || {};
   const cpoData = ch.cpo || calculateCPOFromNotes(notes);
   const planesDx = ch.planes || {};
+  const esc = (s) => (s || '').toString().replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
   const diagList = ch.diagnosticosCIE11 && ch.diagnosticosCIE11.length > 0 
     ? ch.diagnosticosCIE11 
     : [
@@ -190,7 +193,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
           </div>
         </div>
         <div class="hc-accordion-body">
-          <p class="muted" style="font-size:0.85rem; margin-bottom:12px;">Haga clic sobre las condiciones que apliquen al paciente:</p>
+          <p class="muted" style="font-size:0.85rem; margin-bottom:12px;">Haga clic sobre las condiciones que apliquen al paciente para especificar detalles:</p>
           <div class="chips-container" id="antecedentesChips">
             <span class="chip-toggle danger ${ant.alergiaAntibiotico ? 'active' : ''}" data-key="alergiaAntibiotico"><i class="fas fa-pills"></i> Alergia Antibióticos</span>
             <span class="chip-toggle danger ${ant.alergiaAnestesia ? 'active' : ''}" data-key="alergiaAnestesia"><i class="fas fa-syringe"></i> Alergia Anestesia</span>
@@ -203,6 +206,80 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <span class="chip-toggle ${ant.tuberculosis ? 'active' : ''}" data-key="tuberculosis"><i class="fas fa-virus"></i> Tuberculosis</span>
             <span class="chip-toggle ${ant.otro ? 'active' : ''}" data-key="otro"><i class="fas fa-plus"></i> Otro Antecedente</span>
           </div>
+
+          <!-- CONTENEDOR DINÁMICO DE DETALLES DE ANTECEDENTES SELECCIONADOS -->
+          <div id="antecedentesDetallesGrid" class="antecedentes-detalles-grid" style="margin-top:14px;">
+            <div class="antecedente-det-box danger-border" id="detWrap_alergiaAntibiotico" style="display:${ant.alergiaAntibiotico ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:#ef4444; font-weight:600;"><i class="fas fa-pills"></i> Detalle: Alergia a Antibióticos</span>
+                <input type="text" class="field-input" id="hcDet_alergiaAntibiotico" placeholder="Especifique antibióticos (ej: Penicilina, Amoxicilina, Cefalosporinas, Sulfas) y reacción producida..." value="${esc(antDet.alergiaAntibiotico || ant.alergiaAntibioticoDetalle || '')}">
+              </label>
+            </div>
+
+            <div class="antecedente-det-box danger-border" id="detWrap_alergiaAnestesia" style="display:${ant.alergiaAnestesia ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:#ef4444; font-weight:600;"><i class="fas fa-syringe"></i> Detalle: Alergia / Reacción a Anestesia</span>
+                <input type="text" class="field-input" id="hcDet_alergiaAnestesia" placeholder="Especifique anestésico local (ej: Lidocaína con vasoconstrictor, Articaína, Mepivacaína, Bisulfitos)..." value="${esc(antDet.alergiaAnestesia || ant.alergiaAnestesiaDetalle || '')}">
+              </label>
+            </div>
+
+            <div class="antecedente-det-box danger-border" id="detWrap_hemorragias" style="display:${ant.hemorragias ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:#ef4444; font-weight:600;"><i class="fas fa-droplet"></i> Detalle: Hemorragias / Anticoagulados</span>
+                <input type="text" class="field-input" id="hcDet_hemorragias" placeholder="Especifique medicación (ej: Warfarina, Acenocumarol, Aspirina, Clopidogrel), INR o trastorno de coagulación..." value="${esc(antDet.hemorragias || ant.hemorragiasDetalle || '')}">
+              </label>
+            </div>
+
+            <div class="antecedente-det-box warning-border" id="detWrap_diabetes" style="display:${ant.diabetes ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:#f59e0b; font-weight:600;"><i class="fas fa-cube"></i> Detalle: Diabetes Mellitus</span>
+                <input type="text" class="field-input" id="hcDet_diabetes" placeholder="Especifique tipo (Tipo 1 / Tipo 2), medicación (Metformina, Insulina), última glucemia / HbA1c..." value="${esc(antDet.diabetes || ant.diabetesDetalle || '')}">
+              </label>
+            </div>
+
+            <div class="antecedente-det-box warning-border" id="detWrap_hipertension" style="display:${ant.hipertension ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:#f59e0b; font-weight:600;"><i class="fas fa-heart"></i> Detalle: Hipertensión Arterial</span>
+                <input type="text" class="field-input" id="hcDet_hipertension" placeholder="Especifique tratamiento actual (ej: Losartán, Enalapril, Amlodipino), cifras habituales de PA..." value="${esc(antDet.hipertension || ant.hipertensionDetalle || '')}">
+              </label>
+            </div>
+
+            <div class="antecedente-det-box warning-border" id="detWrap_cardiaca" style="display:${ant.cardiaca ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:#f59e0b; font-weight:600;"><i class="fas fa-heart-pulse"></i> Detalle: Enfermedad Cardíaca / Cardiovascular</span>
+                <input type="text" class="field-input" id="hcDet_cardiaca" placeholder="Especifique patología (ej: Valvulopatía, Marcapasos, Arritmia, Profilaxis antibiótica necesaria)..." value="${esc(antDet.cardiaca || ant.cardiacaDetalle || '')}">
+              </label>
+            </div>
+
+            <div class="antecedente-det-box" id="detWrap_asma" style="display:${ant.asma ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:var(--primary); font-weight:600;"><i class="fas fa-lungs"></i> Detalle: Asma / Afección Respiratoria</span>
+                <input type="text" class="field-input" id="hcDet_asma" placeholder="Especifique gravedad, frecuencia de crisis, medicación (ej: Salbutamol, Budesonida, EPOC)..." value="${esc(antDet.asma || ant.asmaDetalle || '')}">
+              </label>
+            </div>
+
+            <div class="antecedente-det-box" id="detWrap_vih" style="display:${ant.vih ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:var(--primary); font-weight:600;"><i class="fas fa-shield-virus"></i> Detalle: VIH / ITS</span>
+                <input type="text" class="field-input" id="hcDet_vih" placeholder="Especifique tratamiento antirretroviral (TARV), última carga viral / recuento CD4..." value="${esc(antDet.vih || ant.vihDetalle || '')}">
+              </label>
+            </div>
+
+            <div class="antecedente-det-box" id="detWrap_tuberculosis" style="display:${ant.tuberculosis ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:var(--primary); font-weight:600;"><i class="fas fa-virus"></i> Detalle: Tuberculosis</span>
+                <input type="text" class="field-input" id="hcDet_tuberculosis" placeholder="Especifique fecha de diagnóstico, fase del tratamiento o estado de curación..." value="${esc(antDet.tuberculosis || ant.tuberculosisDetalle || '')}">
+              </label>
+            </div>
+
+            <div class="antecedente-det-box" id="detWrap_otro" style="display:${ant.otro ? 'block' : 'none'};">
+              <label class="field" style="margin-bottom:0;">
+                <span style="color:var(--primary); font-weight:600;"><i class="fas fa-plus"></i> Detalle: Otros Antecedentes</span>
+                <input type="text" class="field-input" id="hcDet_otro" placeholder="Especifique otras patologías o condiciones (ej: Epilepsia, Hipotiroidismo, Insuficiencia Renal)..." value="${esc(antDet.otro || ant.otroDetalle || '')}">
+              </label>
+            </div>
+          </div>
+
 
           <!-- ALERTA CRÍTICA: TRATAMIENTO CON BIFOSFONATOS -->
           <div class="critical-alert-box" style="margin-top:16px; border:1px solid #fecaca; background:rgba(239,68,68,0.06); border-radius:12px; padding:14px;">
@@ -750,12 +827,23 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     });
   });
 
-  // 3. Chips de Antecedentes
+  // 3. Chips de Antecedentes con despliegue interactivo de detalles
   container.querySelectorAll('#antecedentesChips .chip-toggle').forEach(chip => {
     chip.addEventListener('click', () => {
       chip.classList.toggle('active');
+      const key = chip.dataset.key;
+      const detWrap = container.querySelector(`#detWrap_${key}`);
+      const detInput = container.querySelector(`#hcDet_${key}`);
+      if (detWrap) {
+        const isActive = chip.classList.contains('active');
+        detWrap.style.display = isActive ? 'block' : 'none';
+        if (isActive && detInput) {
+          detInput.focus();
+        }
+      }
     });
   });
+
 
   // 4. Toggle Bifosfonatos
   const bifosChips = container.querySelectorAll('#bifosfonatosChips .chip-toggle');
@@ -983,18 +1071,44 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
       alergiaAntibiotico: container.querySelector('[data-key="alergiaAntibiotico"]')?.classList.contains('active') || false,
       alergiaAnestesia: container.querySelector('[data-key="alergiaAnestesia"]')?.classList.contains('active') || false,
       hemorragias: container.querySelector('[data-key="hemorragias"]')?.classList.contains('active') || false,
-      vih: container.querySelector('[data-key="vih"]')?.classList.contains('active') || false,
-      tuberculosis: container.querySelector('[data-key="tuberculosis"]')?.classList.contains('active') || false,
-      asma: container.querySelector('[data-key="asma"]')?.classList.contains('active') || false,
       diabetes: container.querySelector('[data-key="diabetes"]')?.classList.contains('active') || false,
       hipertension: container.querySelector('[data-key="hipertension"]')?.classList.contains('active') || false,
       cardiaca: container.querySelector('[data-key="cardiaca"]')?.classList.contains('active') || false,
+      asma: container.querySelector('[data-key="asma"]')?.classList.contains('active') || false,
+      vih: container.querySelector('[data-key="vih"]')?.classList.contains('active') || false,
+      tuberculosis: container.querySelector('[data-key="tuberculosis"]')?.classList.contains('active') || false,
       otro: container.querySelector('[data-key="otro"]')?.classList.contains('active') || false,
+
+      detalles: {
+        alergiaAntibiotico: container.querySelector('#hcDet_alergiaAntibiotico')?.value.trim() || '',
+        alergiaAnestesia: container.querySelector('#hcDet_alergiaAnestesia')?.value.trim() || '',
+        hemorragias: container.querySelector('#hcDet_hemorragias')?.value.trim() || '',
+        diabetes: container.querySelector('#hcDet_diabetes')?.value.trim() || '',
+        hipertension: container.querySelector('#hcDet_hipertension')?.value.trim() || '',
+        cardiaca: container.querySelector('#hcDet_cardiaca')?.value.trim() || '',
+        asma: container.querySelector('#hcDet_asma')?.value.trim() || '',
+        vih: container.querySelector('#hcDet_vih')?.value.trim() || '',
+        tuberculosis: container.querySelector('#hcDet_tuberculosis')?.value.trim() || '',
+        otro: container.querySelector('#hcDet_otro')?.value.trim() || ''
+      },
+
+      alergiaAntibioticoDetalle: container.querySelector('#hcDet_alergiaAntibiotico')?.value.trim() || '',
+      alergiaAnestesiaDetalle: container.querySelector('#hcDet_alergiaAnestesia')?.value.trim() || '',
+      hemorragiasDetalle: container.querySelector('#hcDet_hemorragias')?.value.trim() || '',
+      diabetesDetalle: container.querySelector('#hcDet_diabetes')?.value.trim() || '',
+      hipertensionDetalle: container.querySelector('#hcDet_hipertension')?.value.trim() || '',
+      cardiacaDetalle: container.querySelector('#hcDet_cardiaca')?.value.trim() || '',
+      asmaDetalle: container.querySelector('#hcDet_asma')?.value.trim() || '',
+      vihDetalle: container.querySelector('#hcDet_vih')?.value.trim() || '',
+      tuberculosisDetalle: container.querySelector('#hcDet_tuberculosis')?.value.trim() || '',
+      otroDetalle: container.querySelector('#hcDet_otro')?.value.trim() || '',
+
       cirugias: container.querySelector('#hcCirugias')?.value.trim() || '',
       recuperacion: container.querySelector('#hcRecuperacion')?.value.trim() || '',
       bifosfonatos: container.querySelector('#bifosfonatosChips .chip-toggle.danger')?.classList.contains('active') || false,
       bifosfonatosDetalle: container.querySelector('#hcBifosfonatosDetalle')?.value.trim() || ''
     };
+
 
     const signosVitales = {
       pa: container.querySelector('#hcPa')?.value.trim() || '',

@@ -311,6 +311,38 @@
   box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);
 }
 
+/* Detalles de Antecedentes Activos */
+.antecedentes-detalles-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.antecedente-det-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3.5px solid var(--primary);
+  border-radius: 8px;
+  padding: 10px 14px;
+  animation: fadeInDownDetalle 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.antecedente-det-box.danger-border {
+  border-left-color: #ef4444;
+  background: rgba(239, 68, 68, 0.03);
+}
+
+.antecedente-det-box.warning-border {
+  border-left-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.03);
+}
+
+@keyframes fadeInDownDetalle {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Alerta de Bifosfonatos */
 .bifosfonatos-alert-box {
   background: rgba(239, 68, 68, 0.12);

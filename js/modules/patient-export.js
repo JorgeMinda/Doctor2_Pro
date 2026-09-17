@@ -135,7 +135,34 @@ export function createExportActions(patient, notes = [], plans = [], professiona
   
   function generateHistoriaHTML() {
     const hc = patient.clinicalHistory || {};
-    const antecedentes = hc.antecedentes || [];
+    let antecedentes = [];
+    if (Array.isArray(hc.antecedentes)) {
+      antecedentes = hc.antecedentes;
+    } else if (hc.antecedentes && typeof hc.antecedentes === 'object') {
+      const a = hc.antecedentes;
+      const d = a.detalles || {};
+      const labels = [
+        { key: 'alergiaAntibiotico', label: 'Alergia Antibióticos' },
+        { key: 'alergiaAnestesia', label: 'Alergia Anestesia' },
+        { key: 'hemorragias', label: 'Hemorragias / Anticoagulados' },
+        { key: 'diabetes', label: 'Diabetes' },
+        { key: 'hipertension', label: 'Hipertensión Arterial' },
+        { key: 'cardiaca', label: 'Enfermedad Cardíaca' },
+        { key: 'asma', label: 'Asma / Respiratorio' },
+        { key: 'vih', label: 'VIH / ITS' },
+        { key: 'tuberculosis', label: 'Tuberculosis' },
+        { key: 'otro', label: 'Otro Antecedente' }
+      ];
+      labels.forEach(item => {
+        if (a[item.key]) {
+          const det = d[item.key] || a[item.key + 'Detalle'] || '';
+          antecedentes.push(det ? `<strong>${item.label}:</strong> ${det}` : item.label);
+        }
+      });
+      if (a.cirugias) antecedentes.push(`<strong>Cirugías:</strong> ${a.cirugias}`);
+      if (a.recuperacion) antecedentes.push(`<strong>Complicaciones / Recuperación:</strong> ${a.recuperacion}`);
+    }
+
     const estomato = hc.estomatognatico || [];
     const cie11 = hc.diagnosticosCIE11 || [];
     const sv = hc.signosVitales || {};
@@ -143,6 +170,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
     const ind = hc.indicadoresSalud || {};
     const planes = hc.planes || {};
     const presc = hc.prescripciones || {};
+
 
     return `
       <!DOCTYPE html>
