@@ -432,16 +432,29 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
           <div style="overflow-x:auto;">
             <table class="ihos-table" style="width:100%;">
               <thead>
+                <tr style="background:var(--bg-page); text-align:center;">
+                  <th colspan="4" style="text-align:center; font-weight:800; color:var(--primary); font-size:0.92rem; letter-spacing:0.5px; padding:10px;">
+                    <i class="fas fa-teeth"></i> HIGIENE ORAL SIMPLIFICADA
+                  </th>
+                </tr>
                 <tr>
-                  <th>Piezas Índice</th>
-                  <th>Placa Bacteriana (0-3)</th>
-                  <th>Cálculo / Tártaro (0-3)</th>
-                  <th>Gingivitis (0-1)</th>
+                  <th style="min-width:260px; text-align:center;">Piezas Dentales</th>
+                  <th style="text-align:center;">Placa (0-1-2-3)</th>
+                  <th style="text-align:center;">Cálculo (0-1-2-3)</th>
+                  <th style="text-align:center;">Gingivitis (0-1)</th>
                 </tr>
               </thead>
               <tbody>
                 ${renderIHOSTableRows(ind.ihos)}
               </tbody>
+              <tfoot>
+                <tr style="background:var(--bg-page); font-weight:800;">
+                  <td style="text-align:center; font-weight:800; color:var(--text);">TOTAL</td>
+                  <td style="text-align:center; font-weight:800; color:var(--primary);" id="ihosTotalPlaca">0</td>
+                  <td style="text-align:center; font-weight:800; color:var(--primary);" id="ihosTotalCalculo">0</td>
+                  <td style="text-align:center; font-weight:800; color:var(--primary);" id="ihosTotalGingivitis">0</td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -793,19 +806,40 @@ function renderEstomatognaticoItems(est = {}) {
 
 function renderIHOSTableRows(ihos = {}) {
   const pieces = [
-    { key: 'p16', label: 'Pieza 16 / 55' },
-    { key: 'p11', label: 'Pieza 11 / 51' },
-    { key: 'p26', label: 'Pieza 26 / 65' },
-    { key: 'p36', label: 'Pieza 36 / 75' },
-    { key: 'p31', label: 'Pieza 31 / 71' },
-    { key: 'p46', label: 'Pieza 46 / 85' }
+    { key: 'p16', n1: '16', n2: '17', n3: '55' },
+    { key: 'p11', n1: '11', n2: '21', n3: '51' },
+    { key: 'p26', n1: '26', n2: '27', n3: '65' },
+    { key: 'p36', n1: '36', n2: '37', n3: '75' },
+    { key: 'p31', n1: '31', n2: '41', n3: '71' },
+    { key: 'p46', n1: '46', n2: '47', n3: '85' }
   ];
 
   return pieces.map(p => {
-    const row = ihos[p.key] || { placa: 0, calculo: 0, gingivitis: 0 };
+    const row = ihos[p.key] || { placa: 0, calculo: 0, gingivitis: 0, m1: '', m2: '', m3: '' };
     return `
       <tr data-key="${p.key}">
-        <td><strong>${p.label}</strong></td>
+        <td>
+          <div class="ihos-pieces-cell">
+            <span class="ihos-piece-num">${p.n1}</span>
+            <select class="ihos-mark-sel ihos-mark-1" title="Estado pieza ${p.n1}">
+              <option value="" ${row.m1 === '' || !row.m1 ? 'selected' : ''}></option>
+              <option value="X" ${row.m1 === 'X' ? 'selected' : ''}>X</option>
+              <option value="-" ${row.m1 === '-' ? 'selected' : ''}>-</option>
+            </select>
+            <span class="ihos-piece-num">${p.n2}</span>
+            <select class="ihos-mark-sel ihos-mark-2" title="Estado pieza ${p.n2}">
+              <option value="" ${row.m2 === '' || !row.m2 ? 'selected' : ''}></option>
+              <option value="X" ${row.m2 === 'X' ? 'selected' : ''}>X</option>
+              <option value="-" ${row.m2 === '-' ? 'selected' : ''}>-</option>
+            </select>
+            <span class="ihos-piece-num">${p.n3}</span>
+            <select class="ihos-mark-sel ihos-mark-3" title="Estado pieza ${p.n3}">
+              <option value="" ${row.m3 === '' || !row.m3 ? 'selected' : ''}></option>
+              <option value="X" ${row.m3 === 'X' ? 'selected' : ''}>X</option>
+              <option value="-" ${row.m3 === '-' ? 'selected' : ''}>-</option>
+            </select>
+          </div>
+        </td>
         <td>
           <select class="ihos-placa">
             <option value="0" ${row.placa == 0 ? 'selected' : ''}>0 - Ausente</option>
@@ -1040,6 +1074,27 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
       });
     });
   });
+
+  // 7b. Cálculo Dinámico de Totales de Higiene Oral Simplificada (IHO-S)
+  function updateIHOSTotals() {
+    let totP = 0, totC = 0, totG = 0;
+    container.querySelectorAll('.ihos-table tbody tr[data-key]').forEach(tr => {
+      totP += parseInt(tr.querySelector('.ihos-placa')?.value) || 0;
+      totC += parseInt(tr.querySelector('.ihos-calculo')?.value) || 0;
+      totG += parseInt(tr.querySelector('.ihos-gingivitis')?.value) || 0;
+    });
+    const pSpan = container.querySelector('#ihosTotalPlaca');
+    const cSpan = container.querySelector('#ihosTotalCalculo');
+    const gSpan = container.querySelector('#ihosTotalGingivitis');
+    if (pSpan) pSpan.textContent = String(totP);
+    if (cSpan) cSpan.textContent = String(totC);
+    if (gSpan) gSpan.textContent = String(totG);
+  }
+
+  container.querySelectorAll('.ihos-placa, .ihos-calculo, .ihos-gingivitis').forEach(sel => {
+    sel.addEventListener('change', updateIHOSTotals);
+  });
+  updateIHOSTotals();
 
   // 8. Calculadora Dinámica CPO / ceo
   const cpoC = container.querySelector('#cpoC');
@@ -1488,9 +1543,12 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
     });
 
     const ihos = {};
-    container.querySelectorAll('.ihos-table tbody tr').forEach(tr => {
+    container.querySelectorAll('.ihos-table tbody tr[data-key]').forEach(tr => {
       const key = tr.dataset.key;
       ihos[key] = {
+        m1: tr.querySelector('.ihos-mark-1')?.value || '',
+        m2: tr.querySelector('.ihos-mark-2')?.value || '',
+        m3: tr.querySelector('.ihos-mark-3')?.value || '',
         placa: parseInt(tr.querySelector('.ihos-placa')?.value) || 0,
         calculo: parseInt(tr.querySelector('.ihos-calculo')?.value) || 0,
         gingivitis: parseInt(tr.querySelector('.ihos-gingivitis')?.value) || 0

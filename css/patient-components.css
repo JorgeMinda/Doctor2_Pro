@@ -506,13 +506,14 @@
   background: var(--bg-page);
   padding: 8px 6px;
   border: 1px solid var(--border);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--muted);
 }
 
 .ihos-table td {
   padding: 6px;
   border: 1px solid var(--border);
+  vertical-align: middle;
 }
 
 .ihos-table select {
@@ -521,6 +522,44 @@
   border-radius: 6px;
   font-weight: 600;
   background: var(--surface);
+}
+
+.ihos-pieces-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.ihos-piece-num {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  padding: 4px 6px;
+  border-radius: 6px;
+  min-width: 28px;
+  text-align: center;
+  display: inline-block;
+}
+
+.ihos-mark-sel {
+  width: 38px;
+  height: 28px;
+  padding: 0 !important;
+  text-align: center;
+  font-weight: 800 !important;
+  color: var(--primary) !important;
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align-last: center;
+}
+
+.ihos-mark-sel:focus {
+  border-color: var(--primary) !important;
 }
 
 /* Índices CPO - ceo */
