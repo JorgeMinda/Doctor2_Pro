@@ -17,7 +17,9 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
   const ind = ch.indicadoresSalud || {};
   const cpoData = ch.cpo || calculateCPOFromNotes(notes);
   const planesDx = ch.planes || {};
+  const planesDet = planesDx.detalles || {};
   const esc = (s) => (s || '').toString().replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 
   const diagList = ch.diagnosticosCIE11 && ch.diagnosticosCIE11.length > 0 
     ? ch.diagnosticosCIE11 
@@ -523,7 +525,10 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
           </div>
         </div>
         <div class="hc-accordion-body">
-          <div class="chips-container" id="planesDxChips" style="margin-bottom:12px;">
+          <p class="muted" style="font-size:0.85rem; margin-bottom:12px;">
+            Seleccione los planes o exámenes requeridos. Al activar cada opción se habilitará su especificación y se registrará automáticamente como <strong>nota clínica de evolución</strong>:
+          </p>
+          <div class="chips-container" id="planesDxChips" style="margin-bottom:14px;">
             <span class="chip-toggle ${planesDx.biometria ? 'active' : ''}" data-key="biometria"><i class="fas fa-vial"></i> Biometría Hemática</span>
             <span class="chip-toggle ${planesDx.quimica ? 'active' : ''}" data-key="quimica"><i class="fas fa-flask"></i> Química Sanguínea / Glucosa</span>
             <span class="chip-toggle ${planesDx.rayosXPeriapical ? 'active' : ''}" data-key="rayosXPeriapical"><i class="fas fa-x-ray"></i> Rayos X Periapical</span>
@@ -531,8 +536,64 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <span class="chip-toggle ${planesDx.cbct ? 'active' : ''}" data-key="cbct"><i class="fas fa-cube"></i> Tomografía Dental CBCT</span>
             <span class="chip-toggle ${planesDx.educacion ? 'active' : ''}" data-key="educacion"><i class="fas fa-chalkboard-user"></i> Educación en Higiene Oral</span>
           </div>
-          <input id="hcPlanesOtros" type="text" class="field-input" placeholder="Otros exámenes, interconsultas médicas o indicaciones preoperatorias..." value="${planesDx.otros || ''}" style="width:100%;">
+
+          <!-- CONTENEDOR DINÁMICO DE DETALLES Y NOTAS CLÍNICAS DE PLANES -->
+          <div id="planesDetallesGrid" class="antecedentes-detalles-grid" style="margin-bottom:14px;">
+            <div class="antecedente-det-box" id="detWrap_plan_biometria" style="display:${planesDx.biometria ? 'block' : 'none'}; border-left-color:#8b5cf6;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="color:#8b5cf6; font-weight:600; font-size:0.85rem;"><i class="fas fa-vial"></i> Plan: Biometría Hemática</span>
+                <span class="badge" style="background:rgba(139,92,246,0.12); color:#8b5cf6; font-size:0.75rem;"><i class="fas fa-file-medical"></i> Genera Nota Clínica</span>
+              </div>
+              <input type="text" class="field-input hc-plan-det-input" id="hcDet_plan_biometria" data-plan="biometria" placeholder="Indicación clínica (ej: Recuento de plaquetas y leucocitos prequirúrgico / Evaluación de anemia)..." value="${esc(planesDet.biometria || planesDx.biometriaDetalle || '')}" style="width:100%;">
+            </div>
+
+            <div class="antecedente-det-box" id="detWrap_plan_quimica" style="display:${planesDx.quimica ? 'block' : 'none'}; border-left-color:#8b5cf6;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="color:#8b5cf6; font-weight:600; font-size:0.85rem;"><i class="fas fa-flask"></i> Plan: Química Sanguínea / Glucosa</span>
+                <span class="badge" style="background:rgba(139,92,246,0.12); color:#8b5cf6; font-size:0.75rem;"><i class="fas fa-file-medical"></i> Genera Nota Clínica</span>
+              </div>
+              <input type="text" class="field-input hc-plan-det-input" id="hcDet_plan_quimica" data-plan="quimica" placeholder="Indicación clínica (ej: Glucemia en ayunas, Urea, Creatinina, Perfil de coagulación TP/TTP)..." value="${esc(planesDet.quimica || planesDx.quimicaDetalle || '')}" style="width:100%;">
+            </div>
+
+            <div class="antecedente-det-box" id="detWrap_plan_rayosXPeriapical" style="display:${planesDx.rayosXPeriapical ? 'block' : 'none'}; border-left-color:#0284c7;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="color:#0284c7; font-weight:600; font-size:0.85rem;"><i class="fas fa-x-ray"></i> Plan: Rayos X Periapical</span>
+                <span class="badge" style="background:rgba(2,132,199,0.12); color:#0284c7; font-size:0.75rem;"><i class="fas fa-file-medical"></i> Genera Nota Clínica</span>
+              </div>
+              <input type="text" class="field-input hc-plan-det-input" id="hcDet_plan_rayosXPeriapical" data-plan="rayosXPeriapical" placeholder="Indicación clínica (ej: Piezas dentales a radiografiar 36 y 46, evaluación de lesión periapical)..." value="${esc(planesDet.rayosXPeriapical || planesDx.rayosXPeriapicalDetalle || '')}" style="width:100%;">
+            </div>
+
+            <div class="antecedente-det-box" id="detWrap_plan_rayosXPanoramica" style="display:${planesDx.rayosXPanoramica ? 'block' : 'none'}; border-left-color:#0284c7;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="color:#0284c7; font-weight:600; font-size:0.85rem;"><i class="fas fa-film"></i> Plan: Rayos X Panorámica</span>
+                <span class="badge" style="background:rgba(2,132,199,0.12); color:#0284c7; font-size:0.75rem;"><i class="fas fa-file-medical"></i> Genera Nota Clínica</span>
+              </div>
+              <input type="text" class="field-input hc-plan-det-input" id="hcDet_plan_rayosXPanoramica" data-plan="rayosXPanoramica" placeholder="Indicación clínica (ej: Evaluación integral de terceros molares 18, 28, 38, 48 y reborde óseo)..." value="${esc(planesDet.rayosXPanoramica || planesDx.rayosXPanoramicaDetalle || '')}" style="width:100%;">
+            </div>
+
+            <div class="antecedente-det-box" id="detWrap_plan_cbct" style="display:${planesDx.cbct ? 'block' : 'none'}; border-left-color:#0284c7;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="color:#0284c7; font-weight:600; font-size:0.85rem;"><i class="fas fa-cube"></i> Plan: Tomografía Dental CBCT</span>
+                <span class="badge" style="background:rgba(2,132,199,0.12); color:#0284c7; font-size:0.75rem;"><i class="fas fa-file-medical"></i> Genera Nota Clínica</span>
+              </div>
+              <input type="text" class="field-input hc-plan-det-input" id="hcDet_plan_cbct" data-plan="cbct" placeholder="Indicación clínica (ej: CBCT maxilar superior para planificación de implantes 11, 21 / Relación con conducto dentario)..." value="${esc(planesDet.cbct || planesDx.cbctDetalle || '')}" style="width:100%;">
+            </div>
+
+            <div class="antecedente-det-box" id="detWrap_plan_educacion" style="display:${planesDx.educacion ? 'block' : 'none'}; border-left-color:#10b981;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="color:#10b981; font-weight:600; font-size:0.85rem;"><i class="fas fa-chalkboard-user"></i> Plan Educacional: Higiene Oral</span>
+                <span class="badge" style="background:rgba(16,185,129,0.12); color:#10b981; font-size:0.75rem;"><i class="fas fa-file-medical"></i> Genera Nota Clínica</span>
+              </div>
+              <input type="text" class="field-input hc-plan-det-input" id="hcDet_plan_educacion" data-plan="educacion" placeholder="Indicación clínica (ej: Instrucción de técnica de Bass modificada, hilo dental y enjuague bucal antiséptico)..." value="${esc(planesDet.educacion || planesDx.educacionDetalle || '')}" style="width:100%;">
+            </div>
+          </div>
+
+          <label class="field">
+            <span style="font-weight:600; font-size:0.85rem;"><i class="fas fa-plus"></i> Otros exámenes, interconsultas médicas o indicaciones:</span>
+            <input id="hcPlanesOtros" type="text" class="field-input" placeholder="Ej: Interconsulta con médico tratante para pase quirúrgico / Biopsia de mucosa..." value="${esc(planesDx.otros || '')}" style="width:100%;">
+          </label>
         </div>
+
       </div>
 
       <!-- ========================================================
@@ -940,10 +1001,113 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
 
   [cpoC, cpoP, cpoO, ceoC, ceoE, ceoO].forEach(inp => inp?.addEventListener('input', updateCPOTotals));
 
-  // 9. Chips de Planes Diagnósticos
+  // 9. Chips de Planes Diagnósticos con despliegue de detalles y creación automática de Nota Clínica
+  const planMeta = {
+    biometria: {
+      title: 'Plan de Diagnóstico: Biometría Hemática',
+      code: 'PLN-BIO',
+      defaultNote: 'Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).'
+    },
+    quimica: {
+      title: 'Plan de Diagnóstico: Química Sanguínea / Glucosa',
+      code: 'PLN-LAB',
+      defaultNote: 'Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).'
+    },
+    rayosXPeriapical: {
+      title: 'Plan Radiológico: Rayos X Periapical',
+      code: 'PLN-RXP',
+      defaultNote: 'Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.'
+    },
+    rayosXPanoramica: {
+      title: 'Plan Radiológico: Rayos X Panorámica',
+      code: 'PLN-RXPAN',
+      defaultNote: 'Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.'
+    },
+    cbct: {
+      title: 'Plan Tomográfico: Tomografía Dental CBCT',
+      code: 'PLN-CBCT',
+      defaultNote: 'Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes / estudio óseo.'
+    },
+    educacion: {
+      title: 'Plan Educacional: Higiene Oral',
+      code: 'PLN-EDU',
+      defaultNote: 'Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.'
+    }
+  };
+
   container.querySelectorAll('#planesDxChips .chip-toggle').forEach(chip => {
-    chip.addEventListener('click', () => {
+    chip.addEventListener('click', async () => {
       chip.classList.toggle('active');
+      const key = chip.dataset.key;
+      const detWrap = container.querySelector(`#detWrap_plan_${key}`);
+      const detInput = container.querySelector(`#hcDet_plan_${key}`);
+      const isActive = chip.classList.contains('active');
+
+      if (detWrap) {
+        detWrap.style.display = isActive ? 'block' : 'none';
+        if (isActive && detInput) {
+          detInput.focus();
+        }
+      }
+
+      // Si se activa y tenemos la función onSaveNote, registrar automáticamente la evolución en notas clínicas
+      if (isActive && onSaveNote && planMeta[key]) {
+        const meta = planMeta[key];
+        const userDet = detInput?.value.trim() || '';
+        const notePayload = {
+          patientId: patient.id,
+          date: formatDate(new Date()),
+          procedimiento: meta.title,
+          diagnosticoTipo: 'Plan Clínico / Diagnóstico',
+          nota: userDet || meta.defaultNote,
+          code: meta.code,
+          professionalName: patient.assignedProfessionalName || 'Dr. Asignado'
+        };
+
+        try {
+          await onSaveNote(notePayload);
+          if (!patient.clinicalNotes) patient.clinicalNotes = [];
+          patient.clinicalNotes.unshift(notePayload);
+          const listDiv = container.querySelector('#sessionHistoryList');
+          if (listDiv) listDiv.innerHTML = renderSessionHistory(patient.clinicalNotes);
+          showToast(`"${meta.title}" registrado como nota clínica`, 'info');
+        } catch (e) {
+          console.error('Error al registrar nota de plan:', e);
+        }
+      }
+    });
+  });
+
+  // Actualizar nota clínica cuando el usuario edita o especifica la indicación en el campo de texto
+  container.querySelectorAll('.hc-plan-det-input').forEach(inp => {
+    inp.addEventListener('change', async () => {
+      const key = inp.dataset.plan;
+      const chip = container.querySelector(`#planesDxChips [data-key="${key}"]`);
+      if (chip && chip.classList.contains('active') && onSaveNote && planMeta[key]) {
+        const meta = planMeta[key];
+        const userDet = inp.value.trim();
+        if (userDet) {
+          const notePayload = {
+            patientId: patient.id,
+            date: formatDate(new Date()),
+            procedimiento: `${meta.title} (Indicación)`,
+            diagnosticoTipo: 'Plan Clínico / Especificación',
+            nota: userDet,
+            code: meta.code,
+            professionalName: patient.assignedProfessionalName || 'Dr. Asignado'
+          };
+          try {
+            await onSaveNote(notePayload);
+            if (!patient.clinicalNotes) patient.clinicalNotes = [];
+            patient.clinicalNotes.unshift(notePayload);
+            const listDiv = container.querySelector('#sessionHistoryList');
+            if (listDiv) listDiv.innerHTML = renderSessionHistory(patient.clinicalNotes);
+            showToast('Especificación guardada en notas clínicas', 'info');
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
     });
   });
 
@@ -1160,6 +1324,23 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
       rayosXPanoramica: container.querySelector('[data-key="rayosXPanoramica"]')?.classList.contains('active') || false,
       cbct: container.querySelector('[data-key="cbct"]')?.classList.contains('active') || false,
       educacion: container.querySelector('[data-key="educacion"]')?.classList.contains('active') || false,
+
+      detalles: {
+        biometria: container.querySelector('#hcDet_plan_biometria')?.value.trim() || '',
+        quimica: container.querySelector('#hcDet_plan_quimica')?.value.trim() || '',
+        rayosXPeriapical: container.querySelector('#hcDet_plan_rayosXPeriapical')?.value.trim() || '',
+        rayosXPanoramica: container.querySelector('#hcDet_plan_rayosXPanoramica')?.value.trim() || '',
+        cbct: container.querySelector('#hcDet_plan_cbct')?.value.trim() || '',
+        educacion: container.querySelector('#hcDet_plan_educacion')?.value.trim() || ''
+      },
+
+      biometriaDetalle: container.querySelector('#hcDet_plan_biometria')?.value.trim() || '',
+      quimicaDetalle: container.querySelector('#hcDet_plan_quimica')?.value.trim() || '',
+      rayosXPeriapicalDetalle: container.querySelector('#hcDet_plan_rayosXPeriapical')?.value.trim() || '',
+      rayosXPanoramicaDetalle: container.querySelector('#hcDet_plan_rayosXPanoramica')?.value.trim() || '',
+      cbctDetalle: container.querySelector('#hcDet_plan_cbct')?.value.trim() || '',
+      educacionDetalle: container.querySelector('#hcDet_plan_educacion')?.value.trim() || '',
+
       otros: container.querySelector('#hcPlanesOtros')?.value.trim() || ''
     };
 

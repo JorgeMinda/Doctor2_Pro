@@ -169,6 +169,23 @@ export function createExportActions(patient, notes = [], plans = [], professiona
     const cpo = hc.cpo || {};
     const ind = hc.indicadoresSalud || {};
     const planes = hc.planes || {};
+    const planesDet = planes.detalles || {};
+    const planItems = [];
+    const planLabels = [
+      { key: 'biometria', label: 'Biometría Hemática' },
+      { key: 'quimica', label: 'Química Sanguínea / Glucosa' },
+      { key: 'rayosXPeriapical', label: 'Rayos X Periapical' },
+      { key: 'rayosXPanoramica', label: 'Rayos X Panorámica' },
+      { key: 'cbct', label: 'Tomografía Dental CBCT' },
+      { key: 'educacion', label: 'Educación en Higiene Oral' }
+    ];
+    planLabels.forEach(p => {
+      if (planes[p.key]) {
+        const d = planesDet[p.key] || planes[p.key + 'Detalle'] || '';
+        planItems.push(d ? `<strong>${p.label}:</strong> ${d}` : p.label);
+      }
+    });
+    if (planes.otros) planItems.push(`<strong>Otros:</strong> ${planes.otros}`);
     const presc = hc.prescripciones || {};
 
 
@@ -348,10 +365,8 @@ export function createExportActions(patient, notes = [], plans = [], professiona
         <!-- Sec 10: Planes -->
         <div class="sec-box">
           <div class="sec-title">10. Planes de Diagnóstico, Terapéutico y Educacional</div>
-          <div class="sec-body grid-3">
-            <div class="data-item"><label>Plan Diagnóstico (Rx, Tomografía):</label><p style="margin:2px 0;">${planes.planesDiagnostico || 'Evaluación clínica de rutina y control radiográfico periapical.'}</p></div>
-            <div class="data-item"><label>Plan Terapéutico (Tratamientos):</label><p style="margin:2px 0;">${planes.planesTerapeutico || 'Restauraciones adhesivas y profilaxis dental.'}</p></div>
-            <div class="data-item"><label>Plan Educacional (Prevención):</label><p style="margin:2px 0;">${planes.planesEducacional || 'Instrucción de técnica de cepillado y uso de hilo dental.'}</p></div>
+          <div class="sec-body">
+            ${planItems.length > 0 ? planItems.map(p => `<div style="margin-bottom:4px;"><span class="chip" style="background:#f3e8ff; color:#6b21a8; font-size:11px; padding:3px 8px;">${p}</span></div>`).join('') : '<p style="color:#64748b; margin:0;">Evaluación clínica de rutina y recomendaciones de higiene oral.</p>'}
           </div>
         </div>
 
