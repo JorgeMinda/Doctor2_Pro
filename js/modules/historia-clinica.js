@@ -1,9 +1,9 @@
 /**
- * historia-clinica.js - Sistema Integral de Historia Clínica Odontológica (12 Secciones Oficiales + CIE-11)
+ * historia-clinica.js - Sistema Integral de Historia Clínica Odontológica (12 Secciones Oficiales + CIE-10)
  * Diseñado con interfaz moderna en formato Accordion Card Deck (desplegable e interactivo)
  */
 import { showToast, apiFetch, formatDate } from './app-utils.js';
-import { CIE11_DENTAL_CATALOGUE, searchCIE11 } from './cie11-catalogue.js';
+import { searchCIE10, getCIE10ByCode, addCustomCIE10 } from './cie10-catalogue.js';
 
 export function createHistoriaClinica(patient, notes = [], plans = [], canEdit = true, onSaveNote, onUpdatePlan, onSaveFullHistory) {
   const container = document.createElement('div');
@@ -21,14 +21,15 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
   const esc = (s) => (s || '').toString().replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 
-  const diagList = ch.diagnosticosCIE11 && ch.diagnosticosCIE11.length > 0 
-    ? ch.diagnosticosCIE11 
-    : [
-        { dx: 'Caries de la dentina', cie: 'DA01.1', tipo: 'DEF' },
-        { dx: 'Gingivitis inducida por placa dental', cie: 'DA0F.0', tipo: 'DEF' },
-        { dx: '', cie: '', tipo: 'PRE' },
-        { dx: '', cie: '', tipo: 'PRE' }
-      ];
+  const diagList = (ch.diagnosticosCIE10 && ch.diagnosticosCIE10.length > 0)
+    ? ch.diagnosticosCIE10
+    : (ch.diagnosticosCIE11 && ch.diagnosticosCIE11.length > 0)
+      ? ch.diagnosticosCIE11
+      : [
+          { dx: 'Caries de la dentina', cie: 'K02.1', tipo: 'DEF' },
+          { dx: 'Gingivitis crónica inducida por placa bacteriana', cie: 'K05.1', tipo: 'DEF' },
+          { dx: 'Examen y control odontológico de rutina', cie: 'Z01.2', tipo: 'PRE' }
+        ];
 
   const patientInitials = (patient.name || 'P')
     .split(' ')
@@ -597,26 +598,34 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
       </div>
 
       <!-- ========================================================
-           SECCIÓN 11: DIAGNÓSTICOS ODONTOLÓGICOS (CIE-11 OMS)
+           SECCIÓN 11: DIAGNÓSTICOS ODONTOLÓGICOS (CIE-10 OMS)
            ======================================================== -->
       <div class="hc-accordion-card" data-section="11">
         <div class="hc-accordion-header" role="button" tabindex="0">
           <div class="hc-acc-left">
             <div class="hc-acc-icon"><i class="fas fa-stethoscope"></i></div>
             <div class="hc-acc-text">
-              <span class="hc-acc-title"><span class="hc-acc-num">11.</span> Diagnósticos Odontológicos (CIE-11 OMS)</span>
-              <span class="hc-acc-sub">Buscador predictivo oficial OMS y asignación Presuntivo / Definitivo</span>
+              <span class="hc-acc-title"><span class="hc-acc-num">11.</span> Diagnósticos Odontológicos (CIE-10 OMS)</span>
+              <span class="hc-acc-sub">Buscador predictivo oficial CIE-10 (K00-K14 / Z01.2) y asignación Presuntivo / Definitivo</span>
             </div>
           </div>
           <div class="hc-acc-right">
-            <span class="hc-acc-badge">CIE-11 OMS</span>
+            <span class="hc-acc-badge">CIE-10 OMS</span>
             <div class="hc-acc-chevron"><i class="fas fa-chevron-down"></i></div>
           </div>
         </div>
         <div class="hc-accordion-body">
-          <p class="muted" style="font-size:0.85rem; margin-bottom:12px;">Escriba para autocompletar diagnósticos del catálogo internacional CIE-11 de la OMS:</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <p class="muted" style="font-size:0.85rem; margin:0;">Escriba para autocompletar diagnósticos del catálogo odontológico CIE-10 (K00-K14, Z01.2):</p>
+            <button type="button" id="cieAddNewBtn" class="ghost" style="font-size:0.82rem; color:var(--primary); border:1.5px dashed var(--primary); padding:6px 14px; border-radius:8px; font-weight:700;">
+              <i class="fas fa-plus"></i> + Nuevo Diagnóstico
+            </button>
+          </div>
           <div id="cie11Container">
-            ${renderCIE11Rows(diagList)}
+            ${renderCIE10Rows(diagList)}
+          </div>
+          <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+            <span class="muted" style="font-size:0.78rem;"><i class="fas fa-database"></i> Catálogo CIE-10 ampliable: los códigos personalizados nuevos se integran dinámicamente.</span>
           </div>
         </div>
       </div>
@@ -784,22 +793,38 @@ function renderIHOSTableRows(ihos = {}) {
   }).join('');
 }
 
-function renderCIE11Rows(diagList = []) {
-  return diagList.map((d, index) => `
+function createSingleCIERowHTML(index, dx = '', cie = '', tipo = 'PRE') {
+  return `
     <div class="cie11-row-card" data-index="${index}">
-      <span style="font-weight:700; color:var(--muted); min-width:24px;">#${index + 1}</span>
+      <span class="cie-row-num" style="font-weight:700; color:var(--muted); min-width:24px;">#${index + 1}</span>
       <div class="cie11-input-wrap">
-        <input type="text" class="field-input cie11-dx-input" placeholder="Buscar diagnóstico o escribir..." value="${d.dx || ''}" autocomplete="off">
+        <input type="text" class="field-input cie11-dx-input" placeholder="Buscar diagnóstico CIE-10 (ej: K02 Caries, K05 Gingivitis, Z01.2 Control)..." value="${dx}" autocomplete="off">
         <div class="cie11-dropdown hidden"></div>
       </div>
-      <input type="text" class="field-input cie11-code-input" placeholder="CIE-11" value="${d.cie || ''}" style="width:95px; text-align:center; font-weight:700;">
+      <input type="text" class="field-input cie11-code-input" placeholder="CIE-10" value="${cie}" style="width:95px; text-align:center; font-weight:700;">
       <div class="pre-def-btn-group">
-        <button type="button" class="pre-def-btn pre ${d.tipo === 'PRE' ? 'active' : ''}" data-tipo="PRE">PRE</button>
-        <button type="button" class="pre-def-btn def ${d.tipo === 'DEF' ? 'active' : ''}" data-tipo="DEF">DEF</button>
+        <button type="button" class="pre-def-btn pre ${tipo === 'PRE' ? 'active' : ''}" data-tipo="PRE">PRE</button>
+        <button type="button" class="pre-def-btn def ${tipo === 'DEF' ? 'active' : ''}" data-tipo="DEF">DEF</button>
       </div>
+      <button type="button" class="cie-del-row-btn" title="Eliminar fila" style="background:transparent; border:none; color:var(--muted); cursor:pointer; padding:6px 8px; border-radius:6px; font-size:0.9rem; transition:color 0.15s ease;">
+        <i class="fas fa-trash-alt"></i>
+      </button>
     </div>
-  `).join('');
+  `;
 }
+
+function renderCIE10Rows(diagList = []) {
+  if (!diagList || diagList.length === 0) {
+    diagList = [
+      { dx: 'Caries de la dentina', cie: 'K02.1', tipo: 'DEF' },
+      { dx: 'Gingivitis crónica inducida por placa bacteriana', cie: 'K05.1', tipo: 'DEF' },
+      { dx: 'Examen y control odontológico de rutina', cie: 'Z01.2', tipo: 'PRE' }
+    ];
+  }
+  return diagList.map((d, index) => createSingleCIERowHTML(index, d.dx || '', d.cie || '', d.tipo || 'PRE')).join('');
+}
+
+const renderCIE11Rows = renderCIE10Rows;
 
 function renderSessionHistory(notes = []) {
   if (!notes || notes.length === 0) {
@@ -1111,12 +1136,22 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     });
   });
 
-  // 10. CIE-11 Typeahead y PRE/DEF Toggles
-  container.querySelectorAll('.cie11-row-card').forEach(row => {
+  // 10. CIE-10 Odontológico (K00-K14 / Z01.2) con Typeahead, PRE/DEF Toggles y Filas Dinámicas (+ Nuevo)
+  function reindexCIERows() {
+    const allRows = container.querySelectorAll('#cie11Container .cie11-row-card');
+    allRows.forEach((r, idx) => {
+      r.dataset.index = idx;
+      const numSpan = r.querySelector('.cie-row-num');
+      if (numSpan) numSpan.textContent = `#${idx + 1}`;
+    });
+  }
+
+  function setupCIERowEvents(row) {
     const dxInput = row.querySelector('.cie11-dx-input');
     const codeInput = row.querySelector('.cie11-code-input');
     const dropdown = row.querySelector('.cie11-dropdown');
     const preDefBtns = row.querySelectorAll('.pre-def-btn');
+    const delBtn = row.querySelector('.cie-del-row-btn');
 
     preDefBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1125,41 +1160,89 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
       });
     });
 
+    delBtn?.addEventListener('click', () => {
+      const allRows = container.querySelectorAll('#cie11Container .cie11-row-card');
+      if (allRows.length > 1) {
+        row.remove();
+        reindexCIERows();
+      } else {
+        if (dxInput) dxInput.value = '';
+        if (codeInput) codeInput.value = '';
+      }
+    });
+
     if (dxInput && dropdown) {
       dxInput.addEventListener('input', () => {
         const q = dxInput.value.trim();
-        if (q.length < 2) {
+        if (q.length < 1) {
           dropdown.classList.add('hidden');
           return;
         }
 
-        const results = searchCIE11(q);
+        const results = searchCIE10(q);
         if (results.length === 0) {
-          dropdown.classList.add('hidden');
+          dropdown.innerHTML = `
+            <div class="cie11-dropdown-item" style="color:var(--muted); font-style:italic; justify-content:center; padding:10px;">
+              <span>No encontrado en catálogo base (puede escribir libremente)</span>
+            </div>
+          `;
+          dropdown.classList.remove('hidden');
           return;
         }
 
-        dropdown.innerHTML = results.slice(0, 6).map(r => `
-          <div class="cie11-dropdown-item" data-code="${r.code}" data-title="${r.title}">
+        dropdown.innerHTML = results.slice(0, 8).map(r => `
+          <div class="cie11-dropdown-item" data-code="${r.code}" data-name="${r.name}">
             <span class="cie11-code-badge">${r.code}</span>
-            <span>${r.title}</span>
+            <span style="font-weight:600; font-size:0.83rem;">${r.name}</span>
+            <small class="muted" style="margin-left:auto; font-size:0.75rem; white-space:nowrap; padding-left:8px;">${r.category || ''}</small>
           </div>
         `).join('');
         dropdown.classList.remove('hidden');
 
         dropdown.querySelectorAll('.cie11-dropdown-item').forEach(item => {
+          if (!item.dataset.code) return;
           item.addEventListener('click', () => {
-            dxInput.value = item.dataset.title;
+            dxInput.value = item.dataset.name;
             if (codeInput) codeInput.value = item.dataset.code;
             dropdown.classList.add('hidden');
           });
         });
       });
 
+      if (codeInput) {
+        codeInput.addEventListener('change', () => {
+          const c = codeInput.value.trim().toUpperCase();
+          const match = getCIE10ByCode(c);
+          if (match && !dxInput.value.trim()) {
+            dxInput.value = match.name;
+          }
+        });
+      }
+
       document.addEventListener('click', (e) => {
         if (!row.contains(e.target)) dropdown.classList.add('hidden');
       });
     }
+  }
+
+  // Bind initial CIE-10 rows
+  container.querySelectorAll('#cie11Container .cie11-row-card').forEach(row => {
+    setupCIERowEvents(row);
+  });
+
+  // Handler for "+ Nuevo Diagnóstico" button
+  const cieAddNewBtn = container.querySelector('#cieAddNewBtn');
+  cieAddNewBtn?.addEventListener('click', () => {
+    const cieContainer = container.querySelector('#cie11Container');
+    if (!cieContainer) return;
+    const currentCount = cieContainer.querySelectorAll('.cie11-row-card').length;
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = createSingleCIERowHTML(currentCount, '', '', 'PRE');
+    const newRow = tempDiv.firstElementChild;
+    cieContainer.appendChild(newRow);
+    setupCIERowEvents(newRow);
+    const newDxInput = newRow.querySelector('.cie11-dx-input');
+    if (newDxInput) newDxInput.focus();
   });
 
   // 11. Sesiones de Tratamiento
@@ -1344,13 +1427,16 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
       otros: container.querySelector('#hcPlanesOtros')?.value.trim() || ''
     };
 
-    const diagnosticosCIE11 = [];
-    container.querySelectorAll('.cie11-row-card').forEach(row => {
+    const diagnosticosCIE10 = [];
+    container.querySelectorAll('#cie11Container .cie11-row-card').forEach(row => {
       const dx = row.querySelector('.cie11-dx-input')?.value.trim() || '';
       const cie = row.querySelector('.cie11-code-input')?.value.trim() || '';
       const tipo = row.querySelector('.pre-def-btn.active')?.dataset.tipo || 'PRE';
       if (dx || cie) {
-        diagnosticosCIE11.push({ dx, cie, tipo });
+        diagnosticosCIE10.push({ dx, cie, tipo });
+        if (cie && dx) {
+          addCustomCIE10({ code: cie, name: dx });
+        }
       }
     });
 
@@ -1368,7 +1454,8 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
       indicadoresSalud: { ihos, oclusion, periodontal, fluorosis },
       cpo,
       planes,
-      diagnosticosCIE11
+      diagnosticosCIE10,
+      diagnosticosCIE11: diagnosticosCIE10
     };
 
     patient.clinicalHistory = fullHistory;

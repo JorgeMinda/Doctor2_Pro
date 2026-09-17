@@ -603,16 +603,18 @@
   margin-top: 4px;
 }
 
-.cie11-item {
-  padding: 8px 12px;
+.cie11-item, .cie11-dropdown-item {
+  padding: 10px 14px;
   cursor: pointer;
   border-bottom: 1px solid var(--border);
   font-size: 0.85rem;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.15s ease;
 }
 
-.cie11-item:hover {
+.cie11-item:hover, .cie11-dropdown-item:hover {
   background: var(--primary-light);
   color: var(--primary-strong);
 }
@@ -621,9 +623,15 @@
   font-weight: 700;
   background: var(--primary-light);
   color: var(--primary);
-  padding: 2px 6px;
+  padding: 3px 8px;
   border-radius: 6px;
   font-size: 0.78rem;
+  font-family: monospace;
+}
+
+.cie-del-row-btn:hover {
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
 }
 
 .pre-def-btn-group {

@@ -164,7 +164,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
     }
 
     const estomato = hc.estomatognatico || [];
-    const cie11 = hc.diagnosticosCIE11 || [];
+    const cie10 = hc.diagnosticosCIE10 || hc.diagnosticosCIE11 || [];
     const sv = hc.signosVitales || {};
     const cpo = hc.cpo || {};
     const ind = hc.indicadoresSalud || {};
@@ -224,7 +224,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
         <div class="hc-header">
           <div>
             <div class="hc-title">${clinicName} - HISTORIA CLÍNICA ODONTOLÓGICA</div>
-            <div class="hc-subtitle">Sistema Odontológico Integral · Cumplimiento CIE-11 OMS / MSP</div>
+            <div class="hc-subtitle">Sistema Odontológico Integral · Cumplimiento CIE-10 OMS / MSP</div>
           </div>
           <div style="text-align:right; font-size:11px; color:#64748b;">
             Emisión: ${new Date().toLocaleDateString('es-AR')}
@@ -337,26 +337,26 @@ export function createExportActions(patient, notes = [], plans = [], professiona
           </div>
         </div>
 
-        <!-- Sec 9: Diagnósticos CIE-11 OMS -->
+        <!-- Sec 11: Diagnósticos CIE-10 OMS -->
         <div class="sec-box">
-          <div class="sec-title">9. Diagnósticos Odontológicos (Codificación OMS CIE-11)</div>
+          <div class="sec-title">11. Diagnósticos Odontológicos (Codificación OMS CIE-10)</div>
           <div class="sec-body">
             <table>
               <thead>
                 <tr>
-                  <th style="width:15%;">Código CIE-11</th>
-                  <th style="width:65%;">Diagnóstico Clínico / Descripción</th>
+                  <th style="width:18%;">Código CIE-10</th>
+                  <th style="width:62%;">Diagnóstico Clínico / Descripción</th>
                   <th style="width:20%;">Tipo</th>
                 </tr>
               </thead>
               <tbody>
-                ${cie11.length > 0 ? cie11.map(d => `
+                ${cie10.length > 0 ? cie10.map(d => `
                   <tr>
-                    <td><strong style="color:#2563eb;">${d.code}</strong></td>
-                    <td>${d.title}</td>
+                    <td><strong style="color:#2563eb;">${d.cie || d.code || '-'}</strong></td>
+                    <td>${d.dx || d.title || d.name || '-'}</td>
                     <td><span class="${d.tipo === 'DEF' ? 'badge-def' : 'badge-pre'}">${d.tipo === 'DEF' ? 'DEFINITIVO (DEF)' : 'PRESUNTIVO (PRE)'}</span></td>
                   </tr>
-                `).join('') : '<tr><td colspan="3" style="text-align:center; color:#64748b;">Sin diagnósticos CIE-11 formalizados.</td></tr>'}
+                `).join('') : '<tr><td colspan="3" style="text-align:center; color:#64748b;">Sin diagnósticos CIE-10 formalizados.</td></tr>'}
               </tbody>
             </table>
           </div>
