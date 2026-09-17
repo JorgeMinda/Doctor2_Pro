@@ -264,7 +264,8 @@ window.switchPatientTab = (tab) => {
             })
           });
           patient.clinicalHistory = hcData;
-        }
+        },
+        state.professionals || []
       );
       content.appendChild(hcNode);
     });

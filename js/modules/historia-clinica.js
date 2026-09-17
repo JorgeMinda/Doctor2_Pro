@@ -5,9 +5,21 @@
 import { showToast, apiFetch, formatDate } from './app-utils.js';
 import { searchCIE10, getCIE10ByCode, addCustomCIE10 } from './cie10-catalogue.js';
 
-export function createHistoriaClinica(patient, notes = [], plans = [], canEdit = true, onSaveNote, onUpdatePlan, onSaveFullHistory) {
+export function createHistoriaClinica(patient, notes = [], plans = [], canEdit = true, onSaveNote, onUpdatePlan, onSaveFullHistory, professionals = []) {
   const container = document.createElement('div');
   container.className = 'historia-clinica-card';
+
+  const profList = (professionals && professionals.length > 0)
+    ? professionals
+    : (window.state?.professionals || []);
+
+  const assignedProf = profList.find(p => p.id === patient.assignedProfessionalId)
+    || profList.find(p => p.name === patient.assignedProfessionalName)
+    || (patient.assignedProfessionalName ? { name: patient.assignedProfessionalName } : null)
+    || profList[0]
+    || { name: 'Dr. Asignado' };
+
+  const defaultDoctorName = assignedProf.name || patient.assignedProfessionalName || 'Dr. Asignado';
 
   const ch = patient.clinicalHistory || {};
   const ant = ch.antecedentes || {};
@@ -658,11 +670,39 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <h5 style="margin-bottom:14px; color:var(--primary); font-size:1rem;"><i class="fas fa-calendar-plus"></i> Registrar Nueva Sesión de Tratamiento</h5>
             <div class="grid-2" style="gap:12px;">
               <label class="field"><span>Fecha de Sesión</span><input id="sesDate" type="date" value="${formatDate(new Date())}"></label>
-              <label class="field"><span>Diagnóstico y Complicaciones</span><input id="sesDx" type="text" placeholder="Ej: Caries oclusal profunda en 36, sin sangrado"></label>
-              <label class="field" style="grid-column:1/-1;"><span>Procedimiento Clínico Ejecutado *</span><input id="sesProc" type="text" placeholder="Ej: Apertura, aislamiento absoluto, obturación composite fotocurable"></label>
+              <label class="field"><span>Diagnóstico y Complicaciones</span><input id="sesDx" type="text" placeholder="Ej: Caries oclusal en 36, pulpitis reversible"></label>
+              <label class="field" style="grid-column:1/-1;"><span>Procedimiento Clínico Ejecutado *</span><input id="sesProc" type="text" placeholder="Ej: Obturación con resina composite en pieza 36 / Profilaxis"></label>
               <label class="field" style="grid-column:1/-1;"><span>Prescripciones Farmacológicas (Receta médica)</span><input id="sesRx" type="text" placeholder="Ej: Amoxicilina 500mg c/8h x 7 días + Ibuprofeno 400mg c/8h x dolor"></label>
-              <label class="field"><span>Código de Procedimiento</span><input id="sesCode" type="text" placeholder="Ej: OBT-036 / CIR-01"></label>
-              <label class="field"><span>Firma Profesional</span><input id="sesSign" type="text" value="${patient.assignedProfessionalName || 'Dr. Asignado'}"></label>
+              <label class="field">
+                <span style="display:flex; justify-content:space-between;">
+                  <span>Código de Procedimiento</span>
+                  <small class="muted" style="font-size:0.75rem;"><i class="fas fa-magic"></i> Auto-código</small>
+                </span>
+                <input id="sesCode" type="text" list="procedureCodesList" placeholder="Ej: OBT-36 / CIR-EXT / PREV-LIM" autocomplete="off">
+                <datalist id="procedureCodesList">
+                  <option value="OBT-RES">OBT-RES · Obturación con Resina / Composite Fotocurable</option>
+                  <option value="CIR-EXT">CIR-EXT · Exodoncia Simple / Cirugía Tercer Molar</option>
+                  <option value="ENDO-01">ENDO-01 · Tratamiento de Conducto / Endodoncia</option>
+                  <option value="PREV-LIM">PREV-LIM · Profilaxis Dental y Destartraje Supragingival</option>
+                  <option value="PROT-COR">PROT-COR · Prótesis Fija / Corona Dental / Zirconio</option>
+                  <option value="IMP-COL">IMP-COL · Colocación de Implante Dental</option>
+                  <option value="RX-PERI">RX-PERI · Radiografía Periapical Digital</option>
+                  <option value="RX-PANO">RX-PANO · Radiografía Panorámica Digital</option>
+                  <option value="EST-BLANQ">EST-BLANQ · Blanqueamiento Dental en Consultorio</option>
+                  <option value="PERIO-01">PERIO-01 · Raspaje y Alisado Radicular Periodontal</option>
+                  <option value="CONS-EV">CONS-EV · Consulta y Evaluación Diagnóstica de Rutina</option>
+                </datalist>
+              </label>
+              <label class="field">
+                <span>Firma Profesional / Médico Tratante</span>
+                <div style="display:flex; gap:6px;">
+                  <select id="sesSignSelect" style="max-width:170px; font-size:0.83rem; background:var(--surface);">
+                    <option value="">-- Cambiar Médico --</option>
+                    ${profList.map(p => `<option value="${p.name}" ${p.id === patient.assignedProfessionalId || p.name === defaultDoctorName ? 'selected' : ''}>${p.name}${p.specialty ? ' (' + p.specialty + ')' : ''}</option>`).join('')}
+                  </select>
+                  <input id="sesSign" type="text" value="${defaultDoctorName}" style="flex:1;" placeholder="Nombre del profesional...">
+                </div>
+              </label>
             </div>
             <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
               <button type="button" id="sesCancelBtn" class="ghost">Cancelar</button>
@@ -1245,15 +1285,78 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     if (newDxInput) newDxInput.focus();
   });
 
-  // 11. Sesiones de Tratamiento
+  // 11. Sesiones de Tratamiento y Autocompletado de Código y Firma Médica
   const newSesBtn = container.querySelector('#hcNewSessionBtn');
   const sessionFormArea = container.querySelector('#newSessionFormArea');
   const sesCancelBtn = container.querySelector('#sesCancelBtn');
   const sesSaveBtn = container.querySelector('#sesSaveBtn');
+  const sesProcInput = container.querySelector('#sesProc');
+  const sesDxInput = container.querySelector('#sesDx');
+  const sesCodeInput = container.querySelector('#sesCode');
+  const sesSignSelect = container.querySelector('#sesSignSelect');
+  const sesSignInput = container.querySelector('#sesSign');
+
+  // Sincronizar selección de médico desde el dropdown
+  sesSignSelect?.addEventListener('change', () => {
+    if (sesSignSelect.value && sesSignInput) {
+      sesSignInput.value = sesSignSelect.value;
+    }
+  });
+
+  // Autocompletado inteligente de código según lo que escribe el odontólogo
+  function deduceProcedureCode() {
+    if (!sesCodeInput) return;
+    const txt = ((sesProcInput?.value || '') + ' ' + (sesDxInput?.value || '')).toLowerCase();
+    if (!txt.trim()) return;
+
+    // Detectar si hay número de pieza dental (ej: 11 a 48, o 51 a 85)
+    const toothMatch = txt.match(/\b([1-4][1-8]|[5-8][1-5])\b/);
+    const toothNum = toothMatch ? toothMatch[1] : '';
+
+    let prefix = '';
+    if (txt.includes('obtur') || txt.includes('resin') || txt.includes('composite') || txt.includes('calce') || txt.includes('empaste')) {
+      prefix = toothNum ? `OBT-${toothNum}` : 'OBT-RES';
+    } else if (txt.includes('extra') || txt.includes('cirug') || txt.includes('exodon') || txt.includes('tercer molar') || txt.includes('cordal')) {
+      prefix = toothNum ? `CIR-${toothNum}` : 'CIR-EXT';
+    } else if (txt.includes('endo') || txt.includes('conduct') || txt.includes('pulpec') || txt.includes('nervio')) {
+      prefix = toothNum ? `ENDO-${toothNum}` : 'ENDO-01';
+    } else if (txt.includes('profi') || txt.includes('limpie') || txt.includes('sarro') || txt.includes('destartr') || txt.includes('tártaro')) {
+      prefix = 'PREV-LIM';
+    } else if (txt.includes('coron') || txt.includes('prótes') || txt.includes('protes') || txt.includes('perno') || txt.includes('incrust') || txt.includes('puente')) {
+      prefix = toothNum ? `PROT-${toothNum}` : 'PROT-COR';
+    } else if (txt.includes('implan') || txt.includes('osteointegr')) {
+      prefix = toothNum ? `IMP-${toothNum}` : 'IMP-01';
+    } else if (txt.includes('radio') || txt.includes('periapic') || txt.includes('rx')) {
+      prefix = toothNum ? `RX-P${toothNum}` : 'RX-PERI';
+    } else if (txt.includes('panorám') || txt.includes('panoram') || txt.includes('ortopanto')) {
+      prefix = 'RX-PANO';
+    } else if (txt.includes('blanquea') || txt.includes('aclaram')) {
+      prefix = 'EST-BLANQ';
+    } else if (txt.includes('periodon') || txt.includes('raspaje') || txt.includes('curetaje') || txt.includes('alisado')) {
+      prefix = 'PERIO-01';
+    } else if (txt.includes('control') || txt.includes('evaluac') || txt.includes('diagnóst') || txt.includes('revisión')) {
+      prefix = 'CONS-EV';
+    }
+
+    if (prefix && (!sesCodeInput.value || sesCodeInput.dataset.autoGenerated === 'true')) {
+      sesCodeInput.value = prefix;
+      sesCodeInput.dataset.autoGenerated = 'true';
+    }
+  }
+
+  sesProcInput?.addEventListener('input', deduceProcedureCode);
+  sesDxInput?.addEventListener('input', deduceProcedureCode);
+  sesCodeInput?.addEventListener('input', () => {
+    sesCodeInput.dataset.autoGenerated = 'false';
+  });
 
   newSesBtn?.addEventListener('click', () => {
     sessionFormArea.style.display = 'block';
     sessionFormArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (sesSignInput && !sesSignInput.value) {
+      sesSignInput.value = defaultDoctorName;
+    }
+    if (sesProcInput) sesProcInput.focus();
   });
 
   sesCancelBtn?.addEventListener('click', () => {
@@ -1266,7 +1369,7 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     const proc = container.querySelector('#sesProc')?.value.trim();
     const rx = container.querySelector('#sesRx')?.value.trim();
     const code = container.querySelector('#sesCode')?.value.trim();
-    const sign = container.querySelector('#sesSign')?.value.trim();
+    const sign = container.querySelector('#sesSign')?.value.trim() || defaultDoctorName;
 
     if (!proc && !dx) {
       showToast('Ingresá al menos el procedimiento o diagnóstico', 'warning');
@@ -1292,6 +1395,15 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
       patient.clinicalNotes.unshift(notePayload);
       const listDiv = container.querySelector('#sessionHistoryList');
       if (listDiv) listDiv.innerHTML = renderSessionHistory(patient.clinicalNotes);
+
+      // Limpiar campos para la próxima sesión
+      if (sesDxInput) sesDxInput.value = '';
+      if (sesProcInput) sesProcInput.value = '';
+      if (sesRxInput) container.querySelector('#sesRx').value = '';
+      if (sesCodeInput) {
+        sesCodeInput.value = '';
+        sesCodeInput.dataset.autoGenerated = 'false';
+      }
     }
   });
 
