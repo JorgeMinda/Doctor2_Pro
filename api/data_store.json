@@ -192,7 +192,37 @@
             "allergies": "",
             "created_at": "2026-09-14 01:21:16",
             "address": "",
-            "assignedProfessionalId": null
+            "assignedProfessionalId": null,
+            "odontogramData": {
+                "surfaces": {
+                    "13": {
+                        "m": "caries",
+                        "v": "caries",
+                        "d": "caries",
+                        "o": "caries",
+                        "p": "caries"
+                    },
+                    "14": {
+                        "o": "caries",
+                        "v": "caries",
+                        "d": "caries",
+                        "m": "caries",
+                        "p": "caries"
+                    },
+                    "15": {
+                        "o": "caries",
+                        "p": "caries",
+                        "m": "caries",
+                        "d": "caries",
+                        "v": "caries"
+                    }
+                },
+                "teeth": [],
+                "recesion": [],
+                "movilidad": [],
+                "notes": "",
+                "updated_at": "2026-09-18T00:30:22.859Z"
+            }
         }
     ],
     "appointments": [
@@ -350,6 +380,454 @@
         }
     ],
     "audit_logs": [
+        {
+            "id": "aud_e10e45deed165a14",
+            "timestamp": "2026-09-18T00:30:23+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:20.567Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:22.859Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_ec633d9ce11c11ec",
+            "timestamp": "2026-09-18T00:30:21+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:18.474Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:20.567Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_f4e75f135d6210fb",
+            "timestamp": "2026-09-18T00:30:19+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "14": {
+                                "o": "caries",
+                                "v": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:15.840Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:18.474Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_bd53d037f6418b7d",
+            "timestamp": "2026-09-18T00:30:16+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:07.263Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "14": {
+                                "o": "caries",
+                                "v": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:15.840Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_19c53d165638f4d8",
+            "timestamp": "2026-09-18T00:30:08+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:05.483Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:07.263Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_37211d80eb751ac9",
+            "timestamp": "2026-09-18T00:30:06+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:05.483Z"
+                    }
+                }
+            },
+            "meta": []
+        },
         {
             "id": "aud_516c29faf19bc88b",
             "timestamp": "2026-09-18T00:21:50+00:00",
