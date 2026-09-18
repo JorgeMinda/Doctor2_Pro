@@ -69,6 +69,10 @@ export async function selectPatient(patientId, defaultTab = 'historia') {
     const data = await apiFetch(`${api.patients}?id=${patientId}`);
     if (data.patient) {
       state.selectedPatient = data.patient;
+      const splitEl = document.querySelector('#patientsView .split');
+      if (splitEl) {
+        splitEl.classList.add('patient-active');
+      }
       renderPatients();
       renderPatientDetail(data.patient, defaultTab);
     }
@@ -82,21 +86,34 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
   const container = el('patientDetail');
   if (!container) return;
 
+  const splitEl = document.querySelector('#patientsView .split');
+  if (splitEl) {
+    splitEl.classList.add('patient-active');
+  }
+
   container.innerHTML = `
-    <div class="patient-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-      <div>
-        <h3 style="margin:0 0 4px 0; color:var(--primary); font-size:1.3rem;">${patient.name}</h3>
-        <p class="muted" style="margin:0; font-size:0.85rem;">
-          Cédula: <strong>${patient.dni || 'Sin registrar'}</strong> · 
-          Género: <strong>${patient.sex || '-'}</strong> · 
-          Obra Social / Seguro: <strong>${patient.health_insurance || patient.insurance || 'Particular'}</strong>
-        </p>
+    <div class="patient-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button type="button" class="ghost" onclick="window.closePatientDetail()" style="font-weight:700; color:var(--primary); font-size:0.88rem; display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); padding:6px 12px; border-radius:8px;" title="Volver al listado de pacientes">
+          <i class="fas fa-arrow-left"></i> Volver a Lista
+        </button>
+        <div>
+          <h3 style="margin:0 0 2px 0; color:var(--primary); font-size:1.35rem; font-weight:800;">${patient.name}</h3>
+          <p class="muted" style="margin:0; font-size:0.85rem;">
+            Cédula: <strong>${patient.dni || 'Sin registrar'}</strong> · 
+            Género: <strong>${patient.sex || '-'}</strong> · 
+            Seguro: <strong>${patient.health_insurance || patient.insurance || 'Particular'}</strong>
+          </p>
+        </div>
       </div>
-      <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <button class="ghost" style="font-size:0.85rem;" onclick="window.openEditPatient('${patient.id}')" title="Editar datos del paciente"><i class="fas fa-edit"></i> Editar</button>
-        <button class="ghost" style="font-size:0.85rem; color:var(--danger); border-color:rgba(239,68,68,0.3);" onclick="window.confirmDeletePatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}')" title="Eliminar paciente"><i class="fas fa-trash-alt"></i> Eliminar</button>
-        <button class="ghost" style="font-size:0.85rem;" onclick="window.openPatientExportModal()"><i class="fas fa-share-alt"></i> Exportar / Imprimir</button>
-        <button class="primary" style="font-size:0.85rem;" onclick="window.quickNewAptForPatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}', '${patient.phone || ''}')"><i class="fas fa-calendar-plus"></i> Dar turno</button>
+      <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+        <button class="ghost" id="toggleSplitViewBtn" style="font-size:0.82rem;" onclick="window.togglePatientViewMode()" title="Alternar entre pantalla completa y vista dividida">
+          <i class="fas fa-columns"></i> <span id="splitViewLabel">Vista Dividida</span>
+        </button>
+        <button class="ghost" style="font-size:0.82rem;" onclick="window.openEditPatient('${patient.id}')" title="Editar datos del paciente"><i class="fas fa-edit"></i> Editar</button>
+        <button class="ghost" style="font-size:0.82rem; color:var(--danger); border-color:rgba(239,68,68,0.3);" onclick="window.confirmDeletePatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}')" title="Eliminar paciente"><i class="fas fa-trash-alt"></i> Eliminar</button>
+        <button class="ghost" style="font-size:0.82rem;" onclick="window.openPatientExportModal()"><i class="fas fa-share-alt"></i> Exportar / Imprimir</button>
+        <button class="primary" style="font-size:0.82rem;" onclick="window.quickNewAptForPatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}', '${patient.phone || ''}')"><i class="fas fa-calendar-plus"></i> Dar turno</button>
       </div>
     </div>
 
@@ -114,6 +131,30 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
 
   window.switchPatientTab(initialTab);
 }
+
+window.closePatientDetail = () => {
+  state.selectedPatient = null;
+  const splitEl = document.querySelector('#patientsView .split');
+  if (splitEl) {
+    splitEl.classList.remove('patient-active');
+    splitEl.classList.remove('split-mode');
+  }
+  const container = el('patientDetail');
+  if (container) {
+    container.innerHTML = '<div class="empty">Seleccioná un paciente de la lista para ver su ficha clínica y odontograma.</div>';
+  }
+  renderPatients();
+};
+
+window.togglePatientViewMode = () => {
+  const splitEl = document.querySelector('#patientsView .split');
+  if (!splitEl) return;
+  const isSplit = splitEl.classList.toggle('split-mode');
+  const label = el('splitViewLabel');
+  if (label) {
+    label.textContent = isSplit ? 'Pantalla Completa' : 'Vista Dividida';
+  }
+};
 
 window.openEditPatient = async (patientId) => {
   await selectPatient(patientId, 'ficha');

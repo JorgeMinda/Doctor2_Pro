@@ -1,18 +1,58 @@
-/* Componente de Pacientes, Ficha Médica y Odontograma */
+/* Componente de Pacientes, Ficha Médica e Historia Clínica */
 
 .split {
+  display: block;
+  width: 100%;
+}
+
+/* Vista Inicial: Listado de pacientes a pantalla completa */
+.split:not(.patient-active) .table-wrap {
+  display: block;
+  width: 100%;
+}
+
+.split:not(.patient-active) .patient-detail {
+  display: none;
+}
+
+/* Vista Activa: Ficha / Odontograma / Historia a pantalla completa horizontal */
+.split.patient-active .table-wrap {
+  display: none;
+}
+
+.split.patient-active .patient-detail {
+  display: block;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  min-height: 520px;
+  box-sizing: border-box;
+  animation: fadeInPatient 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInPatient {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modo Dividido Alternativo (Split View) */
+.split.patient-active.split-mode {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1fr 1.3fr;
   gap: 20px;
   align-items: start;
 }
 
-.patient-detail {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  min-height: 480px;
+.split.patient-active.split-mode .table-wrap {
+  display: block;
+  max-height: 850px;
+  overflow-y: auto;
+}
+
+.split.patient-active.split-mode .patient-detail {
+  width: auto;
 }
 
 .patient-header {
@@ -22,21 +62,25 @@
   padding-bottom: 14px;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--border);
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .patient-header h3 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   color: var(--text);
+  margin: 0;
 }
 
 .patient-info-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
   margin-bottom: 20px;
   background: var(--bg-page);
-  padding: 14px;
-  border-radius: 8px;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
 }
 
 .info-item label {
@@ -45,10 +89,11 @@
   display: block;
   text-transform: uppercase;
   font-weight: 600;
+  margin-bottom: 2px;
 }
 
 .info-item span {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 600;
   color: var(--text);
 }
@@ -56,86 +101,39 @@
 /* Tabs de Ficha */
 .patient-tabs {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 2px;
 }
 
 .patient-tab {
   background: none;
   border: none;
-  padding: 8px 14px;
+  padding: 10px 16px;
   cursor: pointer;
   color: var(--muted);
   font-weight: 600;
   font-size: 0.88rem;
-  border-bottom: 2px solid transparent;
+  border-bottom: 2.5px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 6px 6px 0 0;
+}
+
+.patient-tab:hover {
+  color: var(--text);
+  background: rgba(99, 102, 241, 0.05);
 }
 
 .patient-tab.active {
   color: var(--primary);
   border-bottom-color: var(--primary);
-}
-
-/* Odontograma */
-.odontogram-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 10px;
-}
-
-.arch-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-items: center;
-}
-
-.dental-arch {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.tooth-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.tooth-svg {
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-}
-
-.tooth-svg polygon, .tooth-svg rect {
-  fill: #f8fafc;
-  stroke: #cbd5e1;
-  stroke-width: 1.5;
-  transition: all 0.2s;
-}
-
-.tooth-svg polygon:hover, .tooth-svg rect:hover {
-  fill: #c7d2fe;
-}
-
-.tooth-svg.has-caries polygon.center {
-  fill: #ef4444;
-}
-
-.tooth-svg.has-restoration polygon.center {
-  fill: #3b82f6;
-}
-
-.tooth-num {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--muted);
+  background: rgba(99, 102, 241, 0.08);
 }
 
 /* Evoluciones Clínicas */
@@ -166,7 +164,7 @@
 }
 
 @media (max-width: 1024px) {
-  .split {
+  .split.patient-active.split-mode {
     grid-template-columns: 1fr;
   }
 }

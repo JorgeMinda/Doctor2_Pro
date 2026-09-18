@@ -53,21 +53,21 @@ export function renderOdontogram(containerId, patient) {
 
   container.innerHTML = `
     <div class="odontogram-card">
-      <!-- Encabezado Compacto -->
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+      <!-- Encabezado -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
         <div style="display:flex; align-items:center; gap:8px;">
-          <h4 style="margin:0; font-size:1rem;"><i class="fas fa-tooth" style="color:var(--primary);"></i> Odontograma Clínico</h4>
+          <h4 style="margin:0; font-size:1.05rem;"><i class="fas fa-tooth" style="color:var(--primary);"></i> Odontograma Clínico (MSP 033 / FDI)</h4>
           <span id="odontoSaveStatus" style="font-size:0.75rem; color:var(--success);"><i class="fas fa-check-circle"></i> Sincronizado</span>
         </div>
         <div style="display:flex; gap:6px; align-items:center;">
-          <button type="button" class="ghost" id="odontoResetBtn" style="font-size:0.75rem; padding:3px 8px; color:var(--danger);" title="Limpiar"><i class="fas fa-trash-alt"></i> Limpiar</button>
-          <button type="button" class="primary" id="odontoSaveBtn" style="font-size:0.75rem; padding:4px 12px;"><i class="fas fa-save"></i> Guardar</button>
+          <button type="button" class="ghost" id="odontoResetBtn" style="font-size:0.75rem; padding:4px 10px; color:var(--danger);" title="Limpiar"><i class="fas fa-trash-alt"></i> Limpiar</button>
+          <button type="button" class="primary" id="odontoSaveBtn" style="font-size:0.75rem; padding:4px 14px;"><i class="fas fa-save"></i> Guardar</button>
         </div>
       </div>
 
-      <!-- Paleta de Diagnósticos Compacta -->
-      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; background:var(--bg-page); padding:6px 10px; border-radius:8px;">
-        <span style="font-size:0.75rem; font-weight:600; color:var(--muted);"><i class="fas fa-paint-brush"></i> Diagnóstico:</span>
+      <!-- Paleta de Diagnósticos -->
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px; flex-wrap:wrap; background:var(--bg-page); padding:8px 12px; border-radius:8px; border:1px solid var(--border);">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--muted);"><i class="fas fa-paint-brush"></i> Diagnóstico:</span>
         <div style="display:flex; gap:4px; flex-wrap:wrap;">
           <button type="button" class="odonto-palette-btn ${currentTool === 'caries' ? 'active' : ''}" data-tool="caries"><i style="color:#ef4444;" class="fas fa-circle"></i> Caries</button>
           <button type="button" class="odonto-palette-btn ${currentTool === 'obturacion' ? 'active' : ''}" data-tool="obturacion"><i style="color:#3b82f6;" class="fas fa-circle"></i> Obturación</button>
@@ -79,16 +79,16 @@ export function renderOdontogram(containerId, patient) {
         </div>
       </div>
 
-      <!-- Contenedor de Arcadas con Esquema MSP Completo -->
-      <div class="arch-container" style="overflow-x:auto; padding:4px 0 8px 0;">
+      <!-- Contenedor Horizontal Completo -->
+      <div class="arch-container">
         
         <!-- 1. Arcada Superior Permanente (18-11 | 21-28) -->
         <div class="dental-arch-row">
           <div class="arch-labels-col">
             <span class="arch-side-lbl">RECESIÓN</span>
             <span class="arch-side-lbl">MOVILIDAD</span>
-            <span class="arch-side-lbl spacer"></span>
-            <span class="arch-side-lbl">VESTIBULAR</span>
+            <span class="arch-side-lbl num-lbl"></span>
+            <span class="arch-side-lbl svg-lbl">VESTIBULAR</span>
           </div>
           <div class="dental-quadrant">
             ${q1.map(t => renderUpperPermanentItem(t, data, 'right')).join('')}
@@ -100,14 +100,15 @@ export function renderOdontogram(containerId, patient) {
         </div>
 
         <!-- 2. Arcada Superior Temporal (55-51 | 61-65) -->
-        <div class="dental-arch-row decidua-row" style="margin-top:2px;">
+        <div class="dental-arch-row decidua-row">
           <div class="arch-labels-col">
-            <span class="arch-side-lbl spacer"></span>
+            <span class="arch-side-lbl num-lbl"></span>
+            <span class="arch-side-lbl svg-lbl"></span>
           </div>
           <div class="dental-quadrant decidua-quadrant">
             ${q5.map(t => renderUpperDeciduaItem(t, data, 'right')).join('')}
           </div>
-          <div class="arch-midline"></div>
+          <div class="arch-midline decidua-midline"></div>
           <div class="dental-quadrant decidua-quadrant">
             ${q6.map(t => renderUpperDeciduaItem(t, data, 'left')).join('')}
           </div>
@@ -120,14 +121,15 @@ export function renderOdontogram(containerId, patient) {
         </div>
 
         <!-- 4. Arcada Inferior Temporal (85-81 | 71-75) -->
-        <div class="dental-arch-row decidua-row" style="margin-bottom:2px;">
+        <div class="dental-arch-row decidua-row">
           <div class="arch-labels-col">
-            <span class="arch-side-lbl spacer"></span>
+            <span class="arch-side-lbl svg-lbl"></span>
+            <span class="arch-side-lbl num-lbl"></span>
           </div>
           <div class="dental-quadrant decidua-quadrant">
             ${q8.map(t => renderLowerDeciduaItem(t, data, 'right')).join('')}
           </div>
-          <div class="arch-midline"></div>
+          <div class="arch-midline decidua-midline"></div>
           <div class="dental-quadrant decidua-quadrant">
             ${q7.map(t => renderLowerDeciduaItem(t, data, 'left')).join('')}
           </div>
@@ -136,8 +138,8 @@ export function renderOdontogram(containerId, patient) {
         <!-- 5. Arcada Inferior Permanente (48-41 | 31-38) -->
         <div class="dental-arch-row">
           <div class="arch-labels-col">
-            <span class="arch-side-lbl">VESTIBULAR</span>
-            <span class="arch-side-lbl spacer"></span>
+            <span class="arch-side-lbl svg-lbl">VESTIBULAR</span>
+            <span class="arch-side-lbl num-lbl"></span>
             <span class="arch-side-lbl">MOVILIDAD</span>
             <span class="arch-side-lbl">RECESIÓN</span>
           </div>
@@ -153,12 +155,12 @@ export function renderOdontogram(containerId, patient) {
       </div>
 
       <!-- Resumen CPO y Observaciones -->
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid var(--border); font-size:0.75rem; flex-wrap:wrap; gap:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:10px; border-top:1px solid var(--border); font-size:0.8rem; flex-wrap:wrap; gap:10px;">
         <div id="odontoCpoBadges">
           ${renderCpoSummary(data)}
         </div>
-        <div style="flex:1; min-width:200px; max-width:380px;">
-          <input type="text" id="odontoNotesInput" class="field-input" placeholder="Observaciones clínicas..." value="${data.notes || ''}" style="height:28px; font-size:0.75rem;">
+        <div style="flex:1; min-width:220px; max-width:450px;">
+          <input type="text" id="odontoNotesInput" class="field-input" placeholder="Observaciones clínicas del odontograma..." value="${data.notes || ''}" style="height:30px; font-size:0.8rem;">
         </div>
       </div>
     </div>

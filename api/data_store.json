@@ -108,7 +108,71 @@
                     "status": "Pendiente"
                 }
             ],
-            "attachments": []
+            "attachments": [],
+            "clinicalNotes": [
+                {
+                    "patientId": "pat-101",
+                    "date": "2026-09-17",
+                    "procedimiento": "Plan Educacional: Higiene Oral",
+                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                    "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                    "code": "PLN-EDU",
+                    "professionalName": "Dr. Asignado"
+                },
+                {
+                    "patientId": "pat-101",
+                    "date": "2026-09-17",
+                    "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                    "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                    "code": "PLN-CBCT",
+                    "professionalName": "Dr. Asignado"
+                },
+                {
+                    "patientId": "pat-101",
+                    "date": "2026-09-17",
+                    "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                    "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                    "code": "PLN-RXPAN",
+                    "professionalName": "Dr. Asignado"
+                },
+                {
+                    "patientId": "pat-101",
+                    "date": "2026-09-17",
+                    "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                    "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                    "code": "PLN-RXP",
+                    "professionalName": "Dr. Asignado"
+                },
+                {
+                    "patientId": "pat-101",
+                    "date": "2026-09-17",
+                    "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                    "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                    "code": "PLN-LAB",
+                    "professionalName": "Dr. Asignado"
+                },
+                {
+                    "patientId": "pat-101",
+                    "date": "2026-09-17",
+                    "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                    "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                    "code": "PLN-BIO",
+                    "professionalName": "Dr. Asignado"
+                }
+            ],
+            "odontogramData": {
+                "surfaces": [],
+                "teeth": [],
+                "recesion": [],
+                "movilidad": [],
+                "notes": "",
+                "updated_at": "2026-09-18T00:21:49.482Z"
+            }
         },
         {
             "id": "pat-be7c09b37d",
@@ -286,6 +350,1230 @@
         }
     ],
     "audit_logs": [
+        {
+            "id": "aud_516c29faf19bc88b",
+            "timestamp": "2026-09-18T00:21:50+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-101",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-101",
+                    "name": "María Rodríguez",
+                    "dni": "35123456",
+                    "phone": "+5491155551234",
+                    "email": "maria.rodriguez@email.com",
+                    "birthdate": "1990-05-14",
+                    "health_insurance": "OSDE 210",
+                    "affiliate_number": "884920192",
+                    "notes": "Paciente con antecedentes de hipertensión controlada.",
+                    "allergies": "Penicilina",
+                    "budgets": [
+                        {
+                            "id": "bdg_1789610820384",
+                            "number": "0002",
+                            "date": "2026-09-17",
+                            "expiryDate": "2026-10-02",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5100,
+                                    "subtotal": 5100
+                                },
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta y Diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000,
+                                    "subtotal": 5000
+                                }
+                            ],
+                            "subtotal": 10100,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 10100,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        },
+                        {
+                            "id": "bdg_1789170702375",
+                            "number": "0001",
+                            "date": "2026-09-11",
+                            "expiryDate": "2026-09-26",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000
+                                }
+                            ],
+                            "subtotal": 5000,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 5000,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        }
+                    ],
+                    "attachments": [],
+                    "clinicalNotes": [
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Educacional: Higiene Oral",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                            "code": "PLN-EDU",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                            "code": "PLN-CBCT",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                            "code": "PLN-RXPAN",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                            "code": "PLN-RXP",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                            "code": "PLN-LAB",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                            "code": "PLN-BIO",
+                            "professionalName": "Dr. Asignado"
+                        }
+                    ],
+                    "odontogramData": {
+                        "surfaces": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "l": "caries"
+                            }
+                        ],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:21:22.133Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-101",
+                    "odontogramData": {
+                        "surfaces": [],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:21:49.482Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_19ba950722c11ec3",
+            "timestamp": "2026-09-18T00:21:23+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-101",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-101",
+                    "name": "María Rodríguez",
+                    "dni": "35123456",
+                    "phone": "+5491155551234",
+                    "email": "maria.rodriguez@email.com",
+                    "birthdate": "1990-05-14",
+                    "health_insurance": "OSDE 210",
+                    "affiliate_number": "884920192",
+                    "notes": "Paciente con antecedentes de hipertensión controlada.",
+                    "allergies": "Penicilina",
+                    "budgets": [
+                        {
+                            "id": "bdg_1789610820384",
+                            "number": "0002",
+                            "date": "2026-09-17",
+                            "expiryDate": "2026-10-02",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5100,
+                                    "subtotal": 5100
+                                },
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta y Diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000,
+                                    "subtotal": 5000
+                                }
+                            ],
+                            "subtotal": 10100,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 10100,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        },
+                        {
+                            "id": "bdg_1789170702375",
+                            "number": "0001",
+                            "date": "2026-09-11",
+                            "expiryDate": "2026-09-26",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000
+                                }
+                            ],
+                            "subtotal": 5000,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 5000,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        }
+                    ],
+                    "attachments": [],
+                    "clinicalNotes": [
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Educacional: Higiene Oral",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                            "code": "PLN-EDU",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                            "code": "PLN-CBCT",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                            "code": "PLN-RXPAN",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                            "code": "PLN-RXP",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                            "code": "PLN-LAB",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                            "code": "PLN-BIO",
+                            "professionalName": "Dr. Asignado"
+                        }
+                    ],
+                    "odontogramData": {
+                        "surfaces": [],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:07:36.810Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-101",
+                    "odontogramData": {
+                        "surfaces": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "l": "caries"
+                            }
+                        ],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:21:22.133Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_ac0da2a8507c011a",
+            "timestamp": "2026-09-18T00:07:38+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-101",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-101",
+                    "name": "María Rodríguez",
+                    "dni": "35123456",
+                    "phone": "+5491155551234",
+                    "email": "maria.rodriguez@email.com",
+                    "birthdate": "1990-05-14",
+                    "health_insurance": "OSDE 210",
+                    "affiliate_number": "884920192",
+                    "notes": "Paciente con antecedentes de hipertensión controlada.",
+                    "allergies": "Penicilina",
+                    "budgets": [
+                        {
+                            "id": "bdg_1789610820384",
+                            "number": "0002",
+                            "date": "2026-09-17",
+                            "expiryDate": "2026-10-02",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5100,
+                                    "subtotal": 5100
+                                },
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta y Diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000,
+                                    "subtotal": 5000
+                                }
+                            ],
+                            "subtotal": 10100,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 10100,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        },
+                        {
+                            "id": "bdg_1789170702375",
+                            "number": "0001",
+                            "date": "2026-09-11",
+                            "expiryDate": "2026-09-26",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000
+                                }
+                            ],
+                            "subtotal": 5000,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 5000,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        }
+                    ],
+                    "attachments": [],
+                    "clinicalNotes": [
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Educacional: Higiene Oral",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                            "code": "PLN-EDU",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                            "code": "PLN-CBCT",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                            "code": "PLN-RXPAN",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                            "code": "PLN-RXP",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                            "code": "PLN-LAB",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                            "code": "PLN-BIO",
+                            "professionalName": "Dr. Asignado"
+                        }
+                    ],
+                    "odontogramData": {
+                        "surfaces": {
+                            "28": {
+                                "p": "caries",
+                                "m": "caries",
+                                "o": "caries",
+                                "d": "caries"
+                            },
+                            "64": {
+                                "o": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:07:17.321Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-101",
+                    "odontogramData": {
+                        "surfaces": [],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:07:36.810Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_809784f571299461",
+            "timestamp": "2026-09-18T00:07:18+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-101",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-101",
+                    "name": "María Rodríguez",
+                    "dni": "35123456",
+                    "phone": "+5491155551234",
+                    "email": "maria.rodriguez@email.com",
+                    "birthdate": "1990-05-14",
+                    "health_insurance": "OSDE 210",
+                    "affiliate_number": "884920192",
+                    "notes": "Paciente con antecedentes de hipertensión controlada.",
+                    "allergies": "Penicilina",
+                    "budgets": [
+                        {
+                            "id": "bdg_1789610820384",
+                            "number": "0002",
+                            "date": "2026-09-17",
+                            "expiryDate": "2026-10-02",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5100,
+                                    "subtotal": 5100
+                                },
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta y Diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000,
+                                    "subtotal": 5000
+                                }
+                            ],
+                            "subtotal": 10100,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 10100,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        },
+                        {
+                            "id": "bdg_1789170702375",
+                            "number": "0001",
+                            "date": "2026-09-11",
+                            "expiryDate": "2026-09-26",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000
+                                }
+                            ],
+                            "subtotal": 5000,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 5000,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        }
+                    ],
+                    "attachments": [],
+                    "clinicalNotes": [
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Educacional: Higiene Oral",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                            "code": "PLN-EDU",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                            "code": "PLN-CBCT",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                            "code": "PLN-RXPAN",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                            "code": "PLN-RXP",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                            "code": "PLN-LAB",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                            "code": "PLN-BIO",
+                            "professionalName": "Dr. Asignado"
+                        }
+                    ],
+                    "odontogramData": {
+                        "surfaces": {
+                            "28": {
+                                "p": "caries",
+                                "m": "caries",
+                                "o": "caries",
+                                "d": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:07:13.880Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-101",
+                    "odontogramData": {
+                        "surfaces": {
+                            "28": {
+                                "p": "caries",
+                                "m": "caries",
+                                "o": "caries",
+                                "d": "caries"
+                            },
+                            "64": {
+                                "o": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:07:17.321Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_2e57bc2fca2554f5",
+            "timestamp": "2026-09-18T00:07:14+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-101",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-101",
+                    "name": "María Rodríguez",
+                    "dni": "35123456",
+                    "phone": "+5491155551234",
+                    "email": "maria.rodriguez@email.com",
+                    "birthdate": "1990-05-14",
+                    "health_insurance": "OSDE 210",
+                    "affiliate_number": "884920192",
+                    "notes": "Paciente con antecedentes de hipertensión controlada.",
+                    "allergies": "Penicilina",
+                    "budgets": [
+                        {
+                            "id": "bdg_1789610820384",
+                            "number": "0002",
+                            "date": "2026-09-17",
+                            "expiryDate": "2026-10-02",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5100,
+                                    "subtotal": 5100
+                                },
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta y Diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000,
+                                    "subtotal": 5000
+                                }
+                            ],
+                            "subtotal": 10100,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 10100,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        },
+                        {
+                            "id": "bdg_1789170702375",
+                            "number": "0001",
+                            "date": "2026-09-11",
+                            "expiryDate": "2026-09-26",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000
+                                }
+                            ],
+                            "subtotal": 5000,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 5000,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        }
+                    ],
+                    "attachments": [],
+                    "clinicalNotes": [
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Educacional: Higiene Oral",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                            "code": "PLN-EDU",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                            "code": "PLN-CBCT",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                            "code": "PLN-RXPAN",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                            "code": "PLN-RXP",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                            "code": "PLN-LAB",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                            "code": "PLN-BIO",
+                            "professionalName": "Dr. Asignado"
+                        }
+                    ],
+                    "odontogramData": {
+                        "surfaces": {
+                            "28": {
+                                "p": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:07:11.492Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-101",
+                    "odontogramData": {
+                        "surfaces": {
+                            "28": {
+                                "p": "caries",
+                                "m": "caries",
+                                "o": "caries",
+                                "d": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:07:13.880Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_33fff4b2fe2123f6",
+            "timestamp": "2026-09-18T00:07:12+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-101",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-101",
+                    "name": "María Rodríguez",
+                    "dni": "35123456",
+                    "phone": "+5491155551234",
+                    "email": "maria.rodriguez@email.com",
+                    "birthdate": "1990-05-14",
+                    "health_insurance": "OSDE 210",
+                    "affiliate_number": "884920192",
+                    "notes": "Paciente con antecedentes de hipertensión controlada.",
+                    "allergies": "Penicilina",
+                    "budgets": [
+                        {
+                            "id": "bdg_1789610820384",
+                            "number": "0002",
+                            "date": "2026-09-17",
+                            "expiryDate": "2026-10-02",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5100,
+                                    "subtotal": 5100
+                                },
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta y Diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000,
+                                    "subtotal": 5000
+                                }
+                            ],
+                            "subtotal": 10100,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 10100,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        },
+                        {
+                            "id": "bdg_1789170702375",
+                            "number": "0001",
+                            "date": "2026-09-11",
+                            "expiryDate": "2026-09-26",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000
+                                }
+                            ],
+                            "subtotal": 5000,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 5000,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        }
+                    ],
+                    "attachments": [],
+                    "clinicalNotes": [
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Educacional: Higiene Oral",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                            "code": "PLN-EDU",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                            "code": "PLN-CBCT",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                            "code": "PLN-RXPAN",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                            "code": "PLN-RXP",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                            "code": "PLN-LAB",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                            "code": "PLN-BIO",
+                            "professionalName": "Dr. Asignado"
+                        }
+                    ]
+                },
+                "new": {
+                    "id": "pat-101",
+                    "odontogramData": {
+                        "surfaces": {
+                            "28": {
+                                "p": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:07:11.492Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_b53a84eb6d89672b",
+            "timestamp": "2026-09-17T23:01:38+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT_NOTE",
+            "entityId": "note_6aac715221135",
+            "action": "CREATE",
+            "diff": {
+                "old": null,
+                "new": {
+                    "patientId": "pat-101",
+                    "noteDate": "2026-09-17"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_96c13e3e638fd6a8",
+            "timestamp": "2026-09-17T23:01:36+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT_NOTE",
+            "entityId": "note_6aac71508726b",
+            "action": "CREATE",
+            "diff": {
+                "old": null,
+                "new": {
+                    "patientId": "pat-101",
+                    "noteDate": "2026-09-17"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_a31d43b232d747de",
+            "timestamp": "2026-09-17T23:01:34+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT_NOTE",
+            "entityId": "note_6aac714eef53d",
+            "action": "CREATE",
+            "diff": {
+                "old": null,
+                "new": {
+                    "patientId": "pat-101",
+                    "noteDate": "2026-09-17"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_65f2988dbfec29c8",
+            "timestamp": "2026-09-17T23:01:33+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT_NOTE",
+            "entityId": "note_6aac714d161f8",
+            "action": "CREATE",
+            "diff": {
+                "old": null,
+                "new": {
+                    "patientId": "pat-101",
+                    "noteDate": "2026-09-17"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_27b5396998b3cf34",
+            "timestamp": "2026-09-17T23:01:29+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT_NOTE",
+            "entityId": "note_6aac7149431fa",
+            "action": "CREATE",
+            "diff": {
+                "old": null,
+                "new": {
+                    "patientId": "pat-101",
+                    "noteDate": "2026-09-17"
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_d8c2b7c9dd72987e",
+            "timestamp": "2026-09-17T23:01:22+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT_NOTE",
+            "entityId": "note_6aac714242c9d",
+            "action": "CREATE",
+            "diff": {
+                "old": null,
+                "new": {
+                    "patientId": "pat-101",
+                    "noteDate": "2026-09-17"
+                }
+            },
+            "meta": []
+        },
         {
             "id": "aud_560ad5e87eed333d",
             "timestamp": "2026-09-17T02:50:07+00:00",
