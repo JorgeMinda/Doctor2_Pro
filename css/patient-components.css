@@ -108,354 +108,193 @@
   color: var(--muted);
   margin-top: 6px;
 /* ==========================================================================
-   ODONTOGRAMA OFICIAL MSP (ECUADOR / LATAM) - COMPACTO & PROPORCIONADO
+   ODONTOGRAMA OFICIAL MSP (ECUADOR / LATAM) - TAMAÑO Y DISEÑO ORIGINAL
    ========================================================================== */
-.msp-odontogram-card {
+.odontogram-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-top: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-}
-
-.msp-odonto-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
-}
-
-.msp-odonto-title-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.msp-odonto-title-group h4 {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.msp-save-badge {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--success);
-  background: rgba(16, 185, 129, 0.1);
-  padding: 2px 6px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.msp-save-badge.saving {
-  color: var(--warning);
-  background: rgba(245, 158, 11, 0.1);
-}
-
-.msp-save-badge.error {
-  color: var(--danger);
-  background: rgba(239, 68, 68, 0.1);
-}
-
-.msp-odonto-actions {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-/* Paleta de Herramientas Compacta */
-.msp-palette-bar {
-  background: var(--bg-page);
-  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 6px 10px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  padding: 16px;
+  margin-top: 10px;
 }
 
-.msp-palette-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-}
-
-.msp-tools-list {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.msp-tool-btn {
+.odonto-palette-btn {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 3px 8px;
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   transition: all 0.15s ease;
 }
 
-.msp-tool-btn:hover {
+.odonto-palette-btn:hover {
   border-color: var(--primary);
   background: rgba(99, 102, 241, 0.05);
 }
 
-.msp-tool-btn.active {
-  background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary-strong);
-  box-shadow: 0 1px 6px rgba(99, 102, 241, 0.3);
-}
-
-.msp-tool-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  border: 1px solid transparent;
-  display: inline-block;
-}
-
-/* Barra de CPO Compacta */
-.msp-cpo-bar {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(16, 185, 129, 0.04));
-  border: 1px dashed var(--border);
-  border-radius: 8px;
-  padding: 5px 10px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  font-size: 0.72rem;
-}
-
-.msp-cpo-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.msp-cpo-title {
-  font-weight: 700;
-  color: var(--text);
-}
-
-.msp-cpo-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--border);
-}
-
-.msp-cpo-badge {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-}
-
-.msp-cpo-badge.c strong { color: #ef4444; }
-.msp-cpo-badge.p strong { color: #dc2626; }
-.msp-cpo-badge.o strong { color: #3b82f6; }
-.msp-cpo-badge.total strong { color: var(--primary); }
-
-/* Tablero Gráfico Oficial MSP - Compacto */
-.msp-sheet-wrapper {
-  overflow-x: auto;
-  padding-bottom: 8px;
-  margin-bottom: 10px;
-}
-
-.msp-sheet-outer {
-  min-width: 530px;
-  max-width: 650px;
-  margin: 0 auto;
-  background: #ffffff;
-  border: 1.5px solid #0f172a;
-  border-radius: 5px;
-  padding: 10px 14px;
-  color: #0f172a;
-}
-
-[data-theme="dark"] .msp-sheet-outer {
-  background: #1e293b;
-  border-color: #475569;
-  color: #f1f5f9;
-}
-
-.msp-row-grid {
-  display: grid;
-  grid-template-columns: 78px 1fr 8px 1fr;
-  align-items: center;
-  margin-bottom: 2px;
-}
-
-.msp-row-label {
-  font-size: 0.62rem;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: inherit;
-}
-
-.msp-row-label.msp-label-highlight {
+.odonto-palette-btn.active {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.12);
   color: var(--primary);
+  font-weight: 700;
 }
 
-.msp-quadrant-side {
+/* Filas y Columnas de Arcadas */
+.dental-arch-row {
   display: flex;
-  gap: 2px;
-}
-
-.msp-quadrant-side.right-side {
-  justify-content: flex-end;
-}
-
-.msp-quadrant-side.left-side {
-  justify-content: flex-start;
-}
-
-.msp-quadrant-side.msp-decidua-side {
+  align-items: center;
   justify-content: center;
-  max-width: 160px;
-  margin: 0 auto;
+  gap: 6px;
+  margin-bottom: 4px;
 }
 
-.msp-midline {
-  width: 1.5px;
+.arch-labels-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 72px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: right;
+  padding-right: 6px;
+  user-select: none;
+}
+
+.arch-side-lbl {
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.arch-side-lbl.spacer {
+  height: 14px;
+}
+
+.dental-quadrant {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dental-quadrant.decidua-quadrant {
+  gap: 6px;
+}
+
+.arch-midline {
+  width: 2px;
   height: 100%;
-  min-height: 18px;
-  background: #cbd5e1;
-  margin: 0 auto;
+  min-height: 32px;
+  background: var(--border);
+  margin: 0 4px;
 }
 
-[data-theme="dark"] .msp-midline {
-  background: #475569;
+/* Elementos de Pieza Dental Individual */
+.tooth-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
 }
 
-/* Casillas de entrada Recesión y Movilidad Compactas */
-.msp-box-input {
-  width: 25px;
+.tooth-input-box {
+  width: 30px;
   height: 18px;
-  border: 1px solid #64748b;
+  border: 1px solid var(--border);
   border-radius: 2px;
-  background: #ffffff;
-  text-align: center;
+  background: var(--bg-page);
+  color: var(--text);
   font-size: 0.68rem;
   font-weight: 700;
-  color: #0f172a;
+  text-align: center;
   padding: 0;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s;
 }
 
-[data-theme="dark"] .msp-box-input {
-  background: #0f172a;
-  border-color: #64748b;
-  color: #f8fafc;
-}
-
-.msp-box-input:focus {
+.tooth-input-box:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
 }
 
-/* Números de Piezas Dentales Compactos */
-.msp-tooth-num {
-  width: 25px;
+.tooth-num {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  width: 30px;
   text-align: center;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: inherit;
+  line-height: 14px;
   cursor: pointer;
   user-select: none;
-  padding: 1px 0;
   border-radius: 2px;
-  transition: background 0.15s;
+  transition: all 0.15s;
 }
 
-.msp-tooth-num:hover {
+.tooth-num:hover {
   background: rgba(99, 102, 241, 0.15);
   color: var(--primary);
 }
 
-.msp-tooth-num.decidua-num {
+.tooth-num.decidua-num {
   color: #0284c7;
 }
 
-/* Contenedores de Dientes y SVGs Compactos */
-.msp-tooth-cell {
-  width: 25px;
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.msp-tooth-svg {
-  width: 24px;
-  height: 24px;
+.tooth-svg {
+  width: 30px;
+  height: 30px;
   cursor: pointer;
-  overflow: visible;
+  display: block;
 }
 
-.msp-surface {
+.tooth-svg.decidua {
+  width: 28px;
+  height: 28px;
+}
+
+.tooth-face {
+  stroke: #cbd5e1;
+  stroke-width: 1.2;
   cursor: pointer;
-  transition: fill 0.15s ease, stroke 0.15s ease;
+  transition: fill 0.15s, stroke 0.15s;
 }
 
-.msp-surface:hover {
+[data-theme="dark"] .tooth-face {
+  stroke: #475569;
+}
+
+.tooth-face:hover {
   filter: brightness(0.9);
   stroke: var(--primary) !important;
   stroke-width: 1.8 !important;
 }
 
-/* Divisor Lingual Central */
-.msp-lingual-divider {
-  margin: 4px 0;
-}
-
-.msp-lingual-line {
-  grid-column: 2 / 5;
-  height: 1px;
-  background: #e2e8f0;
-}
-
-[data-theme="dark"] .msp-lingual-line {
-  background: #334155;
-}
-
-/* Textarea de Notas del Odontograma */
-.msp-notes-container {
-  margin-top: 8px;
-}
-
-.msp-notes-textarea {
+/* Eje Central Lingual */
+.lingual-divider-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
-  font-size: 0.8rem;
-  line-height: 1.3;
-  resize: vertical;
+  max-width: 600px;
+  margin: 6px auto;
+}
+
+.lingual-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+.lingual-line {
+  flex: 1;
+  height: 1px;
+  border-top: 1px dashed var(--border);
 }
 
 /* Modal de Opciones Dentales */
