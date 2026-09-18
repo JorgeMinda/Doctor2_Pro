@@ -192,15 +192,15 @@ function renderUpperPermanentItem(num, data, side) {
       <input type="text" class="tooth-input-box recesion-input" data-tooth="${num}" value="${data.recesion[num] || ''}" maxlength="3" title="Recesión ${num}">
       <input type="text" class="tooth-input-box movilidad-input" data-tooth="${num}" value="${data.movilidad[num] || ''}" maxlength="3" title="Movilidad ${num}">
       <span class="tooth-num" data-tooth="${num}" title="Opciones pieza ${num}">${num}</span>
-      <svg class="tooth-svg permanent" data-tooth="${num}" viewBox="0 0 30 30">
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 30,0 22,8 8,8" fill="${getFaceColor(surfaces, topKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="30,0 30,30 22,22 22,8" fill="${getFaceColor(surfaces, rightKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="30,30 0,30 8,22 22,22" fill="${getFaceColor(surfaces, btmKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,30 0,0 8,8 8,22" fill="${getFaceColor(surfaces, leftKey)}" />
-        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="8,8 22,8 22,22 8,22" fill="${getFaceColor(surfaces, 'o')}" />
-        ${isCorona ? `<rect x="1" y="1" width="28" height="28" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="2,2" />` : ''}
-        ${isEndo ? `<line x1="15" y1="1" x2="15" y2="29" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" />` : ''}
-        ${isExtracted ? `<line x1="1" y1="1" x2="29" y2="29" stroke="#dc2626" stroke-width="2" /><line x1="29" y1="1" x2="1" y2="29" stroke="#dc2626" stroke-width="2" />` : ''}
+      <svg class="tooth-svg permanent" data-tooth="${num}" viewBox="0 0 40 40">
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 40,0 30,10 10,10" fill="${getFaceColor(surfaces, topKey)}" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="40,0 40,40 30,30 30,10" fill="${getFaceColor(surfaces, rightKey)}" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="40,40 0,40 10,30 30,30" fill="${getFaceColor(surfaces, btmKey)}" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" />
+        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" />
+        ${isCorona ? `<rect x="1" y="1" width="38" height="38" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="3,2" />` : ''}
+        ${isEndo ? `<line x1="20" y1="2" x2="20" y2="38" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" />` : ''}
+        ${isExtracted ? `<line x1="2" y1="2" x2="38" y2="38" stroke="#dc2626" stroke-width="2.5" /><line x1="38" y1="2" x2="2" y2="38" stroke="#dc2626" stroke-width="2.5" />` : ''}
       </svg>
     </div>
   `;
@@ -220,15 +220,15 @@ function renderUpperDeciduaItem(num, data, side) {
   return `
     <div class="tooth-item decidua-item" data-tooth="${num}">
       <span class="tooth-num decidua-num" data-tooth="${num}" title="Opciones pieza ${num}">${num}</span>
-      <svg class="tooth-svg decidua" data-tooth="${num}" viewBox="0 0 30 30">
-        <path class="tooth-face" data-tooth="${num}" data-surface="${topKey}" d="M 4.5,4.5 A 14.5 14.5 0 0 1 25.5,4.5 L 19.5,10.5 A 6 6 0 0 0 10.5,10.5 Z" fill="${getFaceColor(surfaces, topKey)}" />
-        <path class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" d="M 25.5,4.5 A 14.5 14.5 0 0 1 25.5,25.5 L 19.5,19.5 A 6 6 0 0 0 19.5,10.5 Z" fill="${getFaceColor(surfaces, rightKey)}" />
-        <path class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" d="M 25.5,25.5 A 14.5 14.5 0 0 1 4.5,25.5 L 10.5,19.5 A 6 6 0 0 0 19.5,19.5 Z" fill="${getFaceColor(surfaces, btmKey)}" />
-        <path class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" d="M 4.5,25.5 A 14.5 14.5 0 0 1 4.5,4.5 L 10.5,10.5 A 6 6 0 0 0 10.5,19.5 Z" fill="${getFaceColor(surfaces, leftKey)}" />
-        <circle class="tooth-face center" data-tooth="${num}" data-surface="o" cx="15" cy="15" r="5.5" fill="${getFaceColor(surfaces, 'o')}" />
-        ${isCorona ? `<circle cx="15" cy="15" r="13.5" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="2,2" />` : ''}
-        ${isEndo ? `<line x1="15" y1="1" x2="15" y2="29" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" />` : ''}
-        ${isExtracted ? `<line x1="2" y1="2" x2="28" y2="28" stroke="#dc2626" stroke-width="2" /><line x1="28" y1="2" x2="2" y2="28" stroke="#dc2626" stroke-width="2" />` : ''}
+      <svg class="tooth-svg decidua" data-tooth="${num}" viewBox="0 0 40 40">
+        <path class="tooth-face" data-tooth="${num}" data-surface="${topKey}" d="M 6,6 A 19 19 0 0 1 34,6 L 26,14 A 8 8 0 0 0 14,14 Z" fill="${getFaceColor(surfaces, topKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" d="M 34,6 A 19 19 0 0 1 34,34 L 26,26 A 8 8 0 0 0 26,14 Z" fill="${getFaceColor(surfaces, rightKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" d="M 34,34 A 19 19 0 0 1 6,34 L 14,26 A 8 8 0 0 0 26,26 Z" fill="${getFaceColor(surfaces, btmKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" d="M 6,34 A 19 19 0 0 1 6,6 L 14,14 A 8 8 0 0 0 14,26 Z" fill="${getFaceColor(surfaces, leftKey)}" />
+        <circle class="tooth-face center" data-tooth="${num}" data-surface="o" cx="20" cy="20" r="8" fill="${getFaceColor(surfaces, 'o')}" />
+        ${isCorona ? `<circle cx="20" cy="20" r="18" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="3,2" />` : ''}
+        ${isEndo ? `<line x1="20" y1="2" x2="20" y2="38" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" />` : ''}
+        ${isExtracted ? `<line x1="4" y1="4" x2="36" y2="36" stroke="#dc2626" stroke-width="2.5" /><line x1="36" y1="4" x2="4" y2="36" stroke="#dc2626" stroke-width="2.5" />` : ''}
       </svg>
     </div>
   `;
@@ -247,15 +247,15 @@ function renderLowerDeciduaItem(num, data, side) {
 
   return `
     <div class="tooth-item decidua-item" data-tooth="${num}">
-      <svg class="tooth-svg decidua" data-tooth="${num}" viewBox="0 0 30 30">
-        <path class="tooth-face" data-tooth="${num}" data-surface="${topKey}" d="M 4.5,4.5 A 14.5 14.5 0 0 1 25.5,4.5 L 19.5,10.5 A 6 6 0 0 0 10.5,10.5 Z" fill="${getFaceColor(surfaces, topKey)}" />
-        <path class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" d="M 25.5,4.5 A 14.5 14.5 0 0 1 25.5,25.5 L 19.5,19.5 A 6 6 0 0 0 19.5,10.5 Z" fill="${getFaceColor(surfaces, rightKey)}" />
-        <path class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" d="M 25.5,25.5 A 14.5 14.5 0 0 1 4.5,25.5 L 10.5,19.5 A 6 6 0 0 0 19.5,19.5 Z" fill="${getFaceColor(surfaces, btmKey)}" />
-        <path class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" d="M 4.5,25.5 A 14.5 14.5 0 0 1 4.5,4.5 L 10.5,10.5 A 6 6 0 0 0 10.5,19.5 Z" fill="${getFaceColor(surfaces, leftKey)}" />
-        <circle class="tooth-face center" data-tooth="${num}" data-surface="o" cx="15" cy="15" r="5.5" fill="${getFaceColor(surfaces, 'o')}" />
-        ${isCorona ? `<circle cx="15" cy="15" r="13.5" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="2,2" />` : ''}
-        ${isEndo ? `<line x1="15" y1="1" x2="15" y2="29" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" />` : ''}
-        ${isExtracted ? `<line x1="2" y1="2" x2="28" y2="28" stroke="#dc2626" stroke-width="2" /><line x1="28" y1="2" x2="2" y2="28" stroke="#dc2626" stroke-width="2" />` : ''}
+      <svg class="tooth-svg decidua" data-tooth="${num}" viewBox="0 0 40 40">
+        <path class="tooth-face" data-tooth="${num}" data-surface="${topKey}" d="M 6,6 A 19 19 0 0 1 34,6 L 26,14 A 8 8 0 0 0 14,14 Z" fill="${getFaceColor(surfaces, topKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" d="M 34,6 A 19 19 0 0 1 34,34 L 26,26 A 8 8 0 0 0 26,14 Z" fill="${getFaceColor(surfaces, rightKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" d="M 34,34 A 19 19 0 0 1 6,34 L 14,26 A 8 8 0 0 0 26,26 Z" fill="${getFaceColor(surfaces, btmKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" d="M 6,34 A 19 19 0 0 1 6,6 L 14,14 A 8 8 0 0 0 14,26 Z" fill="${getFaceColor(surfaces, leftKey)}" />
+        <circle class="tooth-face center" data-tooth="${num}" data-surface="o" cx="20" cy="20" r="8" fill="${getFaceColor(surfaces, 'o')}" />
+        ${isCorona ? `<circle cx="20" cy="20" r="18" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="3,2" />` : ''}
+        ${isEndo ? `<line x1="20" y1="2" x2="20" y2="38" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" />` : ''}
+        ${isExtracted ? `<line x1="4" y1="4" x2="36" y2="36" stroke="#dc2626" stroke-width="2.5" /><line x1="36" y1="4" x2="4" y2="36" stroke="#dc2626" stroke-width="2.5" />` : ''}
       </svg>
       <span class="tooth-num decidua-num" data-tooth="${num}" title="Opciones pieza ${num}">${num}</span>
     </div>
@@ -275,15 +275,15 @@ function renderLowerPermanentItem(num, data, side) {
 
   return `
     <div class="tooth-item" data-tooth="${num}">
-      <svg class="tooth-svg permanent" data-tooth="${num}" viewBox="0 0 30 30">
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 30,0 22,8 8,8" fill="${getFaceColor(surfaces, topKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="30,0 30,30 22,22 22,8" fill="${getFaceColor(surfaces, rightKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="30,30 0,30 8,22 22,22" fill="${getFaceColor(surfaces, btmKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,30 0,0 8,8 8,22" fill="${getFaceColor(surfaces, leftKey)}" />
-        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="8,8 22,8 22,22 8,22" fill="${getFaceColor(surfaces, 'o')}" />
-        ${isCorona ? `<rect x="1" y="1" width="28" height="28" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="2,2" />` : ''}
-        ${isEndo ? `<line x1="15" y1="1" x2="15" y2="29" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" />` : ''}
-        ${isExtracted ? `<line x1="1" y1="1" x2="29" y2="29" stroke="#dc2626" stroke-width="2" /><line x1="29" y1="1" x2="1" y2="29" stroke="#dc2626" stroke-width="2" />` : ''}
+      <svg class="tooth-svg permanent" data-tooth="${num}" viewBox="0 0 40 40">
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 40,0 30,10 10,10" fill="${getFaceColor(surfaces, topKey)}" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="40,0 40,40 30,30 30,10" fill="${getFaceColor(surfaces, rightKey)}" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="40,40 0,40 10,30 30,30" fill="${getFaceColor(surfaces, btmKey)}" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" />
+        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" />
+        ${isCorona ? `<rect x="1" y="1" width="38" height="38" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="3,2" />` : ''}
+        ${isEndo ? `<line x1="20" y1="2" x2="20" y2="38" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round" />` : ''}
+        ${isExtracted ? `<line x1="2" y1="2" x2="38" y2="38" stroke="#dc2626" stroke-width="2.5" /><line x1="38" y1="2" x2="2" y2="38" stroke="#dc2626" stroke-width="2.5" />` : ''}
       </svg>
       <span class="tooth-num" data-tooth="${num}" title="Opciones pieza ${num}">${num}</span>
       <input type="text" class="tooth-input-box movilidad-input" data-tooth="${num}" value="${data.movilidad[num] || ''}" maxlength="3" title="Movilidad ${num}">

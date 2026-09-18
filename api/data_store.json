@@ -166,12 +166,38 @@
                 }
             ],
             "odontogramData": {
-                "surfaces": [],
+                "surfaces": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    {
+                        "v": "caries",
+                        "m": "caries",
+                        "o": "caries",
+                        "d": "caries",
+                        "p": "caries"
+                    }
+                ],
                 "teeth": [],
                 "recesion": [],
                 "movilidad": [],
                 "notes": "",
-                "updated_at": "2026-09-18T00:21:49.482Z"
+                "updated_at": "2026-09-18T00:42:35.369Z"
             }
         },
         {
@@ -215,13 +241,20 @@
                         "m": "caries",
                         "d": "caries",
                         "v": "caries"
+                    },
+                    "17": {
+                        "v": "caries"
+                    },
+                    "18": {
+                        "o": "caries",
+                        "v": "caries"
                     }
                 },
                 "teeth": [],
                 "recesion": [],
                 "movilidad": [],
                 "notes": "",
-                "updated_at": "2026-09-18T00:30:22.859Z"
+                "updated_at": "2026-09-18T00:44:38.445Z"
             }
         }
     ],
@@ -380,6 +413,1152 @@
         }
     ],
     "audit_logs": [
+        {
+            "id": "aud_36ba683392753118",
+            "timestamp": "2026-09-18T00:44:39+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            },
+                            "17": {
+                                "v": "caries"
+                            },
+                            "18": {
+                                "o": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:44:36.495Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            },
+                            "17": {
+                                "v": "caries"
+                            },
+                            "18": {
+                                "o": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:44:38.445Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_02150d1da4b927ce",
+            "timestamp": "2026-09-18T00:44:37+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            },
+                            "17": {
+                                "v": "caries"
+                            },
+                            "18": {
+                                "o": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:44:34.013Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            },
+                            "17": {
+                                "v": "caries"
+                            },
+                            "18": {
+                                "o": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:44:36.495Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_1b438b2bccb3ea3d",
+            "timestamp": "2026-09-18T00:44:35+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            },
+                            "17": {
+                                "v": "caries"
+                            },
+                            "18": {
+                                "o": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:44:02.857Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            },
+                            "17": {
+                                "v": "caries"
+                            },
+                            "18": {
+                                "o": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:44:34.013Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_4abf1f73ad8750ff",
+            "timestamp": "2026-09-18T00:44:04+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            },
+                            "18": {
+                                "o": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:44:01.600Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            },
+                            "17": {
+                                "v": "caries"
+                            },
+                            "18": {
+                                "o": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:44:02.857Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_67f1c910b1a90abc",
+            "timestamp": "2026-09-18T00:44:02+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-be7c09b37d",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-be7c09b37d",
+                    "name": "Jorge Minda",
+                    "dni": "172555656556",
+                    "sex": "Masculino",
+                    "occupation": "",
+                    "phone": "+593987077452",
+                    "email": "",
+                    "birthdate": "2026-09-13",
+                    "health_insurance": "",
+                    "affiliate_number": "",
+                    "representativeName": "",
+                    "representativeDni": "",
+                    "emergencyPhone": "",
+                    "notes": "",
+                    "allergies": "",
+                    "created_at": "2026-09-14 01:21:16",
+                    "address": "",
+                    "assignedProfessionalId": null,
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:30:22.859Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-be7c09b37d",
+                    "odontogramData": {
+                        "surfaces": {
+                            "13": {
+                                "m": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "o": "caries",
+                                "p": "caries"
+                            },
+                            "14": {
+                                "o": "caries",
+                                "v": "caries",
+                                "d": "caries",
+                                "m": "caries",
+                                "p": "caries"
+                            },
+                            "15": {
+                                "o": "caries",
+                                "p": "caries",
+                                "m": "caries",
+                                "d": "caries",
+                                "v": "caries"
+                            },
+                            "18": {
+                                "o": "caries"
+                            }
+                        },
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:44:01.600Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_8290f36e172b15be",
+            "timestamp": "2026-09-18T00:42:36+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-101",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-101",
+                    "name": "María Rodríguez",
+                    "dni": "35123456",
+                    "phone": "+5491155551234",
+                    "email": "maria.rodriguez@email.com",
+                    "birthdate": "1990-05-14",
+                    "health_insurance": "OSDE 210",
+                    "affiliate_number": "884920192",
+                    "notes": "Paciente con antecedentes de hipertensión controlada.",
+                    "allergies": "Penicilina",
+                    "budgets": [
+                        {
+                            "id": "bdg_1789610820384",
+                            "number": "0002",
+                            "date": "2026-09-17",
+                            "expiryDate": "2026-10-02",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5100,
+                                    "subtotal": 5100
+                                },
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta y Diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000,
+                                    "subtotal": 5000
+                                }
+                            ],
+                            "subtotal": 10100,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 10100,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        },
+                        {
+                            "id": "bdg_1789170702375",
+                            "number": "0001",
+                            "date": "2026-09-11",
+                            "expiryDate": "2026-09-26",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000
+                                }
+                            ],
+                            "subtotal": 5000,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 5000,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        }
+                    ],
+                    "attachments": [],
+                    "clinicalNotes": [
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Educacional: Higiene Oral",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                            "code": "PLN-EDU",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                            "code": "PLN-CBCT",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                            "code": "PLN-RXPAN",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                            "code": "PLN-RXP",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                            "code": "PLN-LAB",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                            "code": "PLN-BIO",
+                            "professionalName": "Dr. Asignado"
+                        }
+                    ],
+                    "odontogramData": {
+                        "surfaces": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            {
+                                "v": "caries",
+                                "m": "caries",
+                                "o": "caries",
+                                "d": "caries"
+                            }
+                        ],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:42:33.904Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-101",
+                    "odontogramData": {
+                        "surfaces": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            {
+                                "v": "caries",
+                                "m": "caries",
+                                "o": "caries",
+                                "d": "caries",
+                                "p": "caries"
+                            }
+                        ],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:42:35.369Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_3259cb5bd322a864",
+            "timestamp": "2026-09-18T00:42:34+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-101",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-101",
+                    "name": "María Rodríguez",
+                    "dni": "35123456",
+                    "phone": "+5491155551234",
+                    "email": "maria.rodriguez@email.com",
+                    "birthdate": "1990-05-14",
+                    "health_insurance": "OSDE 210",
+                    "affiliate_number": "884920192",
+                    "notes": "Paciente con antecedentes de hipertensión controlada.",
+                    "allergies": "Penicilina",
+                    "budgets": [
+                        {
+                            "id": "bdg_1789610820384",
+                            "number": "0002",
+                            "date": "2026-09-17",
+                            "expiryDate": "2026-10-02",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5100,
+                                    "subtotal": 5100
+                                },
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta y Diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000,
+                                    "subtotal": 5000
+                                }
+                            ],
+                            "subtotal": 10100,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 10100,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        },
+                        {
+                            "id": "bdg_1789170702375",
+                            "number": "0001",
+                            "date": "2026-09-11",
+                            "expiryDate": "2026-09-26",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000
+                                }
+                            ],
+                            "subtotal": 5000,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 5000,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        }
+                    ],
+                    "attachments": [],
+                    "clinicalNotes": [
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Educacional: Higiene Oral",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                            "code": "PLN-EDU",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                            "code": "PLN-CBCT",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                            "code": "PLN-RXPAN",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                            "code": "PLN-RXP",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                            "code": "PLN-LAB",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                            "code": "PLN-BIO",
+                            "professionalName": "Dr. Asignado"
+                        }
+                    ],
+                    "odontogramData": {
+                        "surfaces": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            {
+                                "v": "caries"
+                            }
+                        ],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:42:31.558Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-101",
+                    "odontogramData": {
+                        "surfaces": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            {
+                                "v": "caries",
+                                "m": "caries",
+                                "o": "caries",
+                                "d": "caries"
+                            }
+                        ],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:42:33.904Z"
+                    }
+                }
+            },
+            "meta": []
+        },
+        {
+            "id": "aud_6726af0ca2b522f4",
+            "timestamp": "2026-09-18T00:42:32+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "PATIENT",
+            "entityId": "pat-101",
+            "action": "UPDATE",
+            "diff": {
+                "old": {
+                    "id": "pat-101",
+                    "name": "María Rodríguez",
+                    "dni": "35123456",
+                    "phone": "+5491155551234",
+                    "email": "maria.rodriguez@email.com",
+                    "birthdate": "1990-05-14",
+                    "health_insurance": "OSDE 210",
+                    "affiliate_number": "884920192",
+                    "notes": "Paciente con antecedentes de hipertensión controlada.",
+                    "allergies": "Penicilina",
+                    "budgets": [
+                        {
+                            "id": "bdg_1789610820384",
+                            "number": "0002",
+                            "date": "2026-09-17",
+                            "expiryDate": "2026-10-02",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5100,
+                                    "subtotal": 5100
+                                },
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta y Diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000,
+                                    "subtotal": 5000
+                                }
+                            ],
+                            "subtotal": 10100,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 10100,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        },
+                        {
+                            "id": "bdg_1789170702375",
+                            "number": "0001",
+                            "date": "2026-09-11",
+                            "expiryDate": "2026-09-26",
+                            "professionalId": "prof-378c0d79a7",
+                            "professionalName": "Dr. Juan Carlos Gómez",
+                            "patientId": "pat-101",
+                            "patientName": "María Rodríguez",
+                            "patientDni": "35123456",
+                            "patientPhone": "+5491155551234",
+                            "items": [
+                                {
+                                    "pieza": "",
+                                    "desc": "Consulta inicial y diagnóstico",
+                                    "cant": 1,
+                                    "precio": 5000
+                                }
+                            ],
+                            "subtotal": 5000,
+                            "discountPercent": 0,
+                            "discountAmount": 0,
+                            "total": 5000,
+                            "paymentMethod": "Efectivo \/ Transferencia",
+                            "observations": "Presupuesto válido por 15 días corridos. No incluye radiografías complejas no detalladas.",
+                            "status": "Pendiente"
+                        }
+                    ],
+                    "attachments": [],
+                    "clinicalNotes": [
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Educacional: Higiene Oral",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
+                            "code": "PLN-EDU",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
+                            "code": "PLN-CBCT",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Panorámica",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
+                            "code": "PLN-RXPAN",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan Radiológico: Rayos X Periapical",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
+                            "code": "PLN-RXP",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
+                            "code": "PLN-LAB",
+                            "professionalName": "Dr. Asignado"
+                        },
+                        {
+                            "patientId": "pat-101",
+                            "date": "2026-09-17",
+                            "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
+                            "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
+                            "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
+                            "code": "PLN-BIO",
+                            "professionalName": "Dr. Asignado"
+                        }
+                    ],
+                    "odontogramData": {
+                        "surfaces": [],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:21:49.482Z"
+                    }
+                },
+                "new": {
+                    "id": "pat-101",
+                    "odontogramData": {
+                        "surfaces": [
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            {
+                                "v": "caries"
+                            }
+                        ],
+                        "teeth": [],
+                        "recesion": [],
+                        "movilidad": [],
+                        "notes": "",
+                        "updated_at": "2026-09-18T00:42:31.558Z"
+                    }
+                }
+            },
+            "meta": []
+        },
         {
             "id": "aud_e10e45deed165a14",
             "timestamp": "2026-09-18T00:30:23+00:00",

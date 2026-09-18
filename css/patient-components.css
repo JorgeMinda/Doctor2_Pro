@@ -108,7 +108,7 @@
   color: var(--muted);
   margin-top: 6px;
 /* ==========================================================================
-   ODONTOGRAMA OFICIAL MSP (ECUADOR / LATAM) - DISEÑO COMPACTO Y HORIZONTAL
+   ODONTOGRAMA OFICIAL MSP (ECUADOR / LATAM) - TAMAÑO ESTÁNDAR 32PX
    ========================================================================== */
 .odontogram-card {
   background: var(--surface);
@@ -151,12 +151,12 @@
 .odonto-board-wrapper {
   background: #ffffff;
   border: 1.5px solid #1e293b;
-  border-radius: 4px;
-  padding: 14px 18px;
+  border-radius: 6px;
+  padding: 16px 20px;
   margin: 10px auto;
-  max-width: 690px;
+  max-width: 820px;
   box-sizing: border-box;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
 [data-theme="dark"] .odonto-board-wrapper {
@@ -182,26 +182,26 @@
   align-items: center !important;
   justify-content: center !important;
   width: 100% !important;
-  max-width: 660px !important;
+  max-width: 780px !important;
   gap: 4px !important;
   box-sizing: border-box !important;
 }
 
 .dental-arch-row.decidua-row {
-  margin: 2px 0 !important;
+  margin: 4px 0 !important;
 }
 
 .arch-labels-col {
   display: inline-flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
-  width: 78px !important;
-  min-width: 78px !important;
-  max-width: 78px !important;
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
   flex-shrink: 0 !important;
   text-align: left !important;
-  padding-right: 4px !important;
-  font-size: 0.60rem !important;
+  padding-right: 6px !important;
+  font-size: 0.65rem !important;
   font-weight: 800 !important;
   color: #1e293b !important;
   letter-spacing: 0.4px !important;
@@ -214,20 +214,20 @@
 }
 
 .arch-side-lbl {
-  height: 14px !important;
-  line-height: 14px !important;
+  height: 18px !important;
+  line-height: 18px !important;
   display: block !important;
   white-space: nowrap !important;
 }
 
 .arch-side-lbl.svg-lbl {
-  height: 22px !important;
-  line-height: 22px !important;
+  height: 32px !important;
+  line-height: 32px !important;
 }
 
 .arch-side-lbl.num-lbl {
-  height: 13px !important;
-  line-height: 13px !important;
+  height: 16px !important;
+  line-height: 16px !important;
 }
 
 .dental-quadrant {
@@ -236,14 +236,14 @@
   flex-wrap: nowrap !important;
   align-items: center !important;
   justify-content: flex-start !important;
-  gap: 2px !important;
+  gap: 3px !important;
   box-sizing: border-box !important;
 }
 
 .dental-quadrant.decidua-quadrant {
-  width: 206px !important;
+  width: 280px !important;
   justify-content: flex-end !important;
-  gap: 2px !important;
+  gap: 3px !important;
 }
 
 .dental-quadrant.decidua-quadrant.left-side {
@@ -255,42 +255,42 @@
   min-width: 1px !important;
   max-width: 1px !important;
   height: 100% !important;
-  min-height: 65px !important;
+  min-height: 80px !important;
   background: #cbd5e1 !important;
   margin: 0 10px !important;
   flex-shrink: 0 !important;
 }
 
 .arch-midline.decidua-midline {
-  min-height: 38px !important;
+  min-height: 50px !important;
 }
 
-/* Columna de Pieza Dental Individual (Tamaño Ficha MSP) */
+/* Columna de Pieza Dental Individual (Tamaño Original 32px) */
 .tooth-item {
   display: inline-flex !important;
   flex-direction: column !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 24px !important;
-  min-width: 24px !important;
-  max-width: 24px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
   flex-shrink: 0 !important;
-  gap: 1.5px !important;
+  gap: 2px !important;
   box-sizing: border-box !important;
 }
 
 .tooth-input-box {
-  width: 22px !important;
-  min-width: 22px !important;
-  max-width: 22px !important;
-  height: 13px !important;
-  min-height: 13px !important;
-  max-height: 13px !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  max-height: 18px !important;
   border: 1px solid #1e293b !important;
-  border-radius: 1px !important;
+  border-radius: 2px !important;
   background: #ffffff !important;
   color: #1e293b !important;
-  font-size: 0.62rem !important;
+  font-size: 0.70rem !important;
   font-weight: 700 !important;
   text-align: center !important;
   padding: 0 !important;
@@ -298,7 +298,7 @@
   outline: none !important;
   box-sizing: border-box !important;
   display: block !important;
-  line-height: 13px !important;
+  line-height: 18px !important;
 }
 
 [data-theme="dark"] .tooth-input-box {
@@ -314,12 +314,12 @@
 }
 
 .tooth-num {
-  font-size: 0.68rem !important;
+  font-size: 0.74rem !important;
   font-weight: 700 !important;
   color: #1e293b !important;
-  width: 24px !important;
-  height: 13px !important;
-  line-height: 13px !important;
+  width: 32px !important;
+  height: 16px !important;
+  line-height: 16px !important;
   text-align: center !important;
   cursor: pointer !important;
   user-select: none !important;
@@ -340,20 +340,20 @@
 }
 
 .tooth-svg {
-  width: 22px !important;
-  height: 22px !important;
-  min-width: 22px !important;
-  min-height: 22px !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
   cursor: pointer !important;
   display: block !important;
   overflow: visible !important;
 }
 
 .tooth-svg.decidua {
-  width: 20px !important;
-  height: 20px !important;
-  min-width: 20px !important;
-  min-height: 20px !important;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
 }
 
 .tooth-face {
@@ -379,16 +379,16 @@
   align-items: center !important;
   justify-content: center !important;
   width: 100% !important;
-  max-width: 660px !important;
+  max-width: 780px !important;
   gap: 8px !important;
-  margin: 4px 0 !important;
+  margin: 6px 0 !important;
 }
 
 .lingual-label {
-  width: 78px !important;
-  min-width: 78px !important;
+  width: 80px !important;
+  min-width: 80px !important;
   text-align: left !important;
-  font-size: 0.62rem !important;
+  font-size: 0.65rem !important;
   font-weight: 800 !important;
   color: #1e293b !important;
   letter-spacing: 0.5px !important;
