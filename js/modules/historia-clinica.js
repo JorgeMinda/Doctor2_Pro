@@ -4,6 +4,7 @@
  */
 import { showToast, apiFetch, formatDate } from './app-utils.js';
 import { searchCIE10, getCIE10ByCode, addCustomCIE10 } from './cie10-catalogue.js';
+import { renderOdontogram } from './app-odontogram.js';
 
 export function createHistoriaClinica(patient, notes = [], plans = [], canEdit = true, onSaveNote, onUpdatePlan, onSaveFullHistory, professionals = []) {
   const container = document.createElement('div');
@@ -397,17 +398,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
           </div>
         </div>
         <div class="hc-accordion-body">
-          <div style="background:linear-gradient(135deg, rgba(99,102,241,0.06), rgba(16,185,129,0.06)); border:1px solid rgba(99,102,241,0.25); border-radius:14px; padding:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
-            <div>
-              <h4 style="margin:0 0 6px 0; color:var(--primary); font-size:1.05rem;"><i class="fas fa-teeth-open"></i> Odontograma Interactivo FDI</h4>
-              <p class="muted" style="margin:0; font-size:0.88rem; max-width:550px;">
-                Permite registrar patologías por caras anatómicas (Vestibular, Lingual/Palatina, Oclusal, Mesial, Distal) y sincroniza automáticamente las intervenciones con los índices CPO.
-              </p>
-            </div>
-            <button type="button" class="primary" onclick="window.switchPatientTab && window.switchPatientTab('odonto')" style="box-shadow:0 4px 14px rgba(99,102,241,0.35);">
-              <i class="fas fa-tooth"></i> Abrir Odontograma Gráfico
-            </button>
-          </div>
+          <div id="hcSection7Odontogram"></div>
         </div>
       </div>
 
@@ -1467,10 +1458,14 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     await saveFullClinicalHistory(container, patient, onSaveFullHistory);
   };
 
-  container.querySelector('#hcSaveAllBtn')?.addEventListener('click', saveHandler);
-  container.querySelector('#hcBottomSaveBtn')?.addEventListener('click', saveHandler);
+  // 7. Renderizar Odontograma MSP Oficial en Sección 7
+  const odontoBox = container.querySelector('#hcSection7Odontogram');
+  if (odontoBox) {
+    renderOdontogram(odontoBox, patient);
+  }
 
   loadAttachments(patient.id, container, canEdit);
+  return container;
 }
 
 async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {

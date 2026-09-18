@@ -412,55 +412,159 @@ function calculateAvgTimeBetweenVisits(apts) {
 }
 
 export function generateOdontogramHTML(patient, notes = [], prof = {}, clinicName = 'Consultorios.pro') {
-  const adultTeethUpper = [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28];
-  const adultTeethLower = [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38];
-  const notesByTooth = {};
-  notes.forEach(n => {
-    if (n.pieza) {
-      if (!notesByTooth[n.pieza]) notesByTooth[n.pieza] = [];
-      notesByTooth[n.pieza].push(n);
-    }
-  });
+  const data = patient.odontogramData || { surfaces: {}, teeth: {}, recesion: {}, movilidad: {}, notes: '' };
+  const surfaces = data.surfaces || {};
+  const teethState = data.teeth || {};
+  const recesion = data.recesion || {};
+  const movilidad = data.movilidad || {};
 
-  function renderToothBox(num) {
-    const toothNotes = notesByTooth[num] || [];
-    const hasIssues = toothNotes.length > 0;
-    const lastProc = toothNotes[0]?.procedimiento || toothNotes[0]?.diagnosticoTipo || '';
+  const q1 = [18, 17, 16, 15, 14, 13, 12, 11];
+  const q2 = [21, 22, 23, 24, 25, 26, 27, 28];
+  const q5 = [55, 54, 53, 52, 51];
+  const q6 = [61, 62, 63, 64, 65];
+  const q8 = [85, 84, 83, 82, 81];
+  const q7 = [71, 72, 73, 74, 75];
+  const q4 = [48, 47, 46, 45, 44, 43, 42, 41];
+  const q3 = [31, 32, 33, 34, 35, 36, 37, 38];
+
+  const colorMap = {
+    caries: '#ef4444',
+    obturacion: '#3b82f6',
+    endodoncia: '#8b5cf6',
+    corona: '#f59e0b',
+    extraccion: '#dc2626',
+    sellante: '#06b6d4',
+    protesis: '#10b981',
+    sano: '#ffffff'
+  };
+
+  const getFaceFill = (tooth, face) => {
+    const s = surfaces[tooth]?.[face];
+    return s && colorMap[s] ? colorMap[s] : '#ffffff';
+  };
+
+  const renderPrintPermTooth = (num, arch, side) => {
+    const tState = teethState[num] || '';
+    const topKey = arch === 'upper' ? 'v' : 'l';
+    const btmKey = arch === 'upper' ? 'p' : 'v';
+    const leftKey = side === 'right' ? 'd' : 'm';
+    const rightKey = side === 'right' ? 'm' : 'd';
+    const isExtracted = tState === 'extraccion';
+
     return `
-      <div style="display:inline-block; width:38px; margin:2px; text-align:center; vertical-align:top; font-family:Arial, sans-serif;">
-        <div style="font-size:10px; font-weight:bold; color:#475569;">${num}</div>
-        <div style="width:32px; height:32px; margin:2px auto; border:1px solid ${hasIssues ? '#ef4444' : '#94a3b8'}; border-radius:4px; background:${hasIssues ? '#fee2e2' : '#f8fafc'}; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:bold; color:${hasIssues ? '#b91c1c' : '#64748b'};">
-          ${hasIssues ? '●' : ''}
-        </div>
-        <div style="font-size:8px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${lastProc}</div>
+      <div style="display:inline-block; width:26px; height:26px; margin:1px; vertical-align:middle; position:relative;">
+        <svg viewBox="0 0 36 36" style="width:26px; height:26px; display:block;">
+          <polygon points="0,0 36,0 27,9 9,9" fill="${getFaceFill(num, topKey)}" stroke="#1e293b" stroke-width="1.2" />
+          <polygon points="36,0 36,36 27,27 27,9" fill="${getFaceFill(num, rightKey)}" stroke="#1e293b" stroke-width="1.2" />
+          <polygon points="36,36 0,36 9,27 27,27" fill="${getFaceFill(num, btmKey)}" stroke="#1e293b" stroke-width="1.2" />
+          <polygon points="0,36 0,0 9,9 9,27" fill="${getFaceFill(num, leftKey)}" stroke="#1e293b" stroke-width="1.2" />
+          <polygon points="9,9 27,9 27,27 9,27" fill="${getFaceFill(num, 'o')}" stroke="#1e293b" stroke-width="1.2" />
+          ${isExtracted ? `<line x1="2" y1="2" x2="34" y2="34" stroke="#dc2626" stroke-width="2.5" /><line x1="34" y1="2" x2="2" y2="34" stroke="#dc2626" stroke-width="2.5" />` : ''}
+        </svg>
       </div>
     `;
-  }
+  };
 
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Odontograma - ${patient.name}</title>
+  const renderPrintDecidTooth = (num, arch, side) => {
+    const tState = teethState[num] || '';
+    const topKey = arch === 'upper' ? 'v' : 'l';
+    const btmKey = arch === 'upper' ? 'p' : 'v';
+    const leftKey = side === 'right' ? 'd' : 'm';
+    const rightKey = side === 'right' ? 'm' : 'd';
+    const isExtracted = tState === 'extraccion';
+
+    return `
+      <div style="display:inline-block; width:26px; height:26px; margin:1px; vertical-align:middle; position:relative;">
+        <svg viewBox="0 0 36 36" style="width:26px; height:26px; display:block;">
+          <path d="M 5.27,5.27 A 18 18 0 0 1 30.73,5.27 L 23.3,12.7 A 7.5 7.5 0 0 0 12.7,12.7 Z" fill="${getFaceFill(num, topKey)}" stroke="#1e293b" stroke-width="1.2" />
+          <path d="M 30.73,5.27 A 18 18 0 0 1 30.73,30.73 L 23.3,23.3 A 7.5 7.5 0 0 0 23.3,12.7 Z" fill="${getFaceFill(num, rightKey)}" stroke="#1e293b" stroke-width="1.2" />
+          <path d="M 30.73,30.73 A 18 18 0 0 1 5.27,30.73 L 12.7,23.3 A 7.5 7.5 0 0 0 23.3,23.3 Z" fill="${getFaceFill(num, btmKey)}" stroke="#1e293b" stroke-width="1.2" />
+          <path d="M 5.27,30.73 A 18 18 0 0 1 5.27,5.27 L 12.7,12.7 A 7.5 7.5 0 0 0 12.7,23.3 Z" fill="${getFaceFill(num, leftKey)}" stroke="#1e293b" stroke-width="1.2" />
+          <circle cx="18" cy="18" r="7.5" fill="${getFaceFill(num, 'o')}" stroke="#1e293b" stroke-width="1.2" />
+          ${isExtracted ? `<line x1="4" y1="4" x2="32" y2="32" stroke="#dc2626" stroke-width="2.5" /><line x1="32" y1="4" x2="4" y2="32" stroke="#dc2626" stroke-width="2.5" />` : ''}
+        </svg>
+      </div>
+    `;
+  };
+
+  const renderPrintBoxes = (arr, store) => {
+    return arr.map(t => `<div style="display:inline-block; width:26px; height:18px; line-height:18px; border:1px solid #64748b; margin:1px; text-align:center; font-size:9px; font-weight:bold; background:#fff;">${store[t] || ''}</div>`).join('');
+  };
+
+  const renderPrintNums = (arr, color = '#1e293b') => {
+    return arr.map(t => `<div style="display:inline-block; width:26px; text-align:center; font-size:10px; font-weight:bold; color:${color}; margin:1px;">${t}</div>`).join('');
+  };
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Odontograma MSP - ${patient.name}</title>
 <style>
-body{font-family:Arial,sans-serif;margin:30px;color:#1e293b;}
-.header{display:flex;justify-content:space-between;border-bottom:2px solid #6366f1;padding-bottom:12px;margin-bottom:20px;}
-.patient-box{background:#f1f5f9;padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.quadrant-box{text-align:center;padding:16px;background:#fafafa;border:1px solid #e2e8f0;border-radius:8px;}
-.tooth-row{display:flex;justify-content:center;flex-wrap:wrap;margin-bottom:8px;}
+body { font-family: Arial, sans-serif; margin: 20px; color: #1e293b; font-size: 12px; }
+.header { display: flex; justify-content: space-between; border-bottom: 2px solid #6366f1; padding-bottom: 8px; margin-bottom: 12px; }
+.patient-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; }
+.msp-sheet { border: 2px solid #0f172a; padding: 12px; background: #fff; width: fit-content; margin: 0 auto; }
+.row-line { display: flex; align-items: center; margin-bottom: 2px; }
+.lbl { width: 85px; font-size: 9px; font-weight: bold; text-transform: uppercase; }
+.side { display: flex; }
+.mid { width: 2px; height: 18px; background: #cbd5e1; margin: 0 6px; }
+.legend { display: flex; gap: 12px; justify-content: center; margin-top: 12px; font-size: 10px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; margin-right: 3px; }
 </style></head><body>
 <div class="header">
-  <div><h1 style="color:#6366f1;margin:0;font-size:22px;">${clinicName}</h1><p style="margin:4px 0 0;color:#64748b;font-size:12px;">Odontograma y Registro Dental</p></div>
-  <div style="text-align:right;font-size:12px;color:#64748b;">Fecha: ${new Date().toLocaleDateString('es-AR')}<br>Profesional: ${prof.name || 'Principal'}</div>
+  <div><h1 style="color:#6366f1;margin:0;font-size:18px;">${clinicName}</h1><p style="margin:2px 0 0;color:#64748b;font-size:11px;">Odontograma Oficial (Formulario MSP / FDI)</p></div>
+  <div style="text-align:right;font-size:11px;color:#64748b;">Fecha: ${new Date().toLocaleDateString('es-AR')}<br>Profesional: ${prof.name || 'Principal'}</div>
 </div>
+
 <div class="patient-box">
   <div><strong>Paciente:</strong> ${patient.name}</div>
-  <div><strong>Cédula / ID:</strong> ${patient.dni || '-'}</div>
+  <div><strong>Cédula / DNI:</strong> ${patient.dni || '-'}</div>
   <div><strong>Teléfono:</strong> ${patient.phone || '-'}</div>
   <div><strong>Obra Social:</strong> ${patient.health_insurance || patient.insurance || 'Particular'}</div>
 </div>
-<div class="quadrant-box">
-  <div style="font-size:11px;font-weight:bold;color:#64748b;margin-bottom:6px;">Maxilar Superior</div>
-  <div class="tooth-row">${adultTeethUpper.map(renderToothBox).join('')}</div>
-  <hr style="border:none;border-top:1px dashed #cbd5e1;margin:10px 0;">
-  <div class="tooth-row">${adultTeethLower.map(renderToothBox).join('')}</div>
-  <div style="font-size:11px;font-weight:bold;color:#64748b;margin-top:6px;">Maxilar Inferior</div>
+
+<div class="msp-sheet">
+  <!-- RECESIÓN SUP -->
+  <div class="row-line"><div class="lbl">RECESIÓN</div><div class="side">${renderPrintBoxes(q1, recesion)}</div><div class="mid"></div><div class="side">${renderPrintBoxes(q2, recesion)}</div></div>
+  <!-- MOVILIDAD SUP -->
+  <div class="row-line"><div class="lbl">MOVILIDAD</div><div class="side">${renderPrintBoxes(q1, movilidad)}</div><div class="mid"></div><div class="side">${renderPrintBoxes(q2, movilidad)}</div></div>
+  <!-- NÚMEROS 18-28 -->
+  <div class="row-line"><div class="lbl"></div><div class="side">${renderPrintNums(q1)}</div><div class="mid"></div><div class="side">${renderPrintNums(q2)}</div></div>
+  <!-- VESTIBULAR SUP -->
+  <div class="row-line"><div class="lbl">VESTIBULAR</div><div class="side">${q1.map(t => renderPrintPermTooth(t, 'upper', 'right')).join('')}</div><div class="mid"></div><div class="side">${q2.map(t => renderPrintPermTooth(t, 'upper', 'left')).join('')}</div></div>
+
+  <!-- TEMPORAL SUP -->
+  <div class="row-line" style="margin-top:4px;"><div class="lbl"></div><div class="side" style="margin-left:84px;">${renderPrintNums(q5, '#0284c7')}</div><div class="mid"></div><div class="side">${renderPrintNums(q6, '#0284c7')}</div></div>
+  <div class="row-line"><div class="lbl"></div><div class="side" style="margin-left:84px;">${q5.map(t => renderPrintDecidTooth(t, 'upper', 'right')).join('')}</div><div class="mid"></div><div class="side">${q6.map(t => renderPrintDecidTooth(t, 'upper', 'left')).join('')}</div></div>
+
+  <!-- LINGUAL -->
+  <div class="row-line" style="margin:4px 0;"><div class="lbl" style="color:#6366f1;">LINGUAL</div><div style="flex:1; border-top:1px dashed #cbd5e1;"></div></div>
+
+  <!-- TEMPORAL INF -->
+  <div class="row-line"><div class="lbl"></div><div class="side" style="margin-left:84px;">${q8.map(t => renderPrintDecidTooth(t, 'lower', 'right')).join('')}</div><div class="mid"></div><div class="side">${q7.map(t => renderPrintDecidTooth(t, 'lower', 'left')).join('')}</div></div>
+  <div class="row-line"><div class="lbl"></div><div class="side" style="margin-left:84px;">${renderPrintNums(q8, '#0284c7')}</div><div class="mid"></div><div class="side">${renderPrintNums(q7, '#0284c7')}</div></div>
+
+  <!-- VESTIBULAR INF -->
+  <div class="row-line" style="margin-top:4px;"><div class="lbl">VESTIBULAR</div><div class="side">${q4.map(t => renderPrintPermTooth(t, 'lower', 'right')).join('')}</div><div class="mid"></div><div class="side">${q3.map(t => renderPrintPermTooth(t, 'lower', 'left')).join('')}</div></div>
+  <!-- NÚMEROS 48-38 -->
+  <div class="row-line"><div class="lbl"></div><div class="side">${renderPrintNums(q4)}</div><div class="mid"></div><div class="side">${renderPrintNums(q3)}</div></div>
+  <!-- MOVILIDAD INF -->
+  <div class="row-line"><div class="lbl">MOVILIDAD</div><div class="side">${renderPrintBoxes(q4, movilidad)}</div><div class="mid"></div><div class="side">${renderPrintBoxes(q3, movilidad)}</div></div>
+  <!-- RECESIÓN INF -->
+  <div class="row-line"><div class="lbl">RECESIÓN</div><div class="side">${renderPrintBoxes(q4, recesion)}</div><div class="mid"></div><div class="side">${renderPrintBoxes(q3, recesion)}</div></div>
 </div>
+
+<div class="legend">
+  <span><span class="dot" style="background:#ef4444;"></span> Caries</span>
+  <span><span class="dot" style="background:#3b82f6;"></span> Obturación</span>
+  <span><span class="dot" style="background:#8b5cf6;"></span> Endodoncia</span>
+  <span><span class="dot" style="background:#f59e0b;"></span> Corona</span>
+  <span><span class="dot" style="background:#dc2626;"></span> Extracción</span>
+  <span><span class="dot" style="background:#06b6d4;"></span> Sellante</span>
+  <span><span class="dot" style="background:#10b981;"></span> Prótesis</span>
+</div>
+
+${data.notes ? `
+<div style="margin-top:14px; padding:10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:11px;">
+  <strong>Observaciones Clínicas:</strong> ${data.notes}
+</div>
+` : ''}
 </body></html>`;
 }
