@@ -630,10 +630,317 @@ class TransactSafeDatabase {
 // Backward-compatible class alias
 class JsonDatabase extends TransactSafeDatabase {}
 
+/**
+ * ==========================================================
+ * MOTOR PERSISTENTE MYSQL / MARIADB CON PDO (ACID COMPLIANT)
+ * ==========================================================
+ */
+class MySQLDatabase {
+    private $pdo;
+    private $inTransaction = false;
+
+    // Campos que se almacenan como JSON estructurado en MySQL
+    private $jsonFields = [
+        'schedule', 'emergency_block', 'history_entries', 'odontogram_data',
+        'attachments', 'diff', 'meta'
+    ];
+
+    public function __construct($host = null, $port = null, $dbname = null, $user = null, $pass = null) {
+        $host = $host ?: (getenv('DB_HOST') ?: '127.0.0.1');
+        $port = $port ?: (getenv('DB_PORT') ?: '3306');
+        $dbname = $dbname ?: (getenv('DB_NAME') ?: 'doctor2_pro');
+        $user = $user ?: (getenv('DB_USER') ?: 'root');
+        $pass = $pass !== null ? $pass : (getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
+
+        $dsn = "mysql:host={$host};port={$port};dbname={$dbname};charset=utf8mb4";
+        $options = [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+        ];
+
+        // Soporte SSL para bases en la nube (TiDB / Aiven / PlanetScale)
+        $ssl = getenv('DB_SSL');
+        if ($ssl === 'true' || $ssl === '1') {
+            $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        }
+
+        $this->pdo = new PDO($dsn, $user, $pass, $options);
+    }
+
+    public function beginTransaction() {
+        if (!$this->inTransaction) {
+            $this->pdo->beginTransaction();
+            $this->inTransaction = true;
+        }
+        return true;
+    }
+
+    public function commit() {
+        if ($this->inTransaction) {
+            $this->pdo->commit();
+            $this->inTransaction = false;
+        }
+        return true;
+    }
+
+    public function rollBack() {
+        if ($this->inTransaction) {
+            $this->pdo->rollBack();
+            $this->inTransaction = false;
+        }
+        return true;
+    }
+
+    private function sanitizeTableName($collection) {
+        return preg_replace('/[^a-zA-Z0-9_]/', '', $collection);
+    }
+
+    private function processRowFromDb($row) {
+        if (!$row || !is_array($row)) return $row;
+        foreach ($this->jsonFields as $field) {
+            if (isset($row[$field]) && is_string($row[$field])) {
+                $decoded = json_decode($row[$field], true);
+                if ($decoded !== null || $row[$field] === 'null') {
+                    $row[$field] = $decoded;
+                }
+            }
+        }
+        return $row;
+    }
+
+    private function processItemForDb($item) {
+        if (!is_array($item)) return $item;
+        foreach ($this->jsonFields as $field) {
+            if (isset($item[$field]) && !is_string($item[$field])) {
+                $item[$field] = json_encode($item[$field], JSON_UNESCAPED_UNICODE);
+            }
+        }
+        return $item;
+    }
+
+    public function getCollection($name) {
+        $table = $this->sanitizeTableName($name);
+        try {
+            $stmt = $this->pdo->query("SELECT * FROM `{$table}`");
+            $rows = $stmt->fetchAll();
+            return array_map([$this, 'processRowFromDb'], $rows);
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    public function findById($collection, $id) {
+        $table = $this->sanitizeTableName($collection);
+        $stmt = $this->pdo->prepare("SELECT * FROM `{$table}` WHERE `id` = :id LIMIT 1");
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch();
+        return $row ? $this->processRowFromDb($row) : null;
+    }
+
+    public function findOneBy($collection, $key, $value) {
+        $table = $this->sanitizeTableName($collection);
+        $key = preg_replace('/[^a-zA-Z0-9_]/', '', $key);
+        $stmt = $this->pdo->prepare("SELECT * FROM `{$table}` WHERE `{$key}` = :val LIMIT 1");
+        $stmt->execute([':val' => $value]);
+        $row = $stmt->fetch();
+        return $row ? $this->processRowFromDb($row) : null;
+    }
+
+    public function insert($collection, $item) {
+        $table = $this->sanitizeTableName($collection);
+        if (empty($item['id'])) {
+            $item['id'] = $collection . '_' . bin2hex(random_bytes(6));
+        }
+
+        $processed = $this->processItemForDb($item);
+        $keys = array_keys($processed);
+        $fields = '`' . implode('`, `', $keys) . '`';
+        $placeholders = ':' . implode(', :', $keys);
+
+        $sql = "INSERT INTO `{$table}` ({$fields}) VALUES ({$placeholders})";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($processed);
+
+        return $item;
+    }
+
+    public function update($collection, $id, $updates) {
+        $table = $this->sanitizeTableName($collection);
+        $existing = $this->findById($collection, $id);
+        if (!$existing) return false;
+
+        $merged = array_merge($existing, $updates);
+        $processed = $this->processItemForDb($merged);
+        unset($processed['id']); // Do not update primary key
+
+        $setParts = [];
+        $params = [':id' => $id];
+        foreach ($processed as $k => $v) {
+            $cleanK = preg_replace('/[^a-zA-Z0-9_]/', '', $k);
+            $setParts[] = "`{$cleanK}` = :{$cleanK}";
+            $params[":{$cleanK}"] = $v;
+        }
+
+        if (empty($setParts)) return $merged;
+
+        $sql = "UPDATE `{$table}` SET " . implode(', ', $setParts) . " WHERE `id` = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $merged;
+    }
+
+    public function delete($collection, $id) {
+        $table = $this->sanitizeTableName($collection);
+        $stmt = $this->pdo->prepare("DELETE FROM `{$table}` WHERE `id` = :id");
+        $stmt->execute([':id' => $id]);
+        return $stmt->rowCount() > 0;
+    }
+
+    public function clearCollection($collection) {
+        $table = $this->sanitizeTableName($collection);
+        $this->pdo->exec("DELETE FROM `{$table}`");
+    }
+
+    public function logAudit($entity, $entityId, $action, $oldValue = null, $newValue = null, $userId = null, $meta = []) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        if (str_contains($ip, ',')) {
+            $ip = trim(explode(',', $ip)[0]);
+        }
+
+        $logEntry = [
+            'id' => 'aud_' . bin2hex(random_bytes(8)),
+            'timestamp' => date('Y-m-d H:i:s'),
+            'user_id' => $userId ?: 'usr-admin-1',
+            'user_name' => 'Usuario del Sistema',
+            'ip' => $ip,
+            'entity' => strtoupper($entity),
+            'entity_id' => (string)$entityId,
+            'action' => strtoupper($action),
+            'diff' => json_encode(['old' => $oldValue, 'new' => $newValue], JSON_UNESCAPED_UNICODE),
+            'meta' => json_encode($meta, JSON_UNESCAPED_UNICODE)
+        ];
+
+        try {
+            $stmt = $this->pdo->prepare("INSERT INTO `audit_logs` (`id`, `timestamp`, `user_id`, `user_name`, `ip`, `entity`, `entity_id`, `action`, `diff`, `meta`) VALUES (:id, :timestamp, :user_id, :user_name, :ip, :entity, :entity_id, :action, :diff, :meta)");
+            $stmt->execute($logEntry);
+        } catch (Exception $e) {}
+
+        return $logEntry;
+    }
+
+    public function getAuditLogs($limit = 100, $entity = null) {
+        $sql = "SELECT * FROM `audit_logs`";
+        $params = [];
+        if ($entity) {
+            $sql .= " WHERE `entity` = :entity";
+            $params[':entity'] = strtoupper($entity);
+        }
+        $sql .= " ORDER BY `timestamp` DESC LIMIT " . (int)$limit;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return array_map([$this, 'processRowFromDb'], $stmt->fetchAll());
+    }
+
+    public function recordTreasuryMovement($accountId, $amount, $type, $concept, $referenceId = null, $patientId = null, $meta = []) {
+        $amount = (float)$amount;
+        if ($amount <= 0) return false;
+
+        $autoTx = !$this->inTransaction;
+        if ($autoTx) $this->beginTransaction();
+
+        $type = strtoupper($type);
+        $sign = ($type === 'INCOME') ? '+' : '-';
+
+        // Actualizar balance de cuenta
+        $stmt = $this->pdo->prepare("UPDATE `treasury_accounts` SET `balance` = `balance` {$sign} :amount WHERE `id` = :acc");
+        $stmt->execute([':amount' => $amount, ':acc' => $accountId]);
+
+        $acc = $this->findById('treasury_accounts', $accountId);
+        $newBalance = $acc ? (float)$acc['balance'] : 0.0;
+
+        $receiptNumber = !empty($meta['receiptNumber']) ? $meta['receiptNumber'] : (
+            ($type === 'INCOME' ? 'REC-' : 'EGR-') . date('Ymd') . '-' . substr(strtoupper(bin2hex(random_bytes(2))), 0, 4)
+        );
+
+        $movement = [
+            'id' => 'mov_' . bin2hex(random_bytes(8)),
+            'account_id' => $accountId,
+            'type' => $type,
+            'amount' => $amount,
+            'category' => $meta['category'] ?? ($type === 'INCOME' ? 'Ingreso General' : 'Gasto Operativo'),
+            'description' => $concept,
+            'patient_id' => $patientId,
+            'payment_method' => $meta['paymentMethod'] ?? 'Efectivo',
+            'date' => date('Y-m-d H:i:s'),
+            'created_by' => $meta['registeredBy'] ?? 'Admin'
+        ];
+
+        $stmt = $this->pdo->prepare("INSERT INTO `treasury_movements` (`id`, `account_id`, `type`, `amount`, `category`, `description`, `patient_id`, `payment_method`, `date`, `created_by`) VALUES (:id, :account_id, :type, :amount, :category, :description, :patient_id, :payment_method, :date, :created_by)");
+        $stmt->execute($movement);
+
+        if ($autoTx) $this->commit();
+        return $movement;
+    }
+
+    public function getTreasuryAccounts() {
+        return $this->getCollection('treasury_accounts');
+    }
+
+    public function getTreasuryMovements($limit = 100, $accountId = null) {
+        $sql = "SELECT * FROM `treasury_movements`";
+        $params = [];
+        if ($accountId) {
+            $sql .= " WHERE `account_id` = :acc";
+            $params[':acc'] = $accountId;
+        }
+        $sql .= " ORDER BY `date` DESC LIMIT " . (int)$limit;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+}
+
+/**
+ * Factory con detección híbrida automática:
+ * 1. Si hay variables de entorno DB_HOST o api/config.php -> Conecta a MySQL / TiDB / Aiven.
+ * 2. Si no o falla -> Fallback seguro a TransactSafeDatabase (data_store.json).
+ */
 function getDatabase() {
     static $db = null;
-    if ($db === null) {
-        $db = new TransactSafeDatabase();
+    if ($db !== null) {
+        return $db;
     }
+
+    // 1. Cargar archivo config.php si existe
+    $configFile = __DIR__ . '/config.php';
+    if (file_exists($configFile)) {
+        $cfg = include $configFile;
+        if (is_array($cfg)) {
+            if (!getenv('DB_HOST') && !empty($cfg['DB_HOST'])) putenv("DB_HOST={$cfg['DB_HOST']}");
+            if (!getenv('DB_PORT') && !empty($cfg['DB_PORT'])) putenv("DB_PORT={$cfg['DB_PORT']}");
+            if (!getenv('DB_NAME') && !empty($cfg['DB_NAME'])) putenv("DB_NAME={$cfg['DB_NAME']}");
+            if (!getenv('DB_USER') && !empty($cfg['DB_USER'])) putenv("DB_USER={$cfg['DB_USER']}");
+            if (!getenv('DB_PASS') && isset($cfg['DB_PASS'])) putenv("DB_PASS={$cfg['DB_PASS']}");
+            if (!getenv('DB_SSL') && isset($cfg['DB_SSL'])) putenv("DB_SSL=" . ($cfg['DB_SSL'] ? 'true' : 'false'));
+        }
+    }
+
+    // 2. Intentar conexión MySQL si DB_HOST está configurado
+    $host = getenv('DB_HOST') ?: (getenv('MYSQL_HOST') ?: null);
+    if ($host && class_exists('PDO')) {
+        try {
+            $db = new MySQLDatabase($host);
+            return $db;
+        } catch (Exception $e) {
+            error_log("⚠️ [Doctor2_Pro] Error conectando a MySQL ({$host}): " . $e->getMessage() . " -> Usando JSON Fallback.");
+        }
+    }
+
+    // 3. Fallback a almacenamiento local JSON con lock
+    $db = new TransactSafeDatabase();
     return $db;
 }
+

@@ -1,0 +1,20 @@
+﻿services:
+  - type: web
+    name: doctor2-pro
+    runtime: docker
+    plan: free
+    healthCheckPath: /index.html
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
