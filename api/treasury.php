@@ -80,13 +80,13 @@ if ($method === 'POST') {
         exit;
     }
 
-    if ($postAction === 'movement' || $postAction === 'record_movement') {
-        $accountId = $input['accountId'] ?? 'acc_cash_1';
+    if ($postAction === 'movement' || $postAction === 'record_movement' || $postAction === 'add_movement') {
+        $accountId = $input['accountId'] ?? $input['account_id'] ?? 'acc-cash';
         $amount = (float)($input['amount'] ?? 0);
         $type = strtoupper($input['type'] ?? 'INCOME');
-        $concept = trim($input['concept'] ?? 'Movimiento manual');
-        $referenceId = $input['referenceId'] ?? null;
-        $patientId = $input['patientId'] ?? null;
+        $concept = trim($input['concept'] ?? ($input['description'] ?? 'Movimiento manual'));
+        $referenceId = $input['referenceId'] ?? ($input['reference_id'] ?? null);
+        $patientId = $input['patientId'] ?? ($input['patient_id'] ?? null);
 
         if ($amount <= 0) {
             http_response_code(400);
@@ -97,10 +97,10 @@ if ($method === 'POST') {
         $meta = [
             'origin' => $input['origin'] ?? 'MANUAL_ENTRY',
             'category' => trim($input['category'] ?? ($type === 'INCOME' ? 'Ingreso General' : 'Gasto Operativo')),
-            'personName' => trim($input['personName'] ?? ($type === 'INCOME' ? 'Paciente / Cliente' : 'Proveedor / Beneficiario')),
+            'personName' => trim($input['personName'] ?? ($input['patient_name'] ?? ($type === 'INCOME' ? 'Paciente / Cliente' : 'Proveedor / Beneficiario'))),
             'identification' => trim($input['identification'] ?? ''),
-            'paymentMethod' => trim($input['paymentMethod'] ?? 'Efectivo'),
-            'receiptNumber' => trim($input['receiptNumber'] ?? ''),
+            'paymentMethod' => trim($input['paymentMethod'] ?? ($input['payment_method'] ?? 'Efectivo')),
+            'receiptNumber' => trim($input['receiptNumber'] ?? ($input['receipt_number'] ?? '')),
             'notes' => trim($input['notes'] ?? ''),
             'registeredBy' => trim($input['registeredBy'] ?? 'Admin')
         ];
@@ -121,6 +121,6 @@ if ($method === 'POST') {
     }
 
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Acción no válida']);
+    echo json_encode(['success' => false, 'error' => 'Acción no válida: ' . htmlspecialchars($postAction)]);
     exit;
 }

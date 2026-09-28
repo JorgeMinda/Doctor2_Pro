@@ -567,3 +567,176 @@ button {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* =========================================================
+   COMPREHENSIVE MOBILE RESPONSIVE RULES (Doctor2_Pro)
+   ========================================================= */
+@media (max-width: 768px) {
+  body {
+    font-size: 13px;
+  }
+
+  .layout {
+    width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .content {
+    height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .toolbar {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .toolbar-left, .toolbar-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .filters {
+    width: 100%;
+    gap: 6px;
+    justify-content: space-between;
+  }
+
+  #professionalFilter {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .view-toggle {
+    flex-shrink: 0;
+  }
+
+  .date-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  #monthText {
+    min-width: auto;
+    font-size: 0.85rem;
+  }
+
+  .search {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .search input {
+    width: 100%;
+  }
+
+  #newAptBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .pane {
+    padding: 12px 10px;
+  }
+
+  .card {
+    padding: 14px 12px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+
+  .card-head {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .card-head h3 {
+    font-size: 1.05rem;
+  }
+
+  .modal-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .modal-body {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    padding: 16px 14px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .modal-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Tablas adaptables */
+  .data-table-enhanced, .data-table, table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Odontograma contenedor */
+  .odontogram-wrapper, .odontogram-container {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 2px;
+  }
+
+  /* Botones flotantes */
+  #floatingVoiceAssistant {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .voice-btn-pulse {
+    width: 48px;
+    height: 48px;
+    font-size: 1.1rem;
+  }
+
+  .copilot-toggle-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pane {
+    padding: 8px 6px;
+  }
+
+  .card {
+    padding: 12px 10px;
+  }
+
+  .patient-info-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .patient-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+  }
+
+  .patient-tabs::-webkit-scrollbar {
+    display: none;
+  }
+}
+

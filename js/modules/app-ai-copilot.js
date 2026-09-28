@@ -52,25 +52,27 @@ function injectCopilotDOM() {
 
       <!-- Settings Drawer (Opcional para API Keys / Ollama) -->
       <div class="copilot-settings-drawer hidden" id="copilotSettingsDrawer">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <strong style="font-size:0.85rem; color:var(--text);"><i class="fas fa-microchip"></i> Motor de Inteligencia Artificial</strong>
-          <button class="ghost" style="padding:2px 6px; font-size:0.75rem;" id="closeCopilotSettings"><i class="fas fa-times"></i></button>
-        </div>
-        <label style="font-size:0.75rem; color:var(--muted); display:block; margin-bottom:4px;">Proveedor de IA:</label>
-        <select id="copilotProviderSelect" class="field-input" style="width:100%; font-size:0.82rem; padding:6px; margin-bottom:8px;">
-          <option value="offline">⚡ Motor Clínico Nativo (Offline / Privacidad Total)</option>
-          <option value="gemini">Google Gemini AI</option>
-          <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
-          <option value="deepseek">DeepSeek AI</option>
-          <option value="ollama">Ollama (Modelo Local http://localhost:11434)</option>
-        </select>
-        <div id="copilotApiKeyWrap" class="hidden">
-          <label style="font-size:0.75rem; color:var(--muted); display:block; margin-bottom:4px;">API Key:</label>
-          <input type="password" id="copilotApiKeyInput" class="field-input" placeholder="sk-..." style="width:100%; font-size:0.82rem; padding:6px; margin-bottom:8px;">
-        </div>
-        <button type="button" class="primary" id="saveCopilotSettingsBtn" style="width:100%; font-size:0.8rem; padding:6px;">
-          <i class="fas fa-check"></i> Guardar Preferencias
-        </button>
+        <form id="copilotSettingsForm" onsubmit="event.preventDefault();" autocomplete="off">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong style="font-size:0.85rem; color:var(--text);"><i class="fas fa-microchip"></i> Motor de Inteligencia Artificial</strong>
+            <button type="button" class="ghost" style="padding:2px 6px; font-size:0.75rem;" id="closeCopilotSettings"><i class="fas fa-times"></i></button>
+          </div>
+          <label style="font-size:0.75rem; color:var(--muted); display:block; margin-bottom:4px;">Proveedor de IA:</label>
+          <select id="copilotProviderSelect" class="field-input" style="width:100%; font-size:0.82rem; padding:6px; margin-bottom:8px;">
+            <option value="offline">⚡ Motor Clínico Nativo (Offline / Privacidad Total)</option>
+            <option value="gemini">Google Gemini AI</option>
+            <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
+            <option value="deepseek">DeepSeek AI</option>
+            <option value="ollama">Ollama (Modelo Local http://localhost:11434)</option>
+          </select>
+          <div id="copilotApiKeyWrap" class="hidden">
+            <label style="font-size:0.75rem; color:var(--muted); display:block; margin-bottom:4px;">API Key:</label>
+            <input type="password" id="copilotApiKeyInput" class="field-input" placeholder="sk-..." autocomplete="new-password" style="width:100%; font-size:0.82rem; padding:6px; margin-bottom:8px;">
+          </div>
+          <button type="button" class="primary" id="saveCopilotSettingsBtn" style="width:100%; font-size:0.8rem; padding:6px;">
+            <i class="fas fa-check"></i> Guardar Preferencias
+          </button>
+        </form>
       </div>
 
       <!-- Quick Skills Bar (Operit Tools) -->

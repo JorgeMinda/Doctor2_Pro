@@ -711,24 +711,72 @@
 
 /* Responsive Móvil */
 @media (max-width: 768px) {
+  .login-modal-overlay {
+    padding: 12px;
+    align-items: center;
+  }
+
   .login-split-card {
     flex-direction: column-reverse;
-    max-width: 420px;
+    max-width: 100%;
+    width: 100%;
     min-height: auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   }
   
   .login-form-side {
-    padding: 28px 24px;
+    padding: 22px 18px;
   }
   
   .login-visual-side {
     border-left: none;
     border-bottom: 1px solid var(--border);
-    padding: 24px 20px;
+    padding: 18px 16px;
   }
   
   .mascot-stage {
-    width: 170px;
-    height: 180px;
+    width: 130px;
+    height: 140px;
+  }
+
+  .login-brand-head {
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+
+  .login-brand-logo {
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+  }
+
+  .login-brand-title h2 {
+    font-size: 1.15rem;
+  }
+
+  .login-brand-title p {
+    font-size: 0.75rem;
+  }
+
+  .login-input-field {
+    font-size: 16px; /* Evita auto-zoom en iOS */
+    padding: 12px 38px 12px 36px;
+  }
+
+  .login-submit-btn {
+    padding: 12px;
+    font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .login-form-side {
+    padding: 18px 14px;
+  }
+
+  .mascot-stage {
+    width: 110px;
+    height: 120px;
   }
 }
