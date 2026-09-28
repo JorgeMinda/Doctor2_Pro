@@ -31,6 +31,10 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
   const cpoData = ch.cpo || calculateCPOFromNotes(notes);
   const planesDx = ch.planes || {};
   const planesDet = planesDx.detalles || {};
+  const otrosList = (Array.isArray(planesDx.otrosList) && planesDx.otrosList.length > 0)
+    ? planesDx.otrosList
+    : (planesDx.otros ? planesDx.otros.split(/\n|; /).map(s => s.trim()).filter(Boolean) : ['']);
+  if (otrosList.length === 0) otrosList.push('');
   const esc = (s) => (s || '').toString().replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 
@@ -67,6 +71,9 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
         </div>
       </div>
       <div class="hc-hero-actions" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <button type="button" id="hcCertificateBtn" class="ghost" style="font-size:0.82rem; padding:8px 14px; color:var(--primary); border-color:rgba(99,102,241,0.3); font-weight:700;" title="Emitir Certificado de Asistencia y Atención Médica">
+          <i class="fas fa-certificate"></i> Certificado
+        </button>
         <button type="button" id="hcExpandAllBtn" class="ghost" style="font-size:0.82rem; padding:8px 14px;" title="Desplegar todas las secciones">
           <i class="fas fa-angles-down"></i> Desplegar Todo
         </button>
@@ -439,11 +446,25 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
                 ${renderIHOSTableRows(ind.ihos)}
               </tbody>
               <tfoot>
-                <tr style="background:var(--bg-page); font-weight:800;">
-                  <td style="text-align:center; font-weight:800; color:var(--text);">TOTAL</td>
+                <tr style="background:var(--bg-page); font-weight:800; border-top:2px solid var(--border);">
+                  <td style="text-align:center; font-weight:800; color:var(--text);">TOTAL: <span id="ihosTotalPiezas" style="color:var(--primary); font-size:1rem; margin-left:4px;">0</span></td>
                   <td style="text-align:center; font-weight:800; color:var(--primary);" id="ihosTotalPlaca">0</td>
                   <td style="text-align:center; font-weight:800; color:var(--primary);" id="ihosTotalCalculo">0</td>
                   <td style="text-align:center; font-weight:800; color:var(--primary);" id="ihosTotalGingivitis">0</td>
+                </tr>
+                <tr style="background:var(--surface); font-weight:800;">
+                  <td style="text-align:center; font-weight:800; color:var(--text); font-size:0.82rem; letter-spacing:0.5px;">
+                    <i class="fas fa-divide" style="margin-right:4px; color:var(--primary);"></i> PROMEDIO / ÍNDICE
+                  </td>
+                  <td style="text-align:center;">
+                    <div class="ihos-calc-result" id="ihosPromPlaca">0.00</div>
+                  </td>
+                  <td style="text-align:center;">
+                    <div class="ihos-calc-result" id="ihosPromCalculo">0.00</div>
+                  </td>
+                  <td style="text-align:center;">
+                    <div class="ihos-calc-result" id="ihosPromGingivitis">0.00</div>
+                  </td>
                 </tr>
               </tfoot>
             </table>
@@ -500,24 +521,30 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
 
             <!-- Calculadoras CPO / ceo -->
             <div class="cpo-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-              <div class="cpo-card">
-                <div class="cpo-card-head">
-                  <span>Índice CPO (Adulto)</span>
+              <div class="cpo-card ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'active-card' : 'disabled'}" id="cpoCardAdult">
+                <div class="cpo-card-head" style="display:flex; justify-content:space-between; align-items:center;">
+                  <label style="display:flex; align-items:center; gap:6px; margin:0; cursor:pointer; font-weight:700; color:inherit;">
+                    <input type="radio" name="cpoTypeSelect_${patient.id}" id="cpoRadioAdult" value="adult" style="cursor:pointer;" ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'checked' : ''}>
+                    <span>Índice CPO (Adulto)</span>
+                  </label>
                   <span class="cpo-total-badge" id="cpoTotalBadge">${cpoData.totalCPO || 0}</span>
                 </div>
-                <div class="cpo-row"><span>Cariados (C):</span> <input id="cpoC" type="number" min="0" value="${cpoData.c || 0}" style="width:55px; text-align:center;"></div>
-                <div class="cpo-row"><span>Perdidos (P):</span> <input id="cpoP" type="number" min="0" value="${cpoData.p || 0}" style="width:55px; text-align:center;"></div>
-                <div class="cpo-row"><span>Obturados (O):</span> <input id="cpoO" type="number" min="0" value="${cpoData.o || 0}" style="width:55px; text-align:center;"></div>
+                <div class="cpo-row"><span>Cariados (C):</span> <input id="cpoC" type="number" min="0" value="${cpoData.c || 0}" style="width:55px; text-align:center;" ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'disabled' : ''}></div>
+                <div class="cpo-row"><span>Perdidos (P):</span> <input id="cpoP" type="number" min="0" value="${cpoData.p || 0}" style="width:55px; text-align:center;" ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'disabled' : ''}></div>
+                <div class="cpo-row"><span>Obturados (O):</span> <input id="cpoO" type="number" min="0" value="${cpoData.o || 0}" style="width:55px; text-align:center;" ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'disabled' : ''}></div>
               </div>
 
-              <div class="cpo-card">
-                <div class="cpo-card-head">
-                  <span>Índice ceo (Niño)</span>
+              <div class="cpo-card ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'active-card' : 'disabled'}" id="cpoCardChild">
+                <div class="cpo-card-head" style="display:flex; justify-content:space-between; align-items:center;">
+                  <label style="display:flex; align-items:center; gap:6px; margin:0; cursor:pointer; font-weight:700; color:inherit;">
+                    <input type="radio" name="cpoTypeSelect_${patient.id}" id="cpoRadioChild" value="child" style="cursor:pointer;" ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'checked' : ''}>
+                    <span>Índice ceo (Niño)</span>
+                  </label>
                   <span class="cpo-total-badge" id="ceoTotalBadge">${cpoData.totalCeo || 0}</span>
                 </div>
-                <div class="cpo-row"><span>cariados (c):</span> <input id="ceoC" type="number" min="0" value="${cpoData.c_min || 0}" style="width:55px; text-align:center;"></div>
-                <div class="cpo-row"><span>extraídos (e):</span> <input id="ceoE" type="number" min="0" value="${cpoData.e_min || 0}" style="width:55px; text-align:center;"></div>
-                <div class="cpo-row"><span>obturados (o):</span> <input id="ceoO" type="number" min="0" value="${cpoData.o_min || 0}" style="width:55px; text-align:center;"></div>
+                <div class="cpo-row"><span>cariados (c):</span> <input id="ceoC" type="number" min="0" value="${cpoData.c_min || 0}" style="width:55px; text-align:center;" ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'disabled' : ''}></div>
+                <div class="cpo-row"><span>extraídos (e):</span> <input id="ceoE" type="number" min="0" value="${cpoData.e_min || 0}" style="width:55px; text-align:center;" ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'disabled' : ''}></div>
+                <div class="cpo-row"><span>obturados (o):</span> <input id="ceoO" type="number" min="0" value="${cpoData.o_min || 0}" style="width:55px; text-align:center;" ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'disabled' : ''}></div>
               </div>
             </div>
           </div>
@@ -605,10 +632,19 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             </div>
           </div>
 
-          <label class="field">
-            <span style="font-weight:600; font-size:0.85rem;"><i class="fas fa-plus"></i> Otros exámenes, interconsultas médicas o indicaciones:</span>
-            <input id="hcPlanesOtros" type="text" class="field-input" placeholder="Ej: Interconsulta con médico tratante para pase quirúrgico / Biopsia de mucosa..." value="${esc(planesDx.otros || '')}" style="width:100%;">
-          </label>
+          <div style="margin-top:14px; background:var(--bg-page); border:1px solid var(--border); border-radius:12px; padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+              <span style="font-weight:700; font-size:0.88rem; color:var(--text);">
+                <i class="fas fa-notes-medical" style="color:var(--primary); margin-right:6px;"></i> Otros exámenes, interconsultas médicas o indicaciones:
+              </span>
+              <button type="button" id="btnAddOtroPlan" class="ghost" style="font-size:0.82rem; color:var(--primary); border:1.5px dashed var(--primary); padding:5px 12px; border-radius:8px; font-weight:700; cursor:pointer;">
+                <i class="fas fa-plus"></i> + Agregar Otro Examen / Indicación
+              </button>
+            </div>
+            <div id="otrosPlanesContainer" style="display:flex; flex-direction:column; gap:8px;">
+              ${renderOtrosPlanesRows(otrosList)}
+            </div>
+          </div>
         </div>
 
       </div>
@@ -679,23 +715,10 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
               <label class="field" style="grid-column:1/-1;"><span>Prescripciones Farmacológicas (Receta médica)</span><input id="sesRx" type="text" placeholder="Ej: Amoxicilina 500mg c/8h x 7 días + Ibuprofeno 400mg c/8h x dolor"></label>
               <label class="field">
                 <span style="display:flex; justify-content:space-between;">
-                  <span>Código de Procedimiento</span>
-                  <small class="muted" style="font-size:0.75rem;"><i class="fas fa-magic"></i> Auto-código</small>
+                  <span>Código de Habilitación Profesional</span>
+                  <small class="muted" style="font-size:0.75rem;"><i class="fas fa-id-card"></i> Matrícula / MSP</small>
                 </span>
-                <input id="sesCode" type="text" list="procedureCodesList" placeholder="Ej: OBT-36 / CIR-EXT / PREV-LIM" autocomplete="off">
-                <datalist id="procedureCodesList">
-                  <option value="OBT-RES">OBT-RES · Obturación con Resina / Composite Fotocurable</option>
-                  <option value="CIR-EXT">CIR-EXT · Exodoncia Simple / Cirugía Tercer Molar</option>
-                  <option value="ENDO-01">ENDO-01 · Tratamiento de Conducto / Endodoncia</option>
-                  <option value="PREV-LIM">PREV-LIM · Profilaxis Dental y Destartraje Supragingival</option>
-                  <option value="PROT-COR">PROT-COR · Prótesis Fija / Corona Dental / Zirconio</option>
-                  <option value="IMP-COL">IMP-COL · Colocación de Implante Dental</option>
-                  <option value="RX-PERI">RX-PERI · Radiografía Periapical Digital</option>
-                  <option value="RX-PANO">RX-PANO · Radiografía Panorámica Digital</option>
-                  <option value="EST-BLANQ">EST-BLANQ · Blanqueamiento Dental en Consultorio</option>
-                  <option value="PERIO-01">PERIO-01 · Raspaje y Alisado Radicular Periodontal</option>
-                  <option value="CONS-EV">CONS-EV · Consulta y Evaluación Diagnóstica de Rutina</option>
-                </datalist>
+                <input id="sesCode" type="text" placeholder="Ej: MSP-10293" value="${esc(assignedProf?.license_code || '')}" readonly style="background:var(--bg-page); font-weight:700; color:var(--text); cursor:default;" title="Código de Habilitación del profesional tratante">
               </label>
               <label class="field">
                 <span>Firma Profesional / Médico Tratante</span>
@@ -858,6 +881,20 @@ function renderIHOSTableRows(ihos = {}) {
   }).join('');
 }
 
+function renderOtrosPlanesRows(list = []) {
+  const items = (Array.isArray(list) && list.length > 0) ? list : [''];
+  const esc = (s) => (s || '').toString().replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return items.map((val, idx) => `
+    <div class="otro-plan-row" style="display:flex; gap:8px; align-items:center;">
+      <span class="muted" style="font-size:0.82rem; min-width:22px; text-align:center; font-weight:700;">${idx + 1}.</span>
+      <input type="text" class="field-input otro-plan-input" placeholder="Ej: Interconsulta con médico tratante para pase quirúrgico / Biopsia de mucosa..." value="${esc(val)}" style="flex:1;">
+      <button type="button" class="ghost btn-remove-otro-plan" title="Eliminar indicación" style="color:var(--danger); padding:6px 10px; border-radius:6px; font-size:0.85rem; cursor:pointer;">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
 function createSingleCIERowHTML(index, dx = '', cie = '', tipo = 'PRE') {
   return `
     <div class="cie11-row-card" data-index="${index}">
@@ -956,6 +993,11 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
 
   collapseAllBtn?.addEventListener('click', () => {
     cards.forEach(c => c.classList.remove('open'));
+  });
+
+  const certificateBtn = container.querySelector('#hcCertificateBtn');
+  certificateBtn?.addEventListener('click', () => {
+    import('./patient-certificate.js').then(m => m.openCertificateModal(patient));
   });
 
   // 1. Chips de Motivo de Consulta
@@ -1066,28 +1108,58 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     });
   });
 
-  // 7b. Cálculo Dinámico de Totales de Higiene Oral Simplificada (IHO-S)
+  // 7b. Cálculo Dinámico de Totales e Índices de Higiene Oral Simplificada (IHO-S)
   function updateIHOSTotals() {
-    let totP = 0, totC = 0, totG = 0;
+    let totP = 0, totC = 0, totG = 0, totPiezas = 0;
     container.querySelectorAll('.ihos-table tbody tr[data-key]').forEach(tr => {
       totP += parseInt(tr.querySelector('.ihos-placa')?.value) || 0;
       totC += parseInt(tr.querySelector('.ihos-calculo')?.value) || 0;
       totG += parseInt(tr.querySelector('.ihos-gingivitis')?.value) || 0;
+
+      // Sumar piezas marcadas: X = 1, - = 0
+      ['.ihos-mark-1', '.ihos-mark-2', '.ihos-mark-3'].forEach(selClass => {
+        const val = tr.querySelector(selClass)?.value;
+        if (val === 'X') {
+          totPiezas += 1;
+        }
+      });
     });
+
     const pSpan = container.querySelector('#ihosTotalPlaca');
     const cSpan = container.querySelector('#ihosTotalCalculo');
     const gSpan = container.querySelector('#ihosTotalGingivitis');
+    const piezasSpan = container.querySelector('#ihosTotalPiezas');
+
+    if (piezasSpan) piezasSpan.textContent = String(totPiezas);
     if (pSpan) pSpan.textContent = String(totP);
     if (cSpan) cSpan.textContent = String(totC);
     if (gSpan) gSpan.textContent = String(totG);
+
+    // División de cada total para el total de piezas evaluadas con X
+    const promP = totPiezas > 0 ? (totP / totPiezas).toFixed(2) : '0.00';
+    const promC = totPiezas > 0 ? (totC / totPiezas).toFixed(2) : '0.00';
+    const promG = totPiezas > 0 ? (totG / totPiezas).toFixed(2) : '0.00';
+
+    const promPSpan = container.querySelector('#ihosPromPlaca');
+    const promCSpan = container.querySelector('#ihosPromCalculo');
+    const promGSpan = container.querySelector('#ihosPromGingivitis');
+
+    if (promPSpan) promPSpan.textContent = promP;
+    if (promCSpan) promCSpan.textContent = promC;
+    if (promGSpan) promGSpan.textContent = promG;
   }
 
-  container.querySelectorAll('.ihos-placa, .ihos-calculo, .ihos-gingivitis').forEach(sel => {
+  container.querySelectorAll('.ihos-placa, .ihos-calculo, .ihos-gingivitis, .ihos-mark-sel').forEach(sel => {
     sel.addEventListener('change', updateIHOSTotals);
   });
   updateIHOSTotals();
 
-  // 8. Calculadora Dinámica CPO / ceo
+  // 8. Calculadora Dinámica CPO / ceo con Estado Disabled Mutuo
+  const cardAdult = container.querySelector('#cpoCardAdult');
+  const cardChild = container.querySelector('#cpoCardChild');
+  const radioAdult = container.querySelector('#cpoRadioAdult');
+  const radioChild = container.querySelector('#cpoRadioChild');
+
   const cpoC = container.querySelector('#cpoC');
   const cpoP = container.querySelector('#cpoP');
   const cpoO = container.querySelector('#cpoO');
@@ -1098,19 +1170,98 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   const ceoO = container.querySelector('#ceoO');
   const ceoBadge = container.querySelector('#ceoTotalBadge');
 
-  function updateCPOTotals() {
-    const c = parseInt(cpoC?.value) || 0;
-    const p = parseInt(cpoP?.value) || 0;
-    const o = parseInt(cpoO?.value) || 0;
-    if (cpoBadge) cpoBadge.textContent = String(c + p + o);
+  function setCPOActiveMode(mode, clearOther = false) {
+    const isAdult = (mode === 'adult');
+    if (radioAdult) radioAdult.checked = isAdult;
+    if (radioChild) radioChild.checked = !isAdult;
 
-    const cMin = parseInt(ceoC?.value) || 0;
-    const eMin = parseInt(ceoE?.value) || 0;
-    const oMin = parseInt(ceoO?.value) || 0;
-    if (ceoBadge) ceoBadge.textContent = String(cMin + eMin + oMin);
+    if (cardAdult) {
+      cardAdult.classList.toggle('active-card', isAdult);
+      cardAdult.classList.toggle('disabled', !isAdult);
+    }
+    if (cardChild) {
+      cardChild.classList.toggle('active-card', !isAdult);
+      cardChild.classList.toggle('disabled', isAdult);
+    }
+
+    [cpoC, cpoP, cpoO].forEach(inp => {
+      if (inp) inp.disabled = !isAdult;
+    });
+
+    [ceoC, ceoE, ceoO].forEach(inp => {
+      if (inp) inp.disabled = isAdult;
+    });
+
+    if (clearOther) {
+      if (isAdult) {
+        if (ceoC) ceoC.value = 0;
+        if (ceoE) ceoE.value = 0;
+        if (ceoO) ceoO.value = 0;
+        if (ceoBadge) ceoBadge.textContent = '0';
+      } else {
+        if (cpoC) cpoC.value = 0;
+        if (cpoP) cpoP.value = 0;
+        if (cpoO) cpoO.value = 0;
+        if (cpoBadge) cpoBadge.textContent = '0';
+      }
+    }
+
+    updateCPOTotals();
   }
 
-  [cpoC, cpoP, cpoO, ceoC, ceoE, ceoO].forEach(inp => inp?.addEventListener('input', updateCPOTotals));
+  radioAdult?.addEventListener('change', () => setCPOActiveMode('adult', true));
+  radioChild?.addEventListener('change', () => setCPOActiveMode('child', true));
+
+  cardAdult?.addEventListener('click', (e) => {
+    if (cardAdult.classList.contains('disabled')) {
+      setCPOActiveMode('adult', true);
+      cpoC?.focus();
+    }
+  });
+
+  cardChild?.addEventListener('click', (e) => {
+    if (cardChild.classList.contains('disabled')) {
+      setCPOActiveMode('child', true);
+      ceoC?.focus();
+    }
+  });
+
+  [cpoC, cpoP, cpoO].forEach(inp => {
+    inp?.addEventListener('focus', () => {
+      if (!radioAdult?.checked) setCPOActiveMode('adult', true);
+    });
+    inp?.addEventListener('input', () => {
+      if (!radioAdult?.checked) setCPOActiveMode('adult', true);
+      updateCPOTotals();
+    });
+  });
+
+  [ceoC, ceoE, ceoO].forEach(inp => {
+    inp?.addEventListener('focus', () => {
+      if (!radioChild?.checked) setCPOActiveMode('child', true);
+    });
+    inp?.addEventListener('input', () => {
+      if (!radioChild?.checked) setCPOActiveMode('child', true);
+      updateCPOTotals();
+    });
+  });
+
+  function updateCPOTotals() {
+    const isAdult = radioAdult ? radioAdult.checked : true;
+    if (isAdult) {
+      const c = parseInt(cpoC?.value) || 0;
+      const p = parseInt(cpoP?.value) || 0;
+      const o = parseInt(cpoO?.value) || 0;
+      if (cpoBadge) cpoBadge.textContent = String(c + p + o);
+      if (ceoBadge) ceoBadge.textContent = '0';
+    } else {
+      const cMin = parseInt(ceoC?.value) || 0;
+      const eMin = parseInt(ceoE?.value) || 0;
+      const oMin = parseInt(ceoO?.value) || 0;
+      if (ceoBadge) ceoBadge.textContent = String(cMin + eMin + oMin);
+      if (cpoBadge) cpoBadge.textContent = '0';
+    }
+  }
 
   // 9. Chips de Planes Diagnósticos con despliegue de detalles y creación automática de Nota Clínica
   const planMeta = {
@@ -1221,6 +1372,57 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
       }
     });
   });
+
+  // 9b. Otros Exámenes / Interconsultas Dinámicos (+ Agregar y Eliminar)
+  const otrosContainer = container.querySelector('#otrosPlanesContainer');
+  const btnAddOtro = container.querySelector('#btnAddOtroPlan');
+
+  function attachOtroPlanRowEvents(row) {
+    const removeBtn = row.querySelector('.btn-remove-otro-plan');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', () => {
+        const rows = otrosContainer ? otrosContainer.querySelectorAll('.otro-plan-row') : [];
+        if (rows.length > 1) {
+          row.remove();
+        } else {
+          const inp = row.querySelector('.otro-plan-input');
+          if (inp) inp.value = '';
+        }
+        reindexOtrosPlanRows();
+      });
+    }
+  }
+
+  function reindexOtrosPlanRows() {
+    if (!otrosContainer) return;
+    otrosContainer.querySelectorAll('.otro-plan-row').forEach((r, i) => {
+      const numSpan = r.querySelector('span.muted');
+      if (numSpan) numSpan.textContent = `${i + 1}.`;
+    });
+  }
+
+  if (otrosContainer) {
+    otrosContainer.querySelectorAll('.otro-plan-row').forEach(row => attachOtroPlanRowEvents(row));
+  }
+
+  if (btnAddOtro && otrosContainer) {
+    btnAddOtro.addEventListener('click', () => {
+      const div = document.createElement('div');
+      div.className = 'otro-plan-row';
+      div.style.cssText = 'display:flex; gap:8px; align-items:center;';
+      const idx = otrosContainer.querySelectorAll('.otro-plan-row').length + 1;
+      div.innerHTML = `
+        <span class="muted" style="font-size:0.82rem; min-width:22px; text-align:center; font-weight:700;">${idx}.</span>
+        <input type="text" class="field-input otro-plan-input" placeholder="Ej: Interconsulta con médico tratante para pase quirúrgico / Biopsia de mucosa..." value="" style="flex:1;">
+        <button type="button" class="ghost btn-remove-otro-plan" title="Eliminar indicación" style="color:var(--danger); padding:6px 10px; border-radius:6px; font-size:0.85rem; cursor:pointer;">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      `;
+      otrosContainer.appendChild(div);
+      attachOtroPlanRowEvents(div);
+      div.querySelector('input')?.focus();
+    });
+  }
 
   // 10. CIE-10 Odontológico (K00-K14 / Z01.2) con Typeahead, PRE/DEF Toggles y Filas Dinámicas (+ Nuevo)
   function reindexCIERows() {
@@ -1342,58 +1544,24 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   const sesSignSelect = container.querySelector('#sesSignSelect');
   const sesSignInput = container.querySelector('#sesSign');
 
-  // Sincronizar selección de médico desde el dropdown
+  const updateDoctorLicenseCode = () => {
+    const selectedName = sesSignSelect?.value || sesSignInput?.value || defaultDoctorName;
+    const prof = profList.find(p => p.name === selectedName || p.id === selectedName);
+    if (sesCodeInput) {
+      sesCodeInput.value = prof?.license_code || assignedProf?.license_code || '';
+    }
+  };
+
+  // Sincronizar selección de médico desde el dropdown y actualizar código de habilitación
   sesSignSelect?.addEventListener('change', () => {
     if (sesSignSelect.value && sesSignInput) {
       sesSignInput.value = sesSignSelect.value;
     }
+    updateDoctorLicenseCode();
   });
 
-  // Autocompletado inteligente de código según lo que escribe el odontólogo
-  function deduceProcedureCode() {
-    if (!sesCodeInput) return;
-    const txt = ((sesProcInput?.value || '') + ' ' + (sesDxInput?.value || '')).toLowerCase();
-    if (!txt.trim()) return;
-
-    // Detectar si hay número de pieza dental (ej: 11 a 48, o 51 a 85)
-    const toothMatch = txt.match(/\b([1-4][1-8]|[5-8][1-5])\b/);
-    const toothNum = toothMatch ? toothMatch[1] : '';
-
-    let prefix = '';
-    if (txt.includes('obtur') || txt.includes('resin') || txt.includes('composite') || txt.includes('calce') || txt.includes('empaste')) {
-      prefix = toothNum ? `OBT-${toothNum}` : 'OBT-RES';
-    } else if (txt.includes('extra') || txt.includes('cirug') || txt.includes('exodon') || txt.includes('tercer molar') || txt.includes('cordal')) {
-      prefix = toothNum ? `CIR-${toothNum}` : 'CIR-EXT';
-    } else if (txt.includes('endo') || txt.includes('conduct') || txt.includes('pulpec') || txt.includes('nervio')) {
-      prefix = toothNum ? `ENDO-${toothNum}` : 'ENDO-01';
-    } else if (txt.includes('profi') || txt.includes('limpie') || txt.includes('sarro') || txt.includes('destartr') || txt.includes('tártaro')) {
-      prefix = 'PREV-LIM';
-    } else if (txt.includes('coron') || txt.includes('prótes') || txt.includes('protes') || txt.includes('perno') || txt.includes('incrust') || txt.includes('puente')) {
-      prefix = toothNum ? `PROT-${toothNum}` : 'PROT-COR';
-    } else if (txt.includes('implan') || txt.includes('osteointegr')) {
-      prefix = toothNum ? `IMP-${toothNum}` : 'IMP-01';
-    } else if (txt.includes('radio') || txt.includes('periapic') || txt.includes('rx')) {
-      prefix = toothNum ? `RX-P${toothNum}` : 'RX-PERI';
-    } else if (txt.includes('panorám') || txt.includes('panoram') || txt.includes('ortopanto')) {
-      prefix = 'RX-PANO';
-    } else if (txt.includes('blanquea') || txt.includes('aclaram')) {
-      prefix = 'EST-BLANQ';
-    } else if (txt.includes('periodon') || txt.includes('raspaje') || txt.includes('curetaje') || txt.includes('alisado')) {
-      prefix = 'PERIO-01';
-    } else if (txt.includes('control') || txt.includes('evaluac') || txt.includes('diagnóst') || txt.includes('revisión')) {
-      prefix = 'CONS-EV';
-    }
-
-    if (prefix && (!sesCodeInput.value || sesCodeInput.dataset.autoGenerated === 'true')) {
-      sesCodeInput.value = prefix;
-      sesCodeInput.dataset.autoGenerated = 'true';
-    }
-  }
-
-  sesProcInput?.addEventListener('input', deduceProcedureCode);
-  sesDxInput?.addEventListener('input', deduceProcedureCode);
-  sesCodeInput?.addEventListener('input', () => {
-    sesCodeInput.dataset.autoGenerated = 'false';
+  sesSignInput?.addEventListener('input', () => {
+    updateDoctorLicenseCode();
   });
 
   newSesBtn?.addEventListener('click', () => {
@@ -1402,6 +1570,7 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     if (sesSignInput && !sesSignInput.value) {
       sesSignInput.value = defaultDoctorName;
     }
+    updateDoctorLicenseCode();
     if (sesProcInput) sesProcInput.focus();
   });
 
@@ -1446,10 +1615,7 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
       if (sesDxInput) sesDxInput.value = '';
       if (sesProcInput) sesProcInput.value = '';
       if (sesRxInput) container.querySelector('#sesRx').value = '';
-      if (sesCodeInput) {
-        sesCodeInput.value = '';
-        sesCodeInput.dataset.autoGenerated = 'false';
-      }
+      updateDoctorLicenseCode();
     }
   });
 
@@ -1538,17 +1704,33 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
     });
 
     const ihos = {};
+    let totP = 0, totC = 0, totG = 0, totPiezas = 0;
     container.querySelectorAll('.ihos-table tbody tr[data-key]').forEach(tr => {
       const key = tr.dataset.key;
-      ihos[key] = {
-        m1: tr.querySelector('.ihos-mark-1')?.value || '',
-        m2: tr.querySelector('.ihos-mark-2')?.value || '',
-        m3: tr.querySelector('.ihos-mark-3')?.value || '',
-        placa: parseInt(tr.querySelector('.ihos-placa')?.value) || 0,
-        calculo: parseInt(tr.querySelector('.ihos-calculo')?.value) || 0,
-        gingivitis: parseInt(tr.querySelector('.ihos-gingivitis')?.value) || 0
-      };
+      const m1 = tr.querySelector('.ihos-mark-1')?.value || '';
+      const m2 = tr.querySelector('.ihos-mark-2')?.value || '';
+      const m3 = tr.querySelector('.ihos-mark-3')?.value || '';
+      const placa = parseInt(tr.querySelector('.ihos-placa')?.value) || 0;
+      const calculo = parseInt(tr.querySelector('.ihos-calculo')?.value) || 0;
+      const gingivitis = parseInt(tr.querySelector('.ihos-gingivitis')?.value) || 0;
+
+      [m1, m2, m3].forEach(v => { if (v === 'X') totPiezas++; });
+      totP += placa;
+      totC += calculo;
+      totG += gingivitis;
+
+      ihos[key] = { m1, m2, m3, placa, calculo, gingivitis };
     });
+
+    const ihosResumen = {
+      totalPiezas: totPiezas,
+      totalPlaca: totP,
+      totalCalculo: totC,
+      totalGingivitis: totG,
+      indicePlaca: totPiezas > 0 ? Number((totP / totPiezas).toFixed(2)) : 0,
+      indiceCalculo: totPiezas > 0 ? Number((totC / totPiezas).toFixed(2)) : 0,
+      indiceGingivitis: totPiezas > 0 ? Number((totG / totPiezas).toFixed(2)) : 0
+    };
 
     const oclusion = container.querySelector('#oclusionChips .chip-toggle.active')?.dataset.val || 'Angle I';
     const periodontal = container.querySelector('#periodontalChips .chip-toggle.active')?.dataset.val || 'Sano';
@@ -1589,7 +1771,22 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
       cbctDetalle: container.querySelector('#hcDet_plan_cbct')?.value.trim() || '',
       educacionDetalle: container.querySelector('#hcDet_plan_educacion')?.value.trim() || '',
 
-      otros: container.querySelector('#hcPlanesOtros')?.value.trim() || ''
+      otros: (() => {
+        const list = [];
+        container.querySelectorAll('.otro-plan-input').forEach(inp => {
+          const v = inp.value.trim();
+          if (v) list.push(v);
+        });
+        return list.join(' \n ');
+      })(),
+      otrosList: (() => {
+        const list = [];
+        container.querySelectorAll('.otro-plan-input').forEach(inp => {
+          const v = inp.value.trim();
+          if (v) list.push(v);
+        });
+        return list;
+      })()
     };
 
     const diagnosticosCIE10 = [];
@@ -1616,7 +1813,7 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
       antecedentes,
       signosVitales,
       estomatognatico,
-      indicadoresSalud: { ihos, oclusion, periodontal, fluorosis },
+      indicadoresSalud: { ihos, ihosResumen, oclusion, periodontal, fluorosis },
       cpo,
       planes,
       diagnosticosCIE10,

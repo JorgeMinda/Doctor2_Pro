@@ -252,10 +252,10 @@
       <main class="content">
 
         <!-- Barra Superior (Toolbar) -->
-        <header class="toolbar">
+        <header id="mainToolbar" class="toolbar">
           <div class="toolbar-left">
             <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Menú"><i class="fas fa-bars"></i></button>
-            <div class="filters">
+            <div id="agendaFilters" class="filters">
               <select id="professionalFilter">
                 <option value="">Todos los profesionales</option>
               </select>
@@ -270,8 +270,9 @@
                 <button id="blockedDaysBtn" class="ghost" title="Feriados y Bloqueos"><i class="fas fa-calendar-times" style="color: var(--primary);"></i> Feriados</button>
               </div>
             </div>
+            <div id="mobileSectionTitle" style="display:none; font-weight:700; font-size:1rem; color:var(--primary);">Agenda</div>
           </div>
-          <div class="toolbar-actions">
+          <div id="agendaToolbarActions" class="toolbar-actions">
             <div class="search">
               <i class="fas fa-search"></i>
               <input id="agendaPatientSearch" type="search" placeholder="Buscar paciente...">
@@ -330,8 +331,8 @@
 
         <!-- 2. VISTA PACIENTES -->
         <section id="patientsView" class="pane hidden">
-          <div class="card">
-            <div class="card-head">
+          <div class="card" id="patientsCard">
+            <div class="card-head" id="patientsListHead">
               <div>
                 <p class="muted">Padrón de Pacientes</p>
                 <h3>Fichas Médicas e Historias Clínicas</h3>
@@ -346,26 +347,26 @@
                 <button id="newPatientBtn" class="primary"><i class="fas fa-user-plus"></i> Nuevo Paciente</button>
               </div>
             </div>
-            <div class="split">
-              <div class="table-wrap">
-                <table class="data-table-enhanced">
-                  <thead>
-                    <tr>
-                      <th>Paciente</th>
-                      <th>Cédula / ID</th>
-                      <th>Teléfono</th>
-                      <th>Email</th>
-                      <th>Edad</th>
-                      <th>Obra Social</th>
-                      <th>Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody id="patientsTable"></tbody>
-                </table>
-              </div>
-              <div class="patient-detail" id="patientDetail">
-                <div class="empty">Seleccioná un paciente de la lista para ver su ficha clínica y odontograma.</div>
-              </div>
+            
+            <div class="table-wrap" id="patientsTableContainer">
+              <table class="data-table-enhanced">
+                <thead>
+                  <tr>
+                    <th>Paciente</th>
+                    <th>Cédula / ID</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Edad</th>
+                    <th>Obra Social</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="patientsTable"></tbody>
+              </table>
+            </div>
+
+            <div class="patient-detail hidden" id="patientDetail">
+              <div class="empty">Seleccioná un paciente de la lista para ver su ficha clínica y odontograma.</div>
             </div>
           </div>
         </section>
@@ -437,12 +438,13 @@
                 <p class="muted">Control de Stock e Insumos Médicos</p>
                 <h3>Catálogo y Movimientos de Farmacia / Insumos</h3>
               </div>
-              <div style="display:flex; gap:10px;">
+              <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                 <div class="search">
                   <i class="fas fa-search"></i>
                   <input id="inventorySearch" type="search" placeholder="Buscar por código, insumo, ubicación...">
                 </div>
-                <button id="newInventoryBtn" class="primary"><i class="fas fa-plus"></i> Nuevo Insumo</button>
+                <button id="invAuditBtn" class="ghost" style="border:1px solid var(--border); font-weight:600; white-space:nowrap;"><i class="fas fa-history" style="color:var(--primary);"></i> Auditoría por Fechas</button>
+                <button id="newInventoryBtn" class="primary" style="white-space:nowrap;"><i class="fas fa-plus"></i> Nuevo Insumo</button>
               </div>
             </div>
 
@@ -678,9 +680,11 @@
         </div>
         <button id="closeProfManager" class="ghost"><i class="fas fa-times"></i></button>
       </div>
+      <input type="hidden" id="mgrProfId">
       <div class="grid-2">
         <label class="field"><span>Nombre</span><input id="mgrName" type="text" placeholder="Dr. Nombre Apellido"></label>
         <label class="field"><span>Especialidad</span><input id="mgrSpecialty" type="text" placeholder="Odontología, Pediatría..."></label>
+        <label class="field" style="grid-column:1 / -1;"><span>Código de Habilitación / Matrícula Profesional</span><input id="mgrLicenseCode" type="text" placeholder="Ej: MSP-10293 / MED-4451"></label>
         <label class="field"><span>Email</span><input id="mgrEmail" type="email" placeholder="doctor@consultorios.pro"></label>
         <label class="field"><span>Teléfono</span><input id="mgrPhone" type="tel" placeholder="+549..."></label>
         <label class="field"><span>Color en Agenda</span><input id="mgrColor" type="color" value="#3b82f6" style="height:42px;"></label>
@@ -691,6 +695,64 @@
       <div class="modal-actions">
         <button id="saveProf" class="primary"><i class="fas fa-save"></i> Guardar Profesional</button>
         <button id="resetProfForm" class="ghost">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Bloqueo por Emergencia / Ausencia de Médico -->
+  <div id="profEmergencyModal" class="modal hidden">
+    <div class="modal-body" style="max-width:540px;">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Gestión de Horarios y Emergencias</p>
+          <h3 id="profEmergencyTitle"><i class="fas fa-ban" style="color:var(--danger);"></i> Bloqueo por Emergencia</h3>
+        </div>
+        <button id="closeProfEmergencyModal" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <input type="hidden" id="profEmergencyProfId">
+      
+      <div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:8px; padding:10px 14px; margin-bottom:14px; font-size:0.85rem; color:var(--text);">
+        <i class="fas fa-exclamation-triangle" style="color:var(--danger); margin-right:6px;"></i>
+        <strong>Aviso Importante:</strong> Al bloquear los días por emergencia, <strong>todos los turnos ya agendados</strong> para este profesional en las fechas seleccionadas se marcarán automáticamente como <em>"Cancelado por Emergencia"</em> para que puedan ser reprogramados.
+      </div>
+
+      <div class="grid-2">
+        <label class="field"><span>Fecha Desde</span><input id="profEmergencyDateFrom" type="date"></label>
+        <label class="field"><span>Fecha Hasta</span><input id="profEmergencyDateTo" type="date"></label>
+      </div>
+
+      <!-- Bloqueo por Horas -->
+      <div style="margin: 4px 0 12px; padding: 10px 12px; background: var(--bg-page); border: 1px solid var(--border); border-radius: 8px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; font-size:0.85rem; margin-bottom:0;">
+          <input type="checkbox" id="profEmergencyAllDay" checked style="width:16px; height:16px; cursor:pointer;">
+          <span>Bloquear el día completo (Todo el día)</span>
+        </label>
+        <div id="profEmergencyHoursContainer" class="grid-2" style="display:none; gap:10px; margin-top:10px;">
+          <label class="field" style="margin:0;">
+            <span style="font-size:0.78rem;">Hora Desde</span>
+            <input id="profEmergencyTimeFrom" type="time" value="08:00">
+          </label>
+          <label class="field" style="margin:0;">
+            <span style="font-size:0.78rem;">Hora Hasta</span>
+            <input id="profEmergencyTimeTo" type="time" value="13:00">
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <span>Motivo de la Emergencia / Ausencia</span>
+        <input id="profEmergencyReason" type="text" placeholder="Ej: Emergencia médica, Reposo de salud, Cirugía imprevista..." value="Emergencia médica">
+      </div>
+      
+      <button id="saveProfEmergencyBtn" class="primary" style="background:var(--danger); border-color:var(--danger); width:100%; margin:12px 0 16px; padding:10px;">
+        <i class="fas fa-lock"></i> Aplicar Bloqueo y Cancelar Turnos
+      </button>
+
+      <h4 style="margin-bottom:8px; font-size:0.92rem;"><i class="fas fa-list"></i> Bloqueos Activos de este Profesional</h4>
+      <div id="profEmergencyList" class="timeline" style="max-height:160px; overflow-y:auto;"></div>
+
+      <div class="modal-actions" style="margin-top:14px;">
+        <button id="cancelProfEmergencyModal" class="ghost">Cerrar</button>
       </div>
     </div>
   </div>
@@ -718,6 +780,7 @@
         <label class="field" style="grid-column:1 / -1;"><span>Ubicación en Consultorio</span><input id="invLocation" type="text" placeholder="Gabinete 1 - Estante B"></label>
       </div>
       <div class="modal-actions">
+        <button id="deleteInvBtn" type="button" class="ghost" style="color:var(--danger); display:none; margin-right:auto;"><i class="fas fa-trash-alt"></i> Eliminar Insumo</button>
         <button id="saveInvBtn" class="primary"><i class="fas fa-save"></i> Guardar Insumo</button>
         <button id="cancelInvModal" class="ghost">Cancelar</button>
       </div>
@@ -755,6 +818,80 @@
       <div class="modal-actions">
         <button id="saveMovBtn" class="primary"><i class="fas fa-check"></i> Aplicar Movimiento</button>
         <button id="cancelMovModal" class="ghost">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Auditoría de Inventario por Fechas -->
+  <div id="inventoryAuditModal" class="modal hidden">
+    <div class="modal-body" style="max-width:860px; width:95%;">
+      <div class="modal-head">
+        <div>
+          <p class="muted">Inventario & Farmacia</p>
+          <h3><i class="fas fa-history" style="color:var(--primary);"></i> Auditoría e Historial de Insumos</h3>
+        </div>
+        <button id="closeInvAuditModal" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+
+      <!-- Barra de Filtros por Fechas y Tipo -->
+      <div style="background:var(--bg-page); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin-bottom:14px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px; align-items:end;">
+          <label class="field" style="margin:0;">
+            <span style="font-size:0.78rem;">Fecha Desde</span>
+            <input id="invAuditDateFrom" type="date">
+          </label>
+          <label class="field" style="margin:0;">
+            <span style="font-size:0.78rem;">Fecha Hasta</span>
+            <input id="invAuditDateTo" type="date">
+          </label>
+          <label class="field" style="margin:0;">
+            <span style="font-size:0.78rem;">Tipo de Movimiento</span>
+            <select id="invAuditType">
+              <option value="all">Todos los Movimientos</option>
+              <option value="entrada">📥 Entradas / Compras</option>
+              <option value="salida">📤 Salidas / Uso Clínico</option>
+              <option value="ajuste">⚙️ Ajustes de Stock</option>
+              <option value="creacion">✨ Altas de Insumos</option>
+              <option value="eliminacion">🗑️ Bajas de Insumos</option>
+            </select>
+          </label>
+          <label class="field" style="margin:0;">
+            <span style="font-size:0.78rem;">Insumo</span>
+            <select id="invAuditItemSelect">
+              <option value="">Todos los Insumos</option>
+            </select>
+          </label>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:0.8rem; color:var(--muted); flex-wrap:wrap; gap:8px;">
+          <div id="invAuditSummaryText"><strong>0</strong> registros encontrados</div>
+          <div style="display:flex; gap:8px;">
+            <button id="invAuditFilterBtn" class="primary" style="padding:6px 14px; font-size:0.8rem;"><i class="fas fa-filter"></i> Aplicar Filtro</button>
+            <button id="invAuditResetBtn" class="ghost" style="padding:6px 12px; font-size:0.8rem;"><i class="fas fa-undo"></i> Limpiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Auditoría -->
+      <div class="table-wrap" style="max-height:360px; overflow-y:auto; border:1px solid var(--border); border-radius:8px;">
+        <table class="data-table-enhanced" style="margin:0; font-size:0.83rem;">
+          <thead style="position:sticky; top:0; background:var(--surface); z-index:2;">
+            <tr>
+              <th>Fecha / Hora</th>
+              <th>Insumo</th>
+              <th>Tipo de Evento</th>
+              <th>Cantidad</th>
+              <th>Stock Ant. &rarr; Nuevo</th>
+              <th>Motivo / Observación</th>
+            </tr>
+          </thead>
+          <tbody id="invAuditTableBody">
+            <tr><td colspan="6" class="empty">Cargando registros de auditoría...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="modal-actions" style="margin-top:14px;">
+        <button id="closeInvAuditBtn" class="ghost">Cerrar</button>
       </div>
     </div>
   </div>
@@ -886,10 +1023,27 @@
           <h3>Mi Perfil</h3>
         </div>
         <button id="closeProfile" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
       <form id="profileForm" onsubmit="event.preventDefault();">
-        <div class="field"><span>Email de Notificaciones</span><input type="email" value="contacto@consultorios.pro" autocomplete="email"></div>
-        <div class="field"><span>Teléfono / WhatsApp</span><input type="tel" value="+5491123456789" autocomplete="tel"></div>
-        <div class="field"><span>Cambiar Contraseña</span><input type="password" placeholder="Nueva contraseña" autocomplete="new-password"></div>
+        <div class="field"><span>Email de Notificaciones</span><input id="profileEmail" type="email" value="contacto@consultorios.pro" autocomplete="email"></div>
+        <div class="field"><span>Teléfono / WhatsApp</span><input id="profilePhone" type="tel" value="+5491123456789" autocomplete="tel"></div>
+        <div class="field"><span>Código de Habilitación / Matrícula Profesional</span><input id="profileLicenseCode" type="text" placeholder="Ej: MSP-10293 / MED-4451" autocomplete="off"></div>
+        <div class="field"><span>Cambiar Contraseña</span><input id="profilePass" type="password" placeholder="Nueva contraseña" autocomplete="new-password"></div>
+        
+        <!-- Sección de Bloqueo por Emergencia / Ausencia del Médico -->
+        <div style="margin-top:16px; padding:12px; border:1px solid rgba(239, 68, 68, 0.3); background:rgba(239, 68, 68, 0.05); border-radius:8px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <i class="fas fa-ban" style="color:var(--danger); font-size:1.1rem;"></i>
+            <div>
+              <strong style="font-size:0.88rem; color:var(--text); display:block;">Bloqueo por Emergencia</strong>
+              <small style="color:var(--muted); font-size:0.75rem;">Bloqueá tu agenda si no podés atender hoy o días próximos</small>
+            </div>
+          </div>
+          <button id="profileEmergencyBlockBtn" type="button" class="ghost" style="width:100%; border:1px solid var(--danger); color:var(--danger); font-weight:600; padding:7px; justify-content:center; gap:6px; margin-top:6px;">
+            <i class="fas fa-calendar-times"></i> Gestionar mi Bloqueo por Emergencia
+          </button>
+        </div>
+
         <div class="modal-actions" style="margin-top:16px;">
           <button id="saveProfile" type="button" class="primary"><i class="fas fa-save"></i> Guardar</button>
           <button id="cancelProfile" type="button" class="ghost">Cerrar</button>
@@ -900,21 +1054,51 @@
 
   <!-- Modal Feriados y Bloqueos -->
   <div id="blockedDaysModal" class="modal hidden">
-    <div class="modal-body" style="max-width:520px;">
+    <div class="modal-body" style="max-width:540px;">
       <div class="modal-head">
         <div>
-          <p class="muted">Agenda</p>
+          <p class="muted">Agenda & Horarios</p>
           <h3>Días Bloqueados y Feriados</h3>
         </div>
         <button id="closeBlockedModal" class="ghost"><i class="fas fa-times"></i></button>
       </div>
-      <div class="field"><span>Fecha a Bloquear</span><input id="newBlockedDateFrom" type="date"></div>
-      <div class="field"><span>Motivo del Bloqueo</span><input id="newBlockedReason" type="text" placeholder="Feriado, Congreso, Vacaciones..."></div>
-      <button id="saveBlockedBtn" class="primary" style="margin-bottom:16px;"><i class="fas fa-lock"></i> Bloquear Fecha</button>
+      
+      <div class="field">
+        <span>Profesional Afectado</span>
+        <select id="newBlockedProfessional">
+          <option value="all">Todos los Profesionales (Feriado / Cierre General)</option>
+        </select>
+      </div>
 
-      <h4 style="margin-bottom:8px;">Bloqueos Existentes</h4>
-      <div id="blockedDaysList" class="timeline" style="max-height:160px;"></div>
-      <div class="modal-actions">
+      <div class="grid-2">
+        <label class="field"><span>Fecha Desde</span><input id="newBlockedDateFrom" type="date"></label>
+        <label class="field"><span>Fecha Hasta</span><input id="newBlockedDateTo" type="date"></label>
+      </div>
+
+      <!-- Bloqueo por Horas -->
+      <div style="margin: 4px 0 12px; padding: 10px 12px; background: var(--bg-page); border: 1px solid var(--border); border-radius: 8px;">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; font-size:0.85rem; margin-bottom:0;">
+          <input type="checkbox" id="newBlockedAllDay" checked style="width:16px; height:16px; cursor:pointer;">
+          <span>Bloquear el día completo (Todo el día)</span>
+        </label>
+        <div id="newBlockedHoursContainer" class="grid-2" style="display:none; gap:10px; margin-top:10px;">
+          <label class="field" style="margin:0;">
+            <span style="font-size:0.78rem;">Hora Desde</span>
+            <input id="newBlockedTimeFrom" type="time" value="08:00">
+          </label>
+          <label class="field" style="margin:0;">
+            <span style="font-size:0.78rem;">Hora Hasta</span>
+            <input id="newBlockedTimeTo" type="time" value="13:00">
+          </label>
+        </div>
+      </div>
+      
+      <div class="field"><span>Motivo del Bloqueo / Emergencia</span><input id="newBlockedReason" type="text" placeholder="Ej: Feriado Nacional, Emergencia médica, Congreso..."></div>
+      <button id="saveBlockedBtn" class="primary" style="margin-bottom:16px;"><i class="fas fa-lock"></i> Bloquear y Cancelar Turnos Afectados</button>
+
+      <h4 style="margin-bottom:8px; font-size:0.92rem;"><i class="fas fa-list"></i> Bloqueos y Feriados Registrados</h4>
+      <div id="blockedDaysList" class="timeline" style="max-height:170px; overflow-y:auto;"></div>
+      <div class="modal-actions" style="margin-top:12px;">
         <button id="cancelBlockedModal" class="ghost">Cerrar</button>
       </div>
     </div>

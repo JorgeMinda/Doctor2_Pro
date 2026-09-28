@@ -34,7 +34,10 @@ export function createExportActions(patient, notes = [], plans = [], professiona
             <button class="ghost" id="downloadOdontogram" style="text-align:left; padding:10px;">
               <i class="fas fa-tooth"></i> <strong>Odontograma</strong>
             </button>
-            <button class="primary" id="downloadComplete" style="text-align:left; padding:10px;">
+            <button class="ghost" id="downloadCertificado" style="text-align:left; padding:10px; color:var(--primary); border-color:var(--primary);">
+              <i class="fas fa-certificate" style="color:var(--primary);"></i> <strong>Certificado Asistencia</strong>
+            </button>
+            <button class="primary" id="downloadComplete" style="text-align:left; padding:10px; grid-column:span 2;">
               <i class="fas fa-file-medical-alt"></i> <strong>Expediente Completo</strong>
             </button>
           </div>
@@ -476,6 +479,13 @@ export function createExportActions(patient, notes = [], plans = [], professiona
     container.querySelector('#downloadOdontogram')?.addEventListener('click', () => {
       const odontogramHtml = generateOdontogramHTML(patient, notes, prof, clinicName);
       downloadPDF(odontogramHtml, `Odontograma_${patient.name}.pdf`);
+    });
+
+    container.querySelector('#downloadCertificado')?.addEventListener('click', () => {
+      container.remove();
+      import('./patient-certificate.js').then(m => {
+        m.openCertificateModal(patient);
+      });
     });
 
     container.querySelector('#downloadComplete')?.addEventListener('click', () => {

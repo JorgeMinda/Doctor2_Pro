@@ -24,6 +24,7 @@ if ($method === 'POST') {
         'id' => 'prof-' . substr(md5(uniqid(rand(), true)), 0, 10),
         'name' => $name,
         'specialty' => trim($input['specialty'] ?? 'General'),
+        'license_code' => trim($input['license_code'] ?? ''),
         'email' => trim($input['email'] ?? ''),
         'phone' => trim($input['phone'] ?? ''),
         'color' => $input['color'] ?? '#3b82f6',

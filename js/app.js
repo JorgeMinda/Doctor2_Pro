@@ -27,6 +27,7 @@ import {
   openProfile,
   closeProfile,
   saveProfile,
+  openProfileEmergencyBlock,
   openAppearanceModal,
   closeAppearanceModal,
   initAppearance,
@@ -115,6 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initChat();
   internalChat.init();
   initAIAssistant();
+  setNav(state.currentNav || 'agenda');
 });
 
 // Eventos de Autenticación
@@ -138,6 +140,7 @@ el('navProfile')?.addEventListener('click', openProfile);
 el('closeProfile')?.addEventListener('click', closeProfile);
 el('cancelProfile')?.addEventListener('click', closeProfile);
 el('saveProfile')?.addEventListener('click', saveProfile);
+el('profileEmergencyBlockBtn')?.addEventListener('click', openProfileEmergencyBlock);
 
 el('closeAppearance')?.addEventListener('click', closeAppearanceModal);
 el('cancelAppearance')?.addEventListener('click', closeAppearanceModal);

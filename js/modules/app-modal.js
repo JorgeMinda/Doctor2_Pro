@@ -57,6 +57,15 @@ export function openModal(opts = {}) {
     if (formObs) formObs.value = '';
   }
 
+  if (formDate && !formDate.dataset.hasBlockListener) {
+    formDate.dataset.hasBlockListener = 'true';
+    formDate.addEventListener('change', () => loadSlots(formDate.value));
+  }
+  if (formProf && !formProf.dataset.hasBlockListener) {
+    formProf.dataset.hasBlockListener = 'true';
+    formProf.addEventListener('change', () => loadSlots(formDate ? formDate.value : null));
+  }
+
   // Inicializar autocompletado de pacientes
   setupPatientAutocomplete();
 
@@ -153,7 +162,34 @@ function setupPatientAutocomplete() {
 
 export function loadSlots(selectedDate = null) {
   const select = el('formTime');
+  const profId = el('formProfessional')?.value;
+  const targetDate = selectedDate || el('formDate')?.value;
+  const saveBtn = el('saveAppointment');
+  const alertEl = el('formBlockedAlert');
+
   if (!select) return;
+
+  // Verificar si la fecha está bloqueada por emergencia o feriado
+  const dayBlocks = (state.blockedDays || []).filter(b => {
+    const from = b.date_from || b.date;
+    const to = b.date_to || from;
+    const inRange = targetDate >= from && targetDate <= to;
+    if (!inRange) return false;
+    return b.professional_id === 'all' || b.professional_id === profId;
+  });
+
+  const fullDayBlock = dayBlocks.find(b => b.all_day !== false && (!b.time_from || !b.time_to));
+
+  if (fullDayBlock) {
+    select.innerHTML = '<option value="">(Fecha Bloqueada - Día Completo)</option>';
+    select.disabled = true;
+    if (saveBtn) saveBtn.disabled = true;
+    showToast(`⚠️ Atención: Fecha bloqueada por ${fullDayBlock.reason} (${fullDayBlock.professional_name || 'Profesional'})`, 'warning');
+    return;
+  }
+
+  select.disabled = false;
+  if (saveBtn) saveBtn.disabled = false;
 
   const times = [];
   for (let h = 8; h <= 20; h++) {
@@ -162,7 +198,13 @@ export function loadSlots(selectedDate = null) {
     times.push(`${hh}:30`);
   }
 
-  select.innerHTML = times.map(t => `<option value="${t}">${t} hs</option>`).join('');
+  select.innerHTML = times.map(t => {
+    const hourBlock = dayBlocks.find(b => !b.all_day && b.time_from && b.time_to && t >= b.time_from && t <= b.time_to);
+    if (hourBlock) {
+      return `<option value="${t}" disabled style="color:var(--danger); background:rgba(239,68,68,0.08);">${t} hs (🚫 Bloqueado: ${hourBlock.reason})</option>`;
+    }
+    return `<option value="${t}">${t} hs</option>`;
+  }).join('');
 }
 
 export async function saveAppointment() {
@@ -179,6 +221,28 @@ export async function saveAppointment() {
 
   if (!patientName || !date || !time) {
     showToast('Por favor completá paciente, fecha y hora', 'warning');
+    return;
+  }
+
+  // Validación de Bloqueo por Emergencia / Feriado (Día completo u Horas específicas)
+  const blocked = (state.blockedDays || []).find(b => {
+    const from = b.date_from || b.date;
+    const to = b.date_to || from;
+    const inRange = date >= from && date <= to;
+    if (!inRange) return false;
+    const matchProf = (b.professional_id === 'all' || b.professional_id === profId);
+    if (!matchProf) return false;
+
+    const isAllDay = b.all_day !== false && (!b.time_from || !b.time_to);
+    if (isAllDay) return true;
+
+    // Horas específicas
+    return (time >= b.time_from && time <= b.time_to);
+  });
+
+  if (blocked) {
+    const blockTimeText = (blocked.time_from && blocked.time_to) ? `en el horario ${blocked.time_from} a ${blocked.time_to} hs` : 'en esta fecha';
+    showToast(`No es posible agendar: el profesional no atiende ${blockTimeText} por "${blocked.reason}"`, 'error');
     return;
   }
 
@@ -227,16 +291,90 @@ export async function saveAppointment() {
 
 // Modal de Perfil & Apariencia
 export function openProfile() {
-  el('profileModal')?.classList.remove('hidden');
+  const modal = el('profileModal');
+  if (!modal) return;
+
+  let prof = null;
+  if (state.user && state.professionals && state.professionals.length > 0) {
+    prof = state.professionals.find(p => 
+      (p.email && state.user.email && p.email.toLowerCase() === state.user.email.toLowerCase()) ||
+      (p.name && state.user.name && p.name.toLowerCase().includes(state.user.name.toLowerCase()))
+    );
+  }
+
+  if (el('profileEmail')) el('profileEmail').value = state.user?.email || 'contacto@consultorios.pro';
+  if (el('profilePhone')) el('profilePhone').value = state.user?.phone || '+5491123456789';
+  if (el('profileLicenseCode')) el('profileLicenseCode').value = state.user?.license_code || prof?.license_code || '';
+  if (el('profilePass')) el('profilePass').value = '';
+
+  modal.classList.remove('hidden');
 }
 
 export function closeProfile() {
   el('profileModal')?.classList.add('hidden');
 }
 
-export async function saveProfile() {
-  showToast('Perfil actualizado correctamente', 'success');
+export function openProfileEmergencyBlock() {
   closeProfile();
+  // Buscar profesional asociado al usuario o usar el seleccionado / primer profesional
+  let prof = null;
+  if (state.user && state.professionals && state.professionals.length > 0) {
+    prof = state.professionals.find(p => 
+      (p.email && state.user.email && p.email.toLowerCase() === state.user.email.toLowerCase()) ||
+      (p.name && state.user.name && p.name.toLowerCase().includes(state.user.name.toLowerCase()))
+    );
+  }
+  if (!prof && state.selectedProfessional) {
+    prof = state.professionals.find(p => p.id === state.selectedProfessional);
+  }
+  if (!prof && state.professionals && state.professionals.length > 0) {
+    prof = state.professionals[0];
+  }
+
+  if (prof && window.openDoctorEmergencyBlock) {
+    window.openDoctorEmergencyBlock(prof.id);
+  } else {
+    // Si no hay profesional específico, abrir modal general
+    const blockedBtn = el('blockedDaysBtn');
+    if (blockedBtn) blockedBtn.click();
+  }
+}
+
+export async function saveProfile() {
+  const email = el('profileEmail')?.value.trim();
+  const phone = el('profilePhone')?.value.trim();
+  const licenseCode = el('profileLicenseCode')?.value.trim() || '';
+
+  try {
+    await apiFetch(api.profile, {
+      method: 'PATCH',
+      body: JSON.stringify({ email, phone, license_code: licenseCode })
+    });
+
+    if (state.user) {
+      state.user.email = email;
+      state.user.phone = phone;
+      state.user.license_code = licenseCode;
+    }
+
+    // Also update matching professional in state.professionals
+    if (state.professionals) {
+      const prof = state.professionals.find(p => 
+        (p.email && email && p.email.toLowerCase() === email.toLowerCase()) ||
+        (p.name && state.user?.name && p.name.toLowerCase().includes(state.user.name.toLowerCase()))
+      );
+      if (prof) {
+        prof.license_code = licenseCode;
+        if (email) prof.email = email;
+        if (phone) prof.phone = phone;
+      }
+    }
+
+    showToast('Perfil actualizado correctamente', 'success');
+    closeProfile();
+  } catch (err) {
+    showToast(err.message || 'Error al actualizar perfil', 'error');
+  }
 }
 
 export function openAppearanceModal() {

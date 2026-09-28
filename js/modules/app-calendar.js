@@ -17,13 +17,39 @@ export async function loadMonth(opts = {}) {
     if (state.selectedProfessional) {
       url += `&professional=${encodeURIComponent(state.selectedProfessional)}`;
     }
-    const data = await apiFetch(url);
-    state.appointments = data.appointments || [];
+    const [aptData, blockData] = await Promise.all([
+      apiFetch(url),
+      apiFetch(api.blockedDays).catch(() => ({ blocked_days: [] }))
+    ]);
+
+    state.appointments = aptData.appointments || [];
+    state.blockedDays = blockData.blocked_days || [];
 
     scheduleAgendaRender();
   } catch (err) {
     console.warn('No se pudieron cargar los turnos del mes', err);
   }
+}
+
+export function isDateBlocked(dateStr, profId = null, timeStr = null) {
+  if (!state.blockedDays || state.blockedDays.length === 0) return null;
+  return state.blockedDays.find(b => {
+    const from = b.date_from || b.date;
+    const to = b.date_to || from;
+    const inRange = dateStr >= from && dateStr <= to;
+    if (!inRange) return false;
+
+    const matchProf = (!profId || b.professional_id === 'all' || b.professional_id === profId);
+    if (!matchProf) return false;
+
+    const isAllDay = b.all_day !== false && (!b.time_from || !b.time_to);
+    if (isAllDay) return true;
+
+    if (timeStr) {
+      return (timeStr >= b.time_from && timeStr <= b.time_to);
+    }
+    return true;
+  });
 }
 
 export function scheduleAgendaRender() {
@@ -103,9 +129,19 @@ export function renderMonthView() {
     if (dateStr === todayStr) cell.classList.add('today');
 
     const dayApts = state.appointments.filter(a => a.date === dateStr);
+    const dayBlock = isDateBlocked(dateStr, state.selectedProfessional);
+
+    if (dayBlock) {
+      cell.classList.add('blocked');
+    }
 
     cell.innerHTML = `
       <div class="date">${day}</div>
+      ${dayBlock ? `
+        <div style="font-size:0.68rem; font-weight:700; color:var(--danger); background:rgba(239,68,68,0.12); border-radius:4px; padding:2px 4px; margin-top:2px; display:inline-block;" title="${dayBlock.reason} (${dayBlock.professional_name || 'Todos'}) ${dayBlock.time_from && dayBlock.time_to ? `${dayBlock.time_from} a ${dayBlock.time_to} hs` : ''}">
+          <i class="fas fa-ban"></i> ${dayBlock.time_from && dayBlock.time_to ? `${dayBlock.time_from}-${dayBlock.time_to}` : (dayBlock.type === 'emergency' ? 'Emergencia' : 'Bloqueado')}
+        </div>
+      ` : ''}
       ${dayApts.length > 0 ? `
         <div class="count" title="Hacé clic para ver el detalle de los ${dayApts.length} turnos" onclick="event.stopPropagation(); window.viewDayAppointments('${dateStr}')">
           <i class="fas fa-calendar-check"></i> ${dayApts.length} ${dayApts.length === 1 ? 'turno' : 'turnos'}
@@ -213,15 +249,31 @@ export function renderDayTimeline() {
   if (title) title.textContent = formatReadableDate(dateStr);
 
   const dayApts = state.appointments.filter(a => a.date === dateStr);
+  const dayBlock = isDateBlocked(dateStr, state.selectedProfessional);
+
+  let bannerHtml = '';
+  if (dayBlock) {
+    const isAllDay = dayBlock.all_day !== false && (!dayBlock.time_from || !dayBlock.time_to);
+    const timeDetail = isAllDay ? 'Día Completo' : `${dayBlock.time_from} a ${dayBlock.time_to} hs`;
+    bannerHtml = `
+      <div style="background:rgba(239,68,68,0.12); border:1.5px solid var(--danger); border-radius:8px; padding:12px 16px; margin-bottom:14px; color:var(--danger); display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-ban" style="font-size:1.4rem;"></i>
+        <div>
+          <strong style="font-size:0.92rem;">${isAllDay ? 'Día Bloqueado por Emergencia / Ausencia' : 'Horario Bloqueado por Emergencia'}</strong>
+          <br><span style="color:var(--text); font-size:0.8rem;"><strong>${dayBlock.professional_name || 'Todos'} (${timeDetail}):</strong> ${dayBlock.reason || 'Sin atención'}</span>
+        </div>
+      </div>
+    `;
+  }
 
   if (dayApts.length === 0) {
-    timeline.innerHTML = '<div class="empty"><i class="fas fa-calendar-day" style="font-size:2rem; color:var(--muted); margin-bottom:8px; display:block;"></i>Sin turnos agendados para este día.</div>';
+    timeline.innerHTML = `${bannerHtml}<div class="empty"><i class="fas fa-calendar-day" style="font-size:2rem; color:var(--muted); margin-bottom:8px; display:block;"></i>Sin turnos agendados para este día.</div>`;
     return;
   }
 
   const now = new Date();
 
-  timeline.innerHTML = dayApts.map(apt => {
+  timeline.innerHTML = bannerHtml + dayApts.map(apt => {
     // Validar si la fecha/hora del turno ya pasó
     const timeClean = apt.time && apt.time.length === 5 ? apt.time : '00:00';
     const aptDateTime = new Date(`${apt.date}T${timeClean}:00`);
@@ -285,3 +337,6 @@ export function fillFormProfessionals() {
     formSelect.innerHTML = state.professionals.map(p => `<option value="${p.id}">${p.name} · ${p.specialty}</option>`).join('');
   }
 }
+
+window.loadAgenda = loadMonth;
+

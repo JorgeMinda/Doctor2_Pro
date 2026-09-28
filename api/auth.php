@@ -58,17 +58,32 @@ if ($method === 'PATCH' && $action === 'profile') {
         $appearance = array_merge($appearance, $input['appearance']);
     }
 
+    $licenseCode = isset($input['license_code']) ? trim($input['license_code']) : ($user['license_code'] ?? '');
+
     $updates = [
         'email' => $input['email'] ?? $user['email'],
         'phone' => $input['phone'] ?? $user['phone'],
+        'license_code' => $licenseCode,
         'appearance' => $appearance
     ];
 
-    $oldProfile = ['email' => $user['email'], 'phone' => $user['phone'], 'appearance' => $user['appearance'] ?? []];
+    $oldProfile = ['email' => $user['email'], 'phone' => $user['phone'], 'license_code' => $user['license_code'] ?? '', 'appearance' => $user['appearance'] ?? []];
     $db->update('users', $user['id'], $updates);
     $db->logAudit('AUTH_PROFILE', $user['id'], 'UPDATE', $oldProfile, $updates, $user['id']);
 
-    echo json_encode(['success' => true, 'appearance' => $appearance]);
+    // Sincronizar código con el profesional coincidente si existe
+    $profs = $db->getCollection('professionals');
+    foreach ($profs as $p) {
+        if ((!empty($p['email']) && !empty($updates['email']) && strtolower($p['email']) === strtolower($updates['email'])) ||
+            (!empty($user['name']) && !empty($p['name']) && stripos($p['name'], $user['name']) !== false)) {
+            $profUpdates = ['license_code' => $licenseCode];
+            if (!empty($updates['email'])) $profUpdates['email'] = $updates['email'];
+            if (!empty($updates['phone'])) $profUpdates['phone'] = $updates['phone'];
+            $db->update('professionals', $p['id'], $profUpdates);
+        }
+    }
+
+    echo json_encode(['success' => true, 'license_code' => $licenseCode, 'appearance' => $appearance]);
     exit;
 }
 

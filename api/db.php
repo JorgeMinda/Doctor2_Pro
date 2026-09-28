@@ -304,6 +304,10 @@ class TransactSafeDatabase {
 
         $newBalance = $targetAccount['balance'];
 
+        $receiptNumber = !empty($meta['receiptNumber']) ? $meta['receiptNumber'] : (
+            ($type === 'INCOME' ? 'REC-' : 'EGR-') . date('Ymd') . '-' . substr(strtoupper(bin2hex(random_bytes(2))), 0, 4)
+        );
+
         $movement = [
             'id' => 'mov_' . bin2hex(random_bytes(8)),
             'timestamp' => date('c'),
@@ -312,6 +316,13 @@ class TransactSafeDatabase {
             'amount' => $amount,
             'type' => $type,
             'concept' => $concept,
+            'category' => $meta['category'] ?? ($type === 'INCOME' ? 'Ingreso General' : 'Gasto Operativo'),
+            'personName' => $meta['personName'] ?? ($type === 'INCOME' ? 'Paciente / Cliente' : 'Proveedor / Beneficiario'),
+            'identification' => $meta['identification'] ?? '',
+            'paymentMethod' => $meta['paymentMethod'] ?? 'Efectivo',
+            'receiptNumber' => $receiptNumber,
+            'notes' => $meta['notes'] ?? '',
+            'registeredBy' => $meta['registeredBy'] ?? 'Admin',
             'referenceId' => $referenceId,
             'patientId' => $patientId,
             'balanceAfter' => $newBalance,

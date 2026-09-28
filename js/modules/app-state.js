@@ -30,6 +30,7 @@ export const api = {
   notifications: 'api/notifications.php',
   suscripcion: 'api/suscripcion.php',
   galiciaNave: 'api/galicia-nave.php',
-  treasury: 'api/treasury.php'
+  treasury: 'api/treasury.php',
+  blockedDays: 'api/blocked-days.php'
 };
 

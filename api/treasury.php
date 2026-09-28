@@ -94,15 +94,24 @@ if ($method === 'POST') {
             exit;
         }
 
-        $movement = $db->recordTreasuryMovement($accountId, $amount, $type, $concept, $referenceId, $patientId, [
-            'origin' => 'MANUAL_ENTRY'
-        ]);
+        $meta = [
+            'origin' => $input['origin'] ?? 'MANUAL_ENTRY',
+            'category' => trim($input['category'] ?? ($type === 'INCOME' ? 'Ingreso General' : 'Gasto Operativo')),
+            'personName' => trim($input['personName'] ?? ($type === 'INCOME' ? 'Paciente / Cliente' : 'Proveedor / Beneficiario')),
+            'identification' => trim($input['identification'] ?? ''),
+            'paymentMethod' => trim($input['paymentMethod'] ?? 'Efectivo'),
+            'receiptNumber' => trim($input['receiptNumber'] ?? ''),
+            'notes' => trim($input['notes'] ?? ''),
+            'registeredBy' => trim($input['registeredBy'] ?? 'Admin')
+        ];
+
+        $movement = $db->recordTreasuryMovement($accountId, $amount, $type, $concept, $referenceId, $patientId, $meta);
 
         if ($movement) {
             echo json_encode([
                 'success' => true,
                 'movement' => $movement,
-                'message' => 'Movimiento de tesorería registrado'
+                'message' => ($type === 'INCOME' ? 'Ingreso y comprobante registrado correctamente' : 'Egreso y comprobante registrado correctamente')
             ]);
         } else {
             http_response_code(400);

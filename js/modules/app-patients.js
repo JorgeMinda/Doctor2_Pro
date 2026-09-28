@@ -64,17 +64,45 @@ function calculateAge(birthdate) {
   return Math.abs(ageDate.getUTCFullYear() - 1970) + ' años';
 }
 
+export function backToPatientList() {
+  state.selectedPatient = null;
+  const listHead = el('patientsListHead');
+  const tableContainer = el('patientsTableContainer');
+  const detailContainer = el('patientDetail');
+
+  if (listHead) listHead.classList.remove('hidden');
+  if (tableContainer) tableContainer.classList.remove('hidden');
+  if (detailContainer) {
+    detailContainer.classList.add('hidden');
+    detailContainer.innerHTML = '<div class="empty">Seleccioná un paciente de la lista para ver su ficha clínica y odontograma.</div>';
+  }
+  renderPatients();
+}
+window.backToPatientList = backToPatientList;
+
 export async function selectPatient(patientId, defaultTab = 'historia') {
   try {
     const data = await apiFetch(`${api.patients}?id=${patientId}`);
     if (data.patient) {
       state.selectedPatient = data.patient;
-      const splitEl = document.querySelector('#patientsView .split');
-      if (splitEl) {
-        splitEl.classList.add('patient-active');
-      }
+      
+      // Ocultar la tabla de pacientes y su cabezal para mostrar la ficha completa
+      const listHead = el('patientsListHead');
+      const tableContainer = el('patientsTableContainer');
+      const detailContainer = el('patientDetail');
+
+      if (listHead) listHead.classList.add('hidden');
+      if (tableContainer) tableContainer.classList.add('hidden');
+      if (detailContainer) detailContainer.classList.remove('hidden');
+
       renderPatients();
       renderPatientDetail(data.patient, defaultTab);
+      
+      // Asegurar scroll suave hacia arriba en la vista del paciente
+      const mainContainer = document.querySelector('.main-content') || window;
+      if (mainContainer.scrollTo) {
+        mainContainer.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   } catch (err) {
     showToast('No se pudo cargar la ficha del paciente', 'error');
@@ -86,34 +114,33 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
   const container = el('patientDetail');
   if (!container) return;
 
-  const splitEl = document.querySelector('#patientsView .split');
-  if (splitEl) {
-    splitEl.classList.add('patient-active');
-  }
-
   container.innerHTML = `
-    <div class="patient-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
-      <div style="display:flex; align-items:center; gap:12px;">
-        <button type="button" class="ghost" onclick="window.closePatientDetail()" style="font-weight:700; color:var(--primary); font-size:0.88rem; display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); padding:6px 12px; border-radius:8px;" title="Volver al listado de pacientes">
-          <i class="fas fa-arrow-left"></i> Volver a Lista
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--border); padding-bottom:16px;">
+      <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+        <button class="ghost" onclick="window.backToPatientList()" title="Volver al padrón de pacientes" style="font-weight:700; font-size:0.88rem; display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:8px; background:var(--bg-page); border:1px solid var(--border); color:var(--text); cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,0.05); transition:all 0.2s;">
+          <i class="fas fa-arrow-left" style="color:var(--primary);"></i> Volver a la Lista
         </button>
+        <div style="border-left:2px solid var(--border); height:28px;"></div>
         <div>
-          <h3 style="margin:0 0 2px 0; color:var(--primary); font-size:1.35rem; font-weight:800;">${patient.name}</h3>
-          <p class="muted" style="margin:0; font-size:0.85rem;">
-            Cédula: <strong>${patient.dni || 'Sin registrar'}</strong> · 
-            Género: <strong>${patient.sex || '-'}</strong> · 
-            Seguro: <strong>${patient.health_insurance || patient.insurance || 'Particular'}</strong>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <h3 style="margin:0; color:var(--primary); font-size:1.35rem; font-weight:800;">${patient.name}</h3>
+            <span class="badge ${patient.status || 'active'}" style="font-size:0.75rem; text-transform:capitalize; padding:2px 8px;">${patient.status || 'Activo'}</span>
+          </div>
+          <p class="muted" style="margin:3px 0 0 0; font-size:0.84rem;">
+            Cédula / ID: <strong style="color:var(--text);">${patient.dni || 'Sin registrar'}</strong> · 
+            Edad: <strong style="color:var(--text);">${calculateAge(patient.birthdate)}</strong> · 
+            Género: <strong style="color:var(--text);">${patient.sex || '-'}</strong> · 
+            Tel: <strong style="color:var(--text);">${patient.phone || '-'}</strong> · 
+            Obra Social: <strong style="color:var(--primary);">${patient.health_insurance || patient.insurance || 'Particular'}</strong>
           </p>
         </div>
       </div>
-      <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-        <button class="ghost" id="toggleSplitViewBtn" style="font-size:0.82rem;" onclick="window.togglePatientViewMode()" title="Alternar entre pantalla completa y vista dividida">
-          <i class="fas fa-columns"></i> <span id="splitViewLabel">Vista Dividida</span>
-        </button>
-        <button class="ghost" style="font-size:0.82rem;" onclick="window.openEditPatient('${patient.id}')" title="Editar datos del paciente"><i class="fas fa-edit"></i> Editar</button>
-        <button class="ghost" style="font-size:0.82rem; color:var(--danger); border-color:rgba(239,68,68,0.3);" onclick="window.confirmDeletePatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}')" title="Eliminar paciente"><i class="fas fa-trash-alt"></i> Eliminar</button>
-        <button class="ghost" style="font-size:0.82rem;" onclick="window.openPatientExportModal()"><i class="fas fa-share-alt"></i> Exportar / Imprimir</button>
-        <button class="primary" style="font-size:0.82rem;" onclick="window.quickNewAptForPatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}', '${patient.phone || ''}')"><i class="fas fa-calendar-plus"></i> Dar turno</button>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="ghost" style="font-size:0.85rem;" onclick="window.openEditPatient('${patient.id}')" title="Editar datos del paciente"><i class="fas fa-edit"></i> Editar</button>
+        <button class="ghost" style="font-size:0.85rem; color:var(--primary); font-weight:600;" onclick="window.openCertificateModal()" title="Generar Certificado de Asistencia y Atención Médica"><i class="fas fa-certificate"></i> Certificado</button>
+        <button class="ghost" style="font-size:0.85rem; color:var(--danger); border-color:rgba(239,68,68,0.3);" onclick="window.confirmDeletePatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}')" title="Eliminar paciente"><i class="fas fa-trash-alt"></i> Eliminar</button>
+        <button class="ghost" style="font-size:0.85rem;" onclick="window.openPatientExportModal()"><i class="fas fa-share-alt"></i> Exportar / Imprimir</button>
+        <button class="primary" style="font-size:0.85rem;" onclick="window.quickNewAptForPatient('${patient.id}', '${patient.name.replace(/'/g, "\\'")}', '${patient.phone || ''}')"><i class="fas fa-calendar-plus"></i> Dar turno</button>
       </div>
     </div>
 
@@ -131,30 +158,6 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
 
   window.switchPatientTab(initialTab);
 }
-
-window.closePatientDetail = () => {
-  state.selectedPatient = null;
-  const splitEl = document.querySelector('#patientsView .split');
-  if (splitEl) {
-    splitEl.classList.remove('patient-active');
-    splitEl.classList.remove('split-mode');
-  }
-  const container = el('patientDetail');
-  if (container) {
-    container.innerHTML = '<div class="empty">Seleccioná un paciente de la lista para ver su ficha clínica y odontograma.</div>';
-  }
-  renderPatients();
-};
-
-window.togglePatientViewMode = () => {
-  const splitEl = document.querySelector('#patientsView .split');
-  if (!splitEl) return;
-  const isSplit = splitEl.classList.toggle('split-mode');
-  const label = el('splitViewLabel');
-  if (label) {
-    label.textContent = isSplit ? 'Pantalla Completa' : 'Vista Dividida';
-  }
-};
 
 window.openEditPatient = async (patientId) => {
   await selectPatient(patientId, 'ficha');
@@ -206,11 +209,7 @@ window.confirmDeletePatient = (patientId, patientName) => {
       closeModal();
 
       if (state.selectedPatient?.id === patientId) {
-        state.selectedPatient = null;
-        const container = el('patientDetail');
-        if (container) {
-          container.innerHTML = '<div class="empty">Seleccioná un paciente de la lista para ver su historia clínica y ficha.</div>';
-        }
+        backToPatientList();
       }
 
       await loadPatients();
@@ -454,6 +453,16 @@ window.openPatientExportModal = () => {
       'Consultorios.pro'
     );
     document.body.appendChild(exportNode);
+  });
+};
+
+window.openCertificateModal = (targetPatient = state.selectedPatient) => {
+  if (!targetPatient) {
+    showToast('Seleccione un paciente para emitir el certificado', 'warning');
+    return;
+  }
+  import('./patient-certificate.js').then(mod => {
+    mod.openCertificateModal(targetPatient);
   });
 };
 
