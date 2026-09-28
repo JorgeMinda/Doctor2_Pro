@@ -13,4 +13,4 @@ RUN chmod -R 777 /app/api 2>/dev/null || true
 
 EXPOSE 10000
 
-CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-10000} -t /app /app/router.php"]
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-10000} -t /app"]
