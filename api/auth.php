@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/db.php';
 $db = getDatabase();
 
@@ -12,7 +16,15 @@ if ($method === 'POST' && $action === 'login') {
 
     $user = $db->findOneBy('users', 'username', $username);
 
-    if ($user && password_verify($password, $user['password'])) {
+    $isPasswordValid = false;
+    if ($user) {
+        if (password_verify($password, $user['password']) || $user['password'] === $password) {
+            $isPasswordValid = true;
+        }
+    }
+
+    if ($user && $isPasswordValid) {
+        $_SESSION['user_id'] = $user['id'];
         $db->logAudit('AUTH', $user['id'], 'LOGIN', null, ['username' => $username, 'status' => 'SUCCESS'], $user['id']);
         unset($user['password']);
         echo json_encode([
@@ -28,17 +40,27 @@ if ($method === 'POST' && $action === 'login') {
     exit;
 }
 
-if ($method === 'GET' && $action === 'session') {
-    $users = $db->getCollection('users');
-    $user = $users[0] ?? null;
+if ($action === 'logout') {
+    unset($_SESSION['user_id']);
+    session_destroy();
+    echo json_encode(['success' => true, 'message' => 'Sesión cerrada']);
+    exit;
+}
 
-    if ($user) {
-        unset($user['password']);
-        echo json_encode(['success' => true, 'user' => $user]);
-    } else {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'error' => 'No hay sesión activa']);
+if ($method === 'GET' && $action === 'session') {
+    $userId = $_SESSION['user_id'] ?? null;
+
+    if ($userId) {
+        $user = $db->findById('users', $userId);
+        if ($user) {
+            unset($user['password']);
+            echo json_encode(['success' => true, 'user' => $user]);
+            exit;
+        }
     }
+
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'No hay sesión activa']);
     exit;
 }
 

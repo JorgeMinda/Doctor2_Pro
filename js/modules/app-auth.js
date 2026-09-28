@@ -185,7 +185,10 @@ export async function login() {
   }
 }
 
-export function logout() {
+export async function logout() {
+  try {
+    await apiFetch(`${api.auth}?action=logout`);
+  } catch (e) {}
   state.user = null;
   state.token = null;
   showToast('Sesión cerrada correctamente', 'info');
