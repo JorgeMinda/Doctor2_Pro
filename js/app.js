@@ -19,6 +19,7 @@ import { initAgendaPrint } from './modules/app-agenda-print.js';
 import { initAIAssistant } from './modules/app-ai-assistant.js';
 import { initTreasuryModule, loadTreasuryData } from './modules/app-treasury.js';
 import { initVoiceAssistant } from './modules/app-voice-assistant.js';
+import { initAICopilot, toggleAICopilot } from './modules/app-ai-copilot.js';
 import {
   openModal,
   closeModal,
@@ -116,6 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initChat();
   internalChat.init();
   initAIAssistant();
+  initAICopilot();
   setNav(state.currentNav || 'agenda');
 });
 
@@ -133,6 +135,7 @@ el('navAnalytics')?.addEventListener('click', () => { setNav('analytics'); rende
 el('navConfig')?.addEventListener('click', () => setNav('notifications'));
 el('navChat')?.addEventListener('click', () => { setNav('chat'); initChat(); });
 el('navInternalChat')?.addEventListener('click', () => { setNav('internalChat'); internalChat.renderMessages(); });
+el('navCopilot')?.addEventListener('click', () => toggleAICopilot());
 el('navAppearance')?.addEventListener('click', openAppearanceModal);
 el('navProfile')?.addEventListener('click', openProfile);
 

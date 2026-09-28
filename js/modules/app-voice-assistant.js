@@ -70,6 +70,9 @@ function injectVoiceWidget() {
   const widget = document.createElement('div');
   widget.id = 'floatingVoiceAssistant';
   widget.innerHTML = `
+    <button id="floatingCopilotBtn" class="copilot-toggle-btn" type="button" title="Operit AI Copilot (Asistente & Automatizaciones)">
+      <i class="fas fa-brain"></i>
+    </button>
     <button id="floatingVoiceBtn" class="voice-btn-pulse" type="button" title="Asistente de Voz Clínico (Presioná para hablar)">
       <i class="fas fa-microphone" id="voiceMicIcon"></i>
       <span class="voice-wave-ring"></span>
@@ -79,18 +82,22 @@ function injectVoiceWidget() {
         <span class="voice-dot-live"></span>
         <strong id="voiceStatusText" style="font-size:0.85rem; color:var(--text);">Asistente Clínico Doctor2</strong>
       </div>
-      <p id="voiceTranscriptText" style="margin:4px 0 0; font-size:0.8rem; color:var(--muted);">Decí: "Buscar paciente María...", "Agendar turno...", o dictá directamente tu nota clínica.</p>
+      <p id="voiceTranscriptText" style="margin:4px 0 0; font-size:0.8rem; color:var(--muted);">Decí: "Pieza 16 caries oclusal", "Resumir paciente", "Cierre de consulta", o dictá tu nota clínica.</p>
     </div>
   `;
 
   document.body.appendChild(widget);
 
   const btn = document.getElementById('floatingVoiceBtn');
-  // Evitar que el click en el botón descarte el foco del elemento previo
   btn?.addEventListener('mousedown', (e) => {
     e.preventDefault();
   });
   btn?.addEventListener('click', toggleVoiceRecognition);
+
+  const copilotBtn = document.getElementById('floatingCopilotBtn');
+  copilotBtn?.addEventListener('click', () => {
+    if (window.toggleAICopilot) window.toggleAICopilot();
+  });
 }
 
 export function toggleVoiceRecognition() {
@@ -291,6 +298,30 @@ export function handleVoiceIntent(rawText) {
   // Limpieza rigurosa sin tildes ni puntos finales que agrega el navegador
   const clean = cleanVoiceQuery(rawText);
   console.log('🎤 Query procesado y sanitizado:', clean);
+
+  // 0. INTENT: COPILOTO CLÍNICO / ODONTOGRAMA / RESUMEN / CIERRE
+  const isCopilotActive = document.getElementById('operitCopilotPanel') && !document.getElementById('operitCopilotPanel').classList.contains('hidden');
+  const isOdontogramIntent = /\b(pieza|diente|molar|premolar|incisivo|canino|\d{2})\b/i.test(clean) &&
+    /\b(caries|obturad[ao]|sellante|endodoncia|conducto|extracci[oó]n|corona|sano)\b/i.test(clean);
+  const isCopilotDirectCmd = clean.includes('cierre de consulta') || clean.includes('cerrar consulta') ||
+    clean.includes('resumen paciente') || clean.includes('resumir paciente') ||
+    clean.includes('abrir copiloto') || clean.includes('abrir asistente') || clean === 'copiloto';
+
+  if (isCopilotActive || isOdontogramIntent || isCopilotDirectCmd) {
+    if (clean.includes('abrir copiloto') || clean === 'copiloto' || clean.includes('abrir asistente')) {
+      if (window.toggleAICopilot) window.toggleAICopilot(true);
+      speakText('Abriendo Copiloto Clínico Operit');
+      return;
+    }
+    if (window.processCopilotCommand) {
+      if (window.appendCopilotMessage) {
+        window.appendCopilotMessage('user', rawText);
+      }
+      if (window.toggleAICopilot) window.toggleAICopilot(true);
+      window.processCopilotCommand(rawText);
+      return;
+    }
+  }
 
   // 1. INTENT: BUSCAR CITAS / TURNOS EN AGENDA
   const isAptSearch = clean.includes('cita') || clean.includes('turno') || clean.includes('turnos') || clean.includes('citas') || clean.includes('agenda de');
