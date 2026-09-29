@@ -214,10 +214,11 @@ if ($method === 'POST') {
         'email' => trim($input['email'] ?? ''),
         'birthdate' => $input['birthdate'] ?? '',
         'health_insurance' => trim($input['health_insurance'] ?? 'Particular'),
-        'affiliate_number' => trim($input['affiliate_number'] ?? ''),
         'representativeName' => trim($input['representativeName'] ?? ''),
         'representativeDni' => trim($input['representativeDni'] ?? ''),
+        'emergencyName' => trim($input['emergencyName'] ?? ''),
         'emergencyPhone' => trim($input['emergencyPhone'] ?? ''),
+        'emergencyContact' => trim($input['emergencyContact'] ?? ''),
         'notes' => trim($input['notes'] ?? ''),
         'allergies' => trim($input['allergies'] ?? ''),
         'created_at' => date('Y-m-d H:i:s')

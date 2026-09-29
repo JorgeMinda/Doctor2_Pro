@@ -39,7 +39,7 @@ export function renderPatients() {
       <td>${p.phone || '-'}</td>
       <td>${p.email || '-'}</td>
       <td>${calculateAge(p.birthdate)}</td>
-      <td>${p.health_insurance || 'Particular'}</td>
+      <td>${p.emergencyPhone ? `${p.emergencyName ? p.emergencyName + ': ' : ''}${p.emergencyPhone}` : (p.emergencyName || p.emergencyContact || '-')}</td>
       <td>
         <div style="display:flex; gap:4px; align-items:center;">
           <button class="ghost" style="padding:4px 8px; font-size:11px;" title="Ver Historia Clínica" onclick="event.stopPropagation(); window.selectPatient('${p.id}', 'historia')">
@@ -114,6 +114,10 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
   const container = el('patientDetail');
   if (!container) return;
 
+  const emergencyInfo = patient.emergencyPhone
+    ? `${patient.emergencyName ? patient.emergencyName + ' (' + patient.emergencyPhone + ')' : patient.emergencyPhone}`
+    : (patient.emergencyName || patient.emergencyContact || 'Sin registrar');
+
   container.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--border); padding-bottom:16px;">
       <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
@@ -131,7 +135,7 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
             Edad: <strong style="color:var(--text);">${calculateAge(patient.birthdate)}</strong> · 
             Género: <strong style="color:var(--text);">${patient.sex || '-'}</strong> · 
             Tel: <strong style="color:var(--text);">${patient.phone || '-'}</strong> · 
-            Obra Social: <strong style="color:var(--primary);">${patient.health_insurance || patient.insurance || 'Particular'}</strong>
+            Contacto Emergencia: <strong style="color:var(--primary);">${emergencyInfo}</strong>
           </p>
         </div>
       </div>
@@ -387,9 +391,8 @@ export async function saveNewPatient() {
   const phone = el('newPatPhone')?.value.trim();
   const email = el('newPatEmail')?.value.trim();
   const occupation = el('newPatOccupation')?.value.trim();
-  const insurance = el('newPatInsurance')?.value.trim();
-  const affiliate_number = el('newPatInsuranceNumber')?.value.trim();
-  const emergencyPhone = el('newPatEmergency')?.value.trim();
+  const emergencyName = el('newPatEmergencyName')?.value.trim();
+  const emergencyPhone = el('newPatEmergencyPhone')?.value.trim();
   const representativeName = el('newPatRepresentative')?.value.trim();
   const allergies = el('newPatAllergies')?.value.trim();
   const notes = el('newPatNotes')?.value.trim();
@@ -411,9 +414,9 @@ export async function saveNewPatient() {
         phone,
         email,
         occupation,
-        health_insurance: insurance,
-        affiliate_number,
+        emergencyName,
         emergencyPhone,
+        emergencyContact: (emergencyName && emergencyPhone) ? `${emergencyName} (${emergencyPhone})` : (emergencyName || emergencyPhone || ''),
         representativeName,
         allergies,
         notes

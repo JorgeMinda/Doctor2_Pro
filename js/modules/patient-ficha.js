@@ -53,10 +53,6 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
           <span>${escapeHtml(patient.email || '-')}</span>
         </div>
         <div class="ficha-item">
-          <label class="muted" style="font-size:0.8rem; display:block;">Obra Social / Prepaga</label>
-          <span class="badge ${patient.health_insurance || patient.insurance ? 'attended' : 'pending'}">${escapeHtml(patient.health_insurance || patient.insurance || 'Particular')}</span>
-        </div>
-        <div class="ficha-item">
           <label class="muted" style="font-size:0.8rem; display:block;">Género</label>
           <span>${escapeHtml(patient.sex || 'No especificado')}</span>
         </div>
@@ -65,16 +61,16 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
           <span>${escapeHtml(patient.occupation || 'Sin registrar')}</span>
         </div>
         <div class="ficha-item">
-          <label class="muted" style="font-size:0.8rem; display:block;">Contacto de Emergencia</label>
+          <label class="muted" style="font-size:0.8rem; display:block;">Nombre Contacto de Emergencia</label>
+          <span><strong>${escapeHtml(patient.emergencyName || (patient.emergencyContact ? patient.emergencyContact.split(' (')[0] : '-'))}</strong></span>
+        </div>
+        <div class="ficha-item">
+          <label class="muted" style="font-size:0.8rem; display:block;">Teléfono Contacto de Emergencia</label>
           <span>${patient.emergencyPhone ? `<a href="tel:${patient.emergencyPhone}" style="color:var(--primary); text-decoration:none;"><i class="fas fa-phone-alt"></i> ${patient.emergencyPhone}</a>` : '-'}</span>
         </div>
         <div class="ficha-item">
           <label class="muted" style="font-size:0.8rem; display:block;">Representante Legal</label>
           <span>${escapeHtml(patient.representativeName ? `${patient.representativeName} (Cédula ${patient.representativeDni || '-'})` : 'No aplica')}</span>
-        </div>
-        <div class="ficha-item">
-          <label class="muted" style="font-size:0.8rem; display:block;">N° de Afiliado</label>
-          <span>${escapeHtml(patient.affiliate_number || patient.insuranceNumber || '-')}</span>
         </div>
         <div class="ficha-item">
           <label class="muted" style="font-size:0.8rem; display:block;">Fecha de Nacimiento</label>
@@ -138,16 +134,12 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
           <input type="text" id="fichaOccupation" value="${escapeHtml(patient.occupation || '')}" class="field-input" placeholder="Ej: Docente, Comerciante">
         </label>
         <label class="field">
-          <span>Obra Social / Cobertura</span>
-          <input type="text" id="fichaInsurance" value="${escapeHtml(patient.health_insurance || patient.insurance || '')}" class="field-input" placeholder="Ej: OSDE, Swiss Medical, Particular">
+          <span>Nombre Contacto de Emergencia</span>
+          <input type="text" id="fichaEmergencyName" value="${escapeHtml(patient.emergencyName || '')}" class="field-input" placeholder="Nombre y parentesco">
         </label>
         <label class="field">
-          <span>N° de Afiliado</span>
-          <input type="text" id="fichaInsuranceNumber" value="${escapeHtml(patient.affiliate_number || patient.insuranceNumber || '')}" class="field-input">
-        </label>
-        <label class="field">
-          <span>Contacto de Emergencia (Teléfono)</span>
-          <input type="tel" id="fichaEmergencyPhone" value="${escapeHtml(patient.emergencyPhone || '')}" class="field-input" placeholder="Nombre y Teléfono">
+          <span>Teléfono Contacto de Emergencia</span>
+          <input type="tel" id="fichaEmergencyPhone" value="${escapeHtml(patient.emergencyPhone || '')}" class="field-input" placeholder="+549... o número telefónico">
         </label>
         <label class="field">
           <span>Representante Legal (si es menor)</span>
@@ -226,9 +218,11 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
           phone: container.querySelector('#fichaPhone').value.trim(),
           email: container.querySelector('#fichaEmail').value.trim(),
           occupation: container.querySelector('#fichaOccupation').value.trim(),
-          health_insurance: container.querySelector('#fichaInsurance').value.trim(),
-          affiliate_number: container.querySelector('#fichaInsuranceNumber').value.trim(),
+          emergencyName: container.querySelector('#fichaEmergencyName').value.trim(),
           emergencyPhone: container.querySelector('#fichaEmergencyPhone').value.trim(),
+          emergencyContact: (container.querySelector('#fichaEmergencyName').value.trim() && container.querySelector('#fichaEmergencyPhone').value.trim()) 
+            ? `${container.querySelector('#fichaEmergencyName').value.trim()} (${container.querySelector('#fichaEmergencyPhone').value.trim()})`
+            : (container.querySelector('#fichaEmergencyName').value.trim() || container.querySelector('#fichaEmergencyPhone').value.trim() || ''),
           representativeName: container.querySelector('#fichaRepresentative').value.trim(),
           address: container.querySelector('#fichaAddress').value.trim(),
           allergies: container.querySelector('#fichaAllergies').value.trim(),
