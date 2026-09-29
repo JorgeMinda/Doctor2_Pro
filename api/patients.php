@@ -213,7 +213,7 @@ if ($method === 'POST') {
         'phone' => trim($input['phone'] ?? ''),
         'email' => trim($input['email'] ?? ''),
         'birthdate' => $input['birthdate'] ?? '',
-        'health_insurance' => trim($input['health_insurance'] ?? 'Particular'),
+        'address' => trim($input['address'] ?? ''),
         'representativeName' => trim($input['representativeName'] ?? ''),
         'representativeDni' => trim($input['representativeDni'] ?? ''),
         'emergencyName' => trim($input['emergencyName'] ?? ''),

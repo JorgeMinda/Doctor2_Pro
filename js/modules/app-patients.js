@@ -376,7 +376,18 @@ window.quickNewAptForPatient = (id, name, phone) => {
 };
 
 export function openNewPatientModal() {
-  el('patientModal')?.classList.remove('hidden');
+  const modal = el('patientModal');
+  if (modal) {
+    const inputs = modal.querySelectorAll('input, textarea');
+    inputs.forEach(input => {
+      if (input.type === 'checkbox') {
+        input.checked = true;
+      } else {
+        input.value = '';
+      }
+    });
+    modal.classList.remove('hidden');
+  }
 }
 
 export function closeNewPatientModal() {
@@ -391,6 +402,7 @@ export async function saveNewPatient() {
   const phone = el('newPatPhone')?.value.trim();
   const email = el('newPatEmail')?.value.trim();
   const occupation = el('newPatOccupation')?.value.trim();
+  const address = el('newPatAddress')?.value.trim();
   const emergencyName = el('newPatEmergencyName')?.value.trim();
   const emergencyPhone = el('newPatEmergencyPhone')?.value.trim();
   const representativeName = el('newPatRepresentative')?.value.trim();
@@ -414,6 +426,7 @@ export async function saveNewPatient() {
         phone,
         email,
         occupation,
+        address,
         emergencyName,
         emergencyPhone,
         emergencyContact: (emergencyName && emergencyPhone) ? `${emergencyName} (${emergencyPhone})` : (emergencyName || emergencyPhone || ''),

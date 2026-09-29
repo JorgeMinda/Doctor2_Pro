@@ -2,7 +2,7 @@
  * historia-clinica.js - Sistema Integral de Historia Clínica Odontológica (12 Secciones Oficiales + CIE-10)
  * Diseñado con interfaz moderna en formato Accordion Card Deck (desplegable e interactivo)
  */
-import { showToast, apiFetch, formatDate } from './app-utils.js';
+import { showToast, apiFetch, formatDate, calculateAge } from './app-utils.js';
 import { searchCIE10, getCIE10ByCode, addCustomCIE10 } from './cie10-catalogue.js';
 import { renderOdontogram } from './app-odontogram.js';
 
@@ -112,7 +112,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
           <div class="grid-3" style="gap:14px;">
             <label class="field"><span>Nombre Completo</span><input type="text" value="${patient.name || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Cédula / Identificación</span><input type="text" value="${patient.dni || ''}" readonly class="field-readonly"></label>
-            <label class="field"><span>Fecha de Nacimiento / Edad</span><input type="text" value="${patient.birth_date || ''} (${patient.age ? patient.age + ' años' : 'Sin edad'})" readonly class="field-readonly"></label>
+            <label class="field"><span>Fecha de Nacimiento / Edad</span><input type="text" value="${(patient.birthdate || patient.birthDate || patient.birth_date) ? `${patient.birthdate || patient.birthDate || patient.birth_date} (${calculateAge(patient.birthdate || patient.birthDate || patient.birth_date)})` : '(Sin edad)'}" readonly class="field-readonly"></label>
             <label class="field"><span>Género</span><input type="text" value="${patient.sex || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Estado Civil</span><input type="text" value="${patient.civil_status || patient.civilStatus || 'Soltero/a'}" readonly class="field-readonly"></label>
             <label class="field"><span>Ocupación</span><input type="text" value="${patient.occupation || 'No especificada'}" readonly class="field-readonly"></label>
@@ -120,7 +120,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <label class="field"><span>Email</span><input type="text" value="${patient.email || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Cobertura / Seguro Dental</span><input type="text" value="${patient.health_insurance || patient.insurance || 'Particular'}" readonly class="field-readonly"></label>
             <label class="field" style="grid-column:1/-1;"><span>Dirección de Residencia</span><input type="text" value="${patient.address || 'No registrada'}" readonly class="field-readonly"></label>
-            <label class="field" style="grid-column:1/-1;"><span>Contacto de Emergencia</span><input type="text" value="${patient.emergency_contact || patient.emergencyContact || 'No especificado'}" readonly class="field-readonly"></label>
+            <label class="field" style="grid-column:1/-1;"><span>Contacto de Emergencia</span><input type="text" value="${esc(patient.emergencyPhone ? `${patient.emergencyName ? patient.emergencyName + ' (' + patient.emergencyPhone + ')' : patient.emergencyPhone}` : (patient.emergencyName || patient.emergencyContact || patient.emergency_contact || 'No especificado'))}" readonly class="field-readonly"></label>
           </div>
         </div>
       </div>

@@ -24,6 +24,19 @@ export function formatReadableDate(dateStr) {
   return date.toLocaleDateString('es-ES', options);
 }
 
+export function calculateAge(birthdate) {
+  if (!birthdate) return 'Sin edad';
+  const birth = new Date(birthdate);
+  if (isNaN(birth.getTime())) return 'Sin edad';
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age >= 0 ? `${age} años` : 'Sin edad';
+}
+
 export function formatCurrency(amount) {
   return new Intl.NumberFormat('es-AR', {
     style: 'currency',
