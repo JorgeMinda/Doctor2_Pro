@@ -2,7 +2,7 @@
  * patient-ficha.js - Ficha de Datos Administrativos del Paciente
  * Permite ver y editar los datos demográficos, cobertura médica y agendar controles sugeridos.
  */
-import { showToast, formatDate } from './app-utils.js';
+import { showToast, formatDate, calculateAge } from './app-utils.js';
 
 export function createPatientFicha(patient, professionals = [], canEdit = true, onSave) {
   const container = document.createElement('div');
@@ -77,8 +77,8 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
           <span>${escapeHtml(patient.representativeName ? `${patient.representativeName} (Cédula ${patient.representativeDni || '-'})` : 'No aplica')}</span>
         </div>
         <div class="ficha-item">
-          <label class="muted" style="font-size:0.8rem; display:block;">Fecha de Nacimiento</label>
-          <span>${patient.birthdate || patient.birthDate ? formatDateNice(patient.birthdate || patient.birthDate) : '-'}</span>
+          <label class="muted" style="font-size:0.8rem; display:block;">Fecha de Nacimiento / Edad</label>
+          <span>${(patient.birthdate || patient.birthDate) ? `${formatDateNice(patient.birthdate || patient.birthDate)} (${calculateAge(patient.birthdate || patient.birthDate)})` : (patient.age ? `${patient.age} años` : '-')}</span>
         </div>
         <div class="ficha-item">
           <label class="muted" style="font-size:0.8rem; display:block;">Profesional Asignado</label>
@@ -213,12 +213,16 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
     
     if (saveBtn) {
       saveBtn.addEventListener('click', async () => {
+        const bVal = container.querySelector('#fichaBirthDate').value.trim() || null;
+        const aStr = calculateAge(bVal);
+        const aNum = parseInt(aStr, 10);
         const data = {
           id: patient.id,
           name: container.querySelector('#fichaName').value.trim(),
           dni: container.querySelector('#fichaDni').value.trim(),
           sex: container.querySelector('#fichaSex').value,
-          birthdate: container.querySelector('#fichaBirthDate').value,
+          birthdate: bVal,
+          age: isNaN(aNum) ? (patient.age || null) : aNum,
           phone: container.querySelector('#fichaPhone').value.trim(),
           email: container.querySelector('#fichaEmail').value.trim(),
           occupation: container.querySelector('#fichaOccupation').value.trim(),

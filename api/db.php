@@ -642,7 +642,7 @@ class MySQLDatabase {
     // Campos que se almacenan como JSON estructurado en MySQL
     private $jsonFields = [
         'schedule', 'emergency_block', 'history_entries', 'odontogram_data',
-        'attachments', 'diff', 'meta'
+        'attachments', 'diff', 'meta', 'clinicalHistory', 'clinicalNotes', 'treatmentPlans', 'budgets', 'items'
     ];
 
     public function __construct($host = null, $port = null, $dbname = null, $user = null, $pass = null) {

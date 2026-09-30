@@ -204,6 +204,15 @@ if ($method === 'POST') {
         exit;
     }
 
+    $birthdate = !empty($input['birthdate']) ? trim($input['birthdate']) : null;
+    $age = isset($input['age']) && is_numeric($input['age']) ? (int)$input['age'] : null;
+    if ($birthdate && $age === null) {
+        $bDate = date_create($birthdate);
+        if ($bDate) {
+            $age = (int)date_diff($bDate, date_create('today'))->y;
+        }
+    }
+
     $newPatient = [
         'id' => 'pat-' . substr(md5(uniqid(rand(), true)), 0, 10),
         'name' => $name,
@@ -212,7 +221,8 @@ if ($method === 'POST') {
         'occupation' => trim($input['occupation'] ?? ''),
         'phone' => trim($input['phone'] ?? ''),
         'email' => trim($input['email'] ?? ''),
-        'birthdate' => $input['birthdate'] ?? '',
+        'birthdate' => $birthdate,
+        'age' => $age,
         'address' => trim($input['address'] ?? ''),
         'representativeName' => trim($input['representativeName'] ?? ''),
         'representativeDni' => trim($input['representativeDni'] ?? ''),
@@ -235,6 +245,12 @@ if ($method === 'PATCH' || $method === 'PUT') {
     $input = json_decode(file_get_contents('php://input'), true);
     $id = $input['id'] ?? $_GET['id'] ?? '';
     if ($id) {
+        if (!empty($input['birthdate']) && empty($input['age'])) {
+            $bDate = date_create(trim($input['birthdate']));
+            if ($bDate) {
+                $input['age'] = (int)date_diff($bDate, date_create('today'))->y;
+            }
+        }
         $oldPatient = $db->findById('patients', $id);
         $db->update('patients', $id, $input);
         $db->logAudit('PATIENT', $id, 'UPDATE', $oldPatient, $input);

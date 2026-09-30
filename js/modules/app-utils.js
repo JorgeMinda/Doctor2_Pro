@@ -25,9 +25,42 @@ export function formatReadableDate(dateStr) {
 }
 
 export function calculateAge(birthdate) {
-  if (!birthdate) return 'Sin edad';
-  const birth = new Date(birthdate);
-  if (isNaN(birth.getTime())) return 'Sin edad';
+  if (birthdate === null || birthdate === undefined) return 'Sin edad';
+  if (typeof birthdate === 'number') {
+    return birthdate > 0 ? `${birthdate} años` : 'Sin edad';
+  }
+  const str = String(birthdate).trim();
+  if (!str || str === '0000-00-00' || str.toLowerCase() === 'sin edad' || str.toLowerCase() === 'sin registrar' || str.toLowerCase() === '-') {
+    return 'Sin edad';
+  }
+
+  // Si ya es un valor de edad directo como "37" o "37 años"
+  const ageOnlyMatch = str.match(/^(\d{1,3})(\s*años)?$/i);
+  if (ageOnlyMatch) {
+    const n = parseInt(ageOnlyMatch[1], 10);
+    return n >= 0 ? `${n} años` : 'Sin edad';
+  }
+
+  let birth = null;
+  // Soporte formato latino DD/MM/YYYY o DD-MM-YYYY
+  const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (dmyMatch) {
+    const day = parseInt(dmyMatch[1], 10);
+    const month = parseInt(dmyMatch[2], 10) - 1;
+    const year = parseInt(dmyMatch[3], 10);
+    birth = new Date(year, month, day);
+  } else if (/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}/.test(str)) {
+    // Formato ISO YYYY-MM-DD o YYYY/MM/DD
+    const parts = str.split(/[\/\-T ]/);
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    birth = new Date(year, month, day);
+  } else {
+    birth = new Date(str);
+  }
+
+  if (!birth || isNaN(birth.getTime())) return 'Sin edad';
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();

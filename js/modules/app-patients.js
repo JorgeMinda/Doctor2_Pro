@@ -2,7 +2,7 @@
  * app-patients.js - Gestión de Pacientes, Ficha Médica e Historia Clínica
  */
 import { state, api } from './app-state.js';
-import { el, apiFetch, showToast } from './app-utils.js';
+import { el, apiFetch, showToast, calculateAge } from './app-utils.js';
 import { renderOdontogram } from './app-odontogram.js';
 
 export async function loadPatients() {
@@ -38,7 +38,7 @@ export function renderPatients() {
       <td>${p.dni || '-'}</td>
       <td>${p.phone || '-'}</td>
       <td>${p.email || '-'}</td>
-      <td>${calculateAge(p.birthdate)}</td>
+      <td>${calculateAge(p.birthdate || p.age)}</td>
       <td>${p.emergencyPhone ? `${p.emergencyName ? p.emergencyName + ': ' : ''}${p.emergencyPhone}` : (p.emergencyName || p.emergencyContact || '-')}</td>
       <td>
         <div style="display:flex; gap:4px; align-items:center;">
@@ -55,13 +55,6 @@ export function renderPatients() {
       </td>
     </tr>
   `).join('');
-}
-
-function calculateAge(birthdate) {
-  if (!birthdate) return '-';
-  const diff = Date.now() - new Date(birthdate).getTime();
-  const ageDate = new Date(diff);
-  return Math.abs(ageDate.getUTCFullYear() - 1970) + ' años';
 }
 
 export function backToPatientList() {
@@ -84,6 +77,13 @@ export async function selectPatient(patientId, defaultTab = 'historia') {
   try {
     const data = await apiFetch(`${api.patients}?id=${patientId}`);
     if (data.patient) {
+      const inList = state.patients.find(p => p.id === patientId);
+      if (inList?.birthdate && !data.patient.birthdate) {
+        data.patient.birthdate = inList.birthdate;
+      }
+      if (inList?.age && !data.patient.age) {
+        data.patient.age = inList.age;
+      }
       state.selectedPatient = data.patient;
       
       // Ocultar la tabla de pacientes y su cabezal para mostrar la ficha completa
@@ -133,7 +133,7 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
           </div>
           <p class="muted" style="margin:3px 0 0 0; font-size:0.84rem;">
             Cédula / ID: <strong style="color:var(--text);">${patient.dni || 'Sin registrar'}</strong> · 
-            Edad: <strong style="color:var(--text);">${calculateAge(patient.birthdate)}</strong> · 
+            Edad: <strong style="color:var(--text);">${calculateAge(patient.birthdate || patient.age)}</strong> · 
             Género: <strong style="color:var(--text);">${patient.sex || '-'}</strong> · 
             Tel: <strong style="color:var(--text);">${patient.phone || '-'}</strong> · 
             Contacto Emergencia: <strong style="color:var(--primary);">${emergencyInfo}</strong>
@@ -300,15 +300,28 @@ window.switchPatientTab = (tab) => {
           });
           patient.treatmentPlans = newPlans;
         },
-        async (hcData) => {
+        async (hcData, patchPayload = {}) => {
+          const payload = {
+            id: patient.id,
+            clinicalHistory: hcData,
+            ...patchPayload
+          };
           await apiFetch(api.patients, {
             method: 'PATCH',
-            body: JSON.stringify({
-              id: patient.id,
-              clinicalHistory: hcData
-            })
+            body: JSON.stringify(payload)
           });
           patient.clinicalHistory = hcData;
+          if (patchPayload.birthdate) {
+            patient.birthdate = patchPayload.birthdate;
+            const inList = state.patients.find(p => p.id === patient.id);
+            if (inList) inList.birthdate = patchPayload.birthdate;
+          }
+          if (patchPayload.age) {
+            patient.age = patchPayload.age;
+            const inList = state.patients.find(p => p.id === patient.id);
+            if (inList) inList.age = patchPayload.age;
+          }
+          renderPatients();
         },
         state.professionals || []
       );
@@ -477,6 +490,24 @@ export function openNewPatientModal() {
       });
       el('newPatDraftIndicator')?.classList.add('hidden');
     }
+
+    const bInput = el('newPatBirthdate');
+    if (bInput && !bInput._ageBound) {
+      bInput._ageBound = true;
+      bInput.addEventListener('input', () => {
+        const ageStr = calculateAge(bInput.value);
+        const prev = el('newPatAgePreview');
+        if (prev) {
+          prev.textContent = (ageStr && ageStr !== 'Sin edad') ? `(Edad: ${ageStr})` : '';
+        }
+      });
+    }
+    const ageInit = calculateAge(bInput?.value);
+    const prevInit = el('newPatAgePreview');
+    if (prevInit) {
+      prevInit.textContent = (ageInit && ageInit !== 'Sin edad') ? `(Edad: ${ageInit})` : '';
+    }
+
     modal.classList.remove('hidden');
   }
 }
@@ -489,7 +520,10 @@ export async function saveNewPatient() {
   const name = el('newPatName')?.value.trim();
   const dni = el('newPatDni')?.value.trim();
   const sex = el('newPatSex')?.value;
-  const birthdate = el('newPatBirthdate')?.value;
+  const birthdateRaw = el('newPatBirthdate')?.value ? el('newPatBirthdate').value.trim() : null;
+  const ageStr = calculateAge(birthdateRaw);
+  const ageNum = parseInt(ageStr, 10);
+  const age = isNaN(ageNum) ? null : ageNum;
   const phone = el('newPatPhone')?.value.trim();
   const email = el('newPatEmail')?.value.trim();
   const occupation = el('newPatOccupation')?.value.trim();
@@ -513,7 +547,8 @@ export async function saveNewPatient() {
         name,
         dni,
         sex,
-        birthdate,
+        birthdate: birthdateRaw,
+        age,
         phone,
         email,
         occupation,

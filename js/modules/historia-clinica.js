@@ -37,6 +37,11 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
   if (otrosList.length === 0) otrosList.push('');
   const esc = (s) => (s || '').toString().replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+  const rawBirth = (patient.birthdate || patient.birthDate || patient.birth_date || patient.fecha_nacimiento || patient.dob || '').toString().trim();
+  const rawAge = patient.age || patient.edad || null;
+  let calcAge = calculateAge(rawBirth || rawAge);
+  if (calcAge === 'Sin edad' && rawAge) calcAge = `${rawAge} años`;
+
 
   const diagList = (ch.diagnosticosCIE10 && ch.diagnosticosCIE10.length > 0)
     ? ch.diagnosticosCIE10
@@ -118,7 +123,18 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <label class="field"><span>HISTORIA CLÍNICA Nro:</span><input type="text" value="${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}" readonly class="field-readonly" style="font-weight:700; color:var(--primary);"></label>
             <label class="field"><span>Nombre Completo</span><input type="text" value="${patient.name || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Cédula / Identificación</span><input type="text" value="${patient.dni || ''}" readonly class="field-readonly"></label>
-            <label class="field"><span>Fecha de Nacimiento / Edad</span><input type="text" value="${(patient.birthdate || patient.birthDate || patient.birth_date) ? `${patient.birthdate || patient.birthDate || patient.birth_date} (${calculateAge(patient.birthdate || patient.birthDate || patient.birth_date)})` : '(Sin edad)'}" readonly class="field-readonly"></label>
+            <div class="field" style="display:flex; flex-direction:column; gap:4px;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.8rem; font-weight:600; color:var(--muted);">Fecha de Nacimiento / Edad</span>
+                <span id="hcFiliacionAgeBadge" class="badge" style="font-size:0.8rem; font-weight:700; background:rgba(0,135,121,0.12); color:#008779; border:1px solid rgba(0,135,121,0.25);">
+                  ${calcAge !== 'Sin edad' ? calcAge : 'Sin edad'}
+                </span>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input type="date" id="hcFiliacionBirthdate" value="${rawBirth && rawBirth !== '0000-00-00' ? rawBirth : ''}" class="field-input" style="flex:1; padding:6px 10px; font-size:0.88rem; font-weight:600;" title="Seleccionar fecha de nacimiento">
+                <input type="text" id="hcFiliacionAgeText" value="${calcAge !== 'Sin edad' ? calcAge : ''}" placeholder="Edad" class="field-input" style="width:95px; padding:6px 8px; font-size:0.88rem; text-align:center; font-weight:700; color:var(--text);" title="Edad del paciente">
+              </div>
+            </div>
             <label class="field"><span>Género</span><input type="text" value="${patient.sex || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Estado Civil</span><input type="text" value="${patient.civil_status || patient.civilStatus || 'Soltero/a'}" readonly class="field-readonly"></label>
             <label class="field"><span>Ocupación</span><input type="text" value="${patient.occupation || 'No especificada'}" readonly class="field-readonly"></label>
@@ -352,54 +368,54 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
           </div>
         </div>
         <div class="hc-accordion-body">
-          <div class="vital-signs-grid">
-            <div class="vital-card">
-              <div class="vital-label"><i class="fas fa-stethoscope"></i> Presión Art.</div>
-              <div class="vital-input-wrap">
-                <input id="hcPa" type="text" placeholder="120/80" value="${sig.pa || ''}">
-                <span class="vital-unit">mmHg</span>
+          <div class="vital-signs-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(135px, 1fr)); gap:12px;">
+            <div class="vital-card" style="min-width:0;">
+              <div class="vital-label" style="white-space:nowrap;"><i class="fas fa-stethoscope"></i> Presión Art.</div>
+              <div class="vital-input-wrap" style="display:flex !important; flex-direction:row !important; align-items:center !important; flex-wrap:nowrap !important; gap:6px;">
+                <input id="hcPa" type="text" placeholder="120/80" value="${sig.pa || ''}" style="flex:1 1 auto !important; min-width:0 !important; width:100% !important;">
+                <span class="vital-unit" style="flex-shrink:0 !important; white-space:nowrap !important;">mmHg</span>
               </div>
             </div>
-            <div class="vital-card">
-              <div class="vital-label"><i class="fas fa-heart"></i> Frec. Cardíaca</div>
-              <div class="vital-input-wrap">
-                <input id="hcFc" type="number" placeholder="72" value="${sig.fc || ''}">
-                <span class="vital-unit">lpm</span>
+            <div class="vital-card" style="min-width:0;">
+              <div class="vital-label" style="white-space:nowrap;"><i class="fas fa-heart"></i> Frec. Cardíaca</div>
+              <div class="vital-input-wrap" style="display:flex !important; flex-direction:row !important; align-items:center !important; flex-wrap:nowrap !important; gap:6px;">
+                <input id="hcFc" type="number" placeholder="72" value="${sig.fc || ''}" style="flex:1 1 auto !important; min-width:0 !important; width:100% !important;">
+                <span class="vital-unit" style="flex-shrink:0 !important; white-space:nowrap !important;">lpm</span>
               </div>
             </div>
-            <div class="vital-card">
-              <div class="vital-label"><i class="fas fa-lungs"></i> Frec. Resp.</div>
-              <div class="vital-input-wrap">
-                <input id="hcFr" type="number" placeholder="16" value="${sig.fr || ''}">
-                <span class="vital-unit">rpm</span>
+            <div class="vital-card" style="min-width:0;">
+              <div class="vital-label" style="white-space:nowrap;"><i class="fas fa-lungs"></i> Frec. Resp.</div>
+              <div class="vital-input-wrap" style="display:flex !important; flex-direction:row !important; align-items:center !important; flex-wrap:nowrap !important; gap:6px;">
+                <input id="hcFr" type="number" placeholder="16" value="${sig.fr || ''}" style="flex:1 1 auto !important; min-width:0 !important; width:100% !important;">
+                <span class="vital-unit" style="flex-shrink:0 !important; white-space:nowrap !important;">rpm</span>
               </div>
             </div>
-            <div class="vital-card">
-              <div class="vital-label"><i class="fas fa-temperature-half"></i> Temperatura</div>
-              <div class="vital-input-wrap">
-                <input id="hcTemp" type="text" placeholder="36.5" value="${sig.temp || ''}">
-                <span class="vital-unit">°C</span>
+            <div class="vital-card" style="min-width:0;">
+              <div class="vital-label" style="white-space:nowrap;"><i class="fas fa-temperature-half"></i> Temperatura</div>
+              <div class="vital-input-wrap" style="display:flex !important; flex-direction:row !important; align-items:center !important; flex-wrap:nowrap !important; gap:6px;">
+                <input id="hcTemp" type="text" placeholder="36.5" value="${sig.temp || ''}" style="flex:1 1 auto !important; min-width:0 !important; width:100% !important;">
+                <span class="vital-unit" style="flex-shrink:0 !important; white-space:nowrap !important;">°C</span>
               </div>
             </div>
-            <div class="vital-card">
-              <div class="vital-label"><i class="fas fa-lungs"></i> SpO2</div>
-              <div class="vital-input-wrap">
-                <input id="hcSpo2" type="number" placeholder="98" value="${sig.spo2 || ''}">
-                <span class="vital-unit">%</span>
+            <div class="vital-card" style="min-width:0;">
+              <div class="vital-label" style="white-space:nowrap;"><i class="fas fa-lungs"></i> SpO2</div>
+              <div class="vital-input-wrap" style="display:flex !important; flex-direction:row !important; align-items:center !important; flex-wrap:nowrap !important; gap:6px;">
+                <input id="hcSpo2" type="number" placeholder="98" value="${sig.spo2 || ''}" style="flex:1 1 auto !important; min-width:0 !important; width:100% !important;">
+                <span class="vital-unit" style="flex-shrink:0 !important; white-space:nowrap !important;">%</span>
               </div>
             </div>
-            <div class="vital-card">
-              <div class="vital-label"><i class="fas fa-ruler-vertical"></i> Talla</div>
-              <div class="vital-input-wrap">
-                <input id="hcTalla" type="number" step="0.01" placeholder="1.70" value="${sig.talla || ''}">
-                <span class="vital-unit">m</span>
+            <div class="vital-card" style="min-width:0;">
+              <div class="vital-label" style="white-space:nowrap;"><i class="fas fa-ruler-vertical"></i> Talla</div>
+              <div class="vital-input-wrap" style="display:flex !important; flex-direction:row !important; align-items:center !important; flex-wrap:nowrap !important; gap:6px;">
+                <input id="hcTalla" type="number" step="0.01" placeholder="1.70" value="${sig.talla || ''}" style="flex:1 1 auto !important; min-width:0 !important; width:100% !important;">
+                <span class="vital-unit" style="flex-shrink:0 !important; white-space:nowrap !important;">m</span>
               </div>
             </div>
-            <div class="vital-card">
-              <div class="vital-label"><i class="fas fa-weight-scale"></i> Peso</div>
-              <div class="vital-input-wrap">
-                <input id="hcPeso" type="number" step="0.1" placeholder="70.5" value="${sig.peso || ''}">
-                <span class="vital-unit">kg</span>
+            <div class="vital-card" style="min-width:0;">
+              <div class="vital-label" style="white-space:nowrap;"><i class="fas fa-weight-scale"></i> Peso</div>
+              <div class="vital-input-wrap" style="display:flex !important; flex-direction:row !important; align-items:center !important; flex-wrap:nowrap !important; gap:6px;">
+                <input id="hcPeso" type="number" step="0.1" placeholder="70.5" value="${sig.peso || ''}" style="flex:1 1 auto !important; min-width:0 !important; width:100% !important;">
+                <span class="vital-unit" style="flex-shrink:0 !important; white-space:nowrap !important;">kg</span>
               </div>
             </div>
           </div>
@@ -1130,6 +1146,50 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   tallaInput?.addEventListener('input', computeIMC);
   pesoInput?.addEventListener('input', computeIMC);
   computeIMC();
+
+  // 5b. Control Interactivo de Fecha de Nacimiento y Edad en Filiación
+  const hcBirthInput = container.querySelector('#hcFiliacionBirthdate');
+  const hcAgeText = container.querySelector('#hcFiliacionAgeText');
+  const hcAgeBadge = container.querySelector('#hcFiliacionAgeBadge');
+
+  if (hcBirthInput) {
+    hcBirthInput.addEventListener('input', () => {
+      const val = hcBirthInput.value;
+      const ageStr = calculateAge(val);
+      if (hcAgeBadge) {
+        hcAgeBadge.textContent = ageStr !== 'Sin edad' ? ageStr : 'Sin edad';
+      }
+      if (hcAgeText) {
+        hcAgeText.value = ageStr !== 'Sin edad' ? ageStr : '';
+      }
+      patient.birthdate = val;
+      if (ageStr !== 'Sin edad') {
+        const num = parseInt(ageStr, 10);
+        if (!isNaN(num)) patient.age = num;
+      }
+      // Actualizar cabezal superior de ficha si está visible
+      const headerAge = document.querySelector('#patientDetail .muted strong:nth-of-type(2)');
+      if (headerAge && ageStr !== 'Sin edad') {
+        headerAge.textContent = ageStr;
+      }
+    });
+  }
+
+  if (hcAgeText) {
+    hcAgeText.addEventListener('input', () => {
+      const val = hcAgeText.value.trim();
+      const ageStr = calculateAge(val);
+      if (hcAgeBadge && ageStr !== 'Sin edad') {
+        hcAgeBadge.textContent = ageStr;
+      }
+      const num = parseInt(val, 10);
+      if (!isNaN(num)) {
+        patient.age = num;
+        const headerAge = document.querySelector('#patientDetail .muted strong:nth-of-type(2)');
+        if (headerAge) headerAge.textContent = `${num} años`;
+      }
+    });
+  }
 
   // 6. Switches Estomatognático
   container.querySelectorAll('.estomato-item').forEach(item => {
@@ -1868,14 +1928,26 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
       diagnosticosCIE11: diagnosticosCIE10
     };
 
+    const updatedBirthdate = container.querySelector('#hcFiliacionBirthdate')?.value || patient.birthdate || null;
+    const updatedAgeText = container.querySelector('#hcFiliacionAgeText')?.value || '';
+    const updatedAge = parseInt(updatedAgeText, 10) || patient.age || null;
+    if (updatedBirthdate) patient.birthdate = updatedBirthdate;
+    if (updatedAge) patient.age = updatedAge;
+
     patient.clinicalHistory = fullHistory;
 
+    const patchPayload = {
+      clinicalHistory: fullHistory
+    };
+    if (updatedBirthdate) patchPayload.birthdate = updatedBirthdate;
+    if (updatedAge) patchPayload.age = updatedAge;
+
     if (onSaveFullHistory) {
-      await onSaveFullHistory(fullHistory);
+      await onSaveFullHistory(fullHistory, patchPayload);
     } else {
       await apiFetch(`api/patients.php?id=${patient.id}`, {
         method: 'PATCH',
-        body: JSON.stringify({ clinicalHistory: fullHistory })
+        body: JSON.stringify(patchPayload)
       });
     }
 
