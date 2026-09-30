@@ -3,27 +3,20 @@
  */
 import { showToast } from './app-utils.js';
 import { state } from './app-state.js';
+import { NANI_DENT_LOGO_BASE64, NANI_DENT_LETTERHEAD_BASE64, CLINIC_BRANDING } from './branding-assets.js';
 
-export const DEFAULT_CLINIC_LOGO = `
-<svg width="64" height="64" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100" height="100" rx="20" fill="#2563eb"/>
-  <circle cx="50" cy="50" r="38" fill="white" fill-opacity="0.12"/>
-  <path d="M50 20C40 20 32 28 32 38C32 45 36 50 40 54V72C40 76 44 80 50 80C56 80 60 76 60 72V54C64 50 68 45 68 38C68 28 60 20 50 20Z" fill="white"/>
-  <path d="M42 46H58M50 38V54" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
-  <circle cx="50" cy="50" r="46" stroke="white" stroke-width="2" stroke-dasharray="4 4" opacity="0.5"/>
-</svg>
-`;
+export const DEFAULT_CLINIC_LOGO = `<img src="${NANI_DENT_LOGO_BASE64}" alt="Nani Dent" style="max-height:65px; width:auto; max-width:210px; object-fit:contain;">`;
 
 export function openCertificateModal(patient, initialData = {}) {
   const existingModal = document.getElementById('certificateModal');
   if (existingModal) existingModal.remove();
 
   const savedClinic = JSON.parse(localStorage.getItem('doctor2_clinic_settings') || '{}');
-  const clinicName = savedClinic.name || 'Clínica Odontológica & Médica Integral';
-  const clinicAddress = savedClinic.address || 'Av. Principal 1234 · Consultorios Médicos';
-  const clinicPhone = savedClinic.phone || '+54 11 5555-4321';
-  const clinicEmail = savedClinic.email || 'contacto@clinicadoctor.pro';
-  const clinicLogoUrl = savedClinic.logoUrl || '';
+  const clinicName = savedClinic.name || CLINIC_BRANDING.name;
+  const clinicAddress = savedClinic.address || CLINIC_BRANDING.address;
+  const clinicPhone = savedClinic.phone || CLINIC_BRANDING.phone;
+  const clinicEmail = savedClinic.email || CLINIC_BRANDING.email;
+  const clinicLogoUrl = savedClinic.logoUrl || NANI_DENT_LOGO_BASE64;
 
   const profs = state.professionals || [];
   const currentUser = state.user || {};
@@ -99,6 +92,19 @@ export function openCertificateModal(patient, initialData = {}) {
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- OPCIÓN DE IMPRESIÓN CON HOJA MEMBRETADA -->
+        <div style="background:linear-gradient(135deg, rgba(14,116,144,0.06), rgba(99,102,241,0.06)); border:1px solid rgba(14,116,144,0.25); border-radius:10px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <input type="checkbox" id="certUseLetterhead" style="width:18px; height:18px; accent-color:var(--primary); cursor:pointer;">
+            <label for="certUseLetterhead" style="font-weight:700; font-size:0.88rem; color:var(--text); cursor:pointer;">
+              <i class="fas fa-file-invoice" style="color:var(--primary); margin-right:4px;"></i> Formato Hoja Membretada Oficial Nani Dent
+            </label>
+          </div>
+          <span class="badge" style="font-size:0.75rem; background:var(--surface); border:1px solid var(--border); color:var(--muted);">
+            Ajusta los márgenes exactos de la hoja membretada
+          </span>
         </div>
 
         <!-- SECCIÓN 2: DATOS DEL MÉDICO / ODONTÓLOGO TRATANTE -->
@@ -311,7 +317,8 @@ export function openCertificateModal(patient, initialData = {}) {
   // Evento Imprimir / Descargar PDF
   modal.querySelector('#certPrintBtn')?.addEventListener('click', () => {
     const certData = collectCertData();
-    const html = generateCertificateHTML(certData);
+    const useLetterhead = modal.querySelector('#certUseLetterhead')?.checked || false;
+    const html = generateCertificateHTML(certData, useLetterhead);
     
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -360,10 +367,10 @@ window.openCertificateModal = openCertificateModal;
 /**
  * Genera el documento HTML A4 de alta fidelidad para el Certificado de Atención y Asistencia
  */
-export function generateCertificateHTML(data) {
+export function generateCertificateHTML(data, useLetterhead = false) {
   const logoHtml = data.clinic.logoUrl
-    ? `<img src="${data.clinic.logoUrl}" alt="Logo" style="max-height:75px; max-width:140px; object-fit:contain;">`
-    : DEFAULT_CLINIC_LOGO;
+    ? `<img src="${data.clinic.logoUrl}" alt="Logo" style="max-height:55px; width:auto; max-width:200px; object-fit:contain;">`
+    : `<img src="${NANI_DENT_LOGO_BASE64}" alt="Nani Dent" style="max-height:55px; width:auto; max-width:200px; object-fit:contain;">`;
 
   return `
     <!DOCTYPE html>
@@ -374,7 +381,7 @@ export function generateCertificateHTML(data) {
       <style>
         @page {
           size: A4 portrait;
-          margin: 15mm 15mm 15mm 15mm;
+          margin: ${useLetterhead ? '0' : '15mm'};
         }
         * {
           box-sizing: border-box;
@@ -386,17 +393,33 @@ export function generateCertificateHTML(data) {
           line-height: 1.5;
           font-size: 13px;
           margin: 0;
-          padding: 24px 28px;
+          padding: ${useLetterhead ? '0' : '24px 28px'};
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
         .cert-container {
           max-width: 800px;
           margin: 0 auto;
-          border: 2px solid #2563eb;
+          border: 2px solid #0e7490;
           border-radius: 12px;
           padding: 28px 32px;
           position: relative;
           background: #ffffff;
           box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .cert-container.on-letterhead {
+          border: none !important;
+          box-shadow: none !important;
+          background-image: url('${NANI_DENT_LETTERHEAD_BASE64}') !important;
+          background-size: 100% 100% !important;
+          background-repeat: no-repeat !important;
+          background-position: center !important;
+          min-height: 1060px !important;
+          padding: 135px 50px 85px 50px !important;
+        }
+        .cert-container.on-letterhead .cert-header,
+        .cert-container.on-letterhead .cert-footer {
+          display: none !important;
         }
         .cert-header {
           display: flex;
@@ -613,8 +636,8 @@ export function generateCertificateHTML(data) {
             padding: 0;
             background: transparent;
           }
-          .cert-container {
-            border: 2px solid #2563eb;
+          .cert-container:not(.on-letterhead) {
+            border: 2px solid #0e7490;
             box-shadow: none;
             padding: 22px 26px;
           }
@@ -622,7 +645,7 @@ export function generateCertificateHTML(data) {
       </style>
     </head>
     <body>
-      <div class="cert-container">
+      <div class="${useLetterhead ? 'cert-container on-letterhead' : 'cert-container'}">
         
         <!-- Header con Logo y Datos de la Institución -->
         <div class="cert-header">

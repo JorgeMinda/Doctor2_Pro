@@ -3,6 +3,7 @@
  */
 import { state, api } from './app-state.js';
 import { el, formatDate, apiFetch } from './app-utils.js';
+import { NANI_DENT_LOGO_BASE64 } from './branding-assets.js';
 
 function toDisplayDate(isoDate) {
   if (!isoDate) return '';
@@ -93,6 +94,13 @@ async function buildPrintTable(type) {
   if (printPlanSheet) {
     printPlanSheet.innerHTML = `
       <div class="print-sheet-header">
+        <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px;">
+          <img src="${NANI_DENT_LOGO_BASE64}" alt="Nani Dent" style="max-height:48px; object-fit:contain;">
+          <div style="text-align:left;">
+            <div style="font-size:1.3rem; font-weight:800; color:#008779; line-height:1.1;">NANI DENT</div>
+            <div style="font-size:0.75rem; color:#64748b;">Amor en cada sonrisa · Gestión Odontológica</div>
+          </div>
+        </div>
         <h2>${title}</h2>
         <p>Período: ${range}</p>
       </div>

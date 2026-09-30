@@ -4,8 +4,9 @@
 import { getWhatsAppStatus, sendWhatsAppReport } from './whatsapp-manager.js';
 import { generateOdontogramHTML } from './patient-charts.js';
 import { showToast } from './app-utils.js';
+import { NANI_DENT_LOGO_BASE64, NANI_DENT_LETTERHEAD_BASE64, CLINIC_BRANDING } from './branding-assets.js';
 
-export function createExportActions(patient, notes = [], plans = [], professionals = [], onSendEmail, clinicName = 'Consultorios.pro') {
+export function createExportActions(patient, notes = [], plans = [], professionals = [], onSendEmail, clinicName = CLINIC_BRANDING.name) {
   const container = document.createElement('div');
   container.className = 'export-actions-card modal';
   
@@ -24,6 +25,17 @@ export function createExportActions(patient, notes = [], plans = [], professiona
       <div class="export-options">
         <div class="export-section" style="background:var(--bg-page); padding:16px; border-radius:10px; margin-bottom:16px;">
           <h5 style="margin-bottom:10px; color:var(--text);"><i class="fas fa-file-pdf" style="color:var(--danger);"></i> Imprimir / Descargar en PDF</h5>
+          
+          <div style="margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface); padding:8px 12px; border-radius:8px; border:1px solid var(--border);">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" id="exportUseLetterhead" style="width:16px; height:16px; accent-color:var(--primary); cursor:pointer;">
+              <label for="exportUseLetterhead" style="font-size:0.83rem; font-weight:700; cursor:pointer; color:var(--text);">
+                <i class="fas fa-file-invoice" style="color:var(--primary);"></i> Formato Hoja Membretada Oficial (Nani Dent)
+              </label>
+            </div>
+            <span class="badge" style="font-size:0.75rem;">A4 Oficial</span>
+          </div>
+
           <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
             <button class="ghost" id="downloadFicha" style="text-align:left; padding:10px;">
               <i class="fas fa-id-card"></i> <strong>Ficha del Paciente</strong>
@@ -88,7 +100,11 @@ export function createExportActions(patient, notes = [], plans = [], professiona
     </div>
   `;
   
-  function generateFichaHTML() {
+  function generateFichaHTML(useLetterhead = false) {
+    const emergencyInfo = patient.emergencyPhone
+      ? `${patient.emergencyName ? patient.emergencyName + ' (' + patient.emergencyPhone + ')' : patient.emergencyPhone}`
+      : (patient.emergencyName || patient.emergencyContact || '-');
+
     return `
       <!DOCTYPE html>
       <html>
@@ -96,48 +112,96 @@ export function createExportActions(patient, notes = [], plans = [], professiona
         <meta charset="UTF-8">
         <title>Ficha - ${patient.name}</title>
         <style>
-          body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
-          .header { border-bottom: 2px solid #6366f1; padding-bottom: 16px; margin-bottom: 20px; display:flex; justify-content:space-between; }
-          .header h1 { color: #6366f1; margin: 0; font-size:22px; }
-          .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-          .field { margin-bottom: 8px; }
-          .field label { font-size: 11px; color: #64748b; display: block; }
-          .field span { font-size: 14px; font-weight: 500; }
+          @page { size: A4; margin: ${useLetterhead ? '0' : '15mm'}; }
+          * { box-sizing: border-box; }
+          body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: ${useLetterhead ? '135px 50px 85px 50px' : '20px 24px'};
+            color: #1e293b;
+            background: #ffffff;
+            ${useLetterhead ? `background-image: url('${NANI_DENT_LETTERHEAD_BASE64}'); background-size: 100% 100%; background-repeat: no-repeat; min-height: 1060px;` : ''}
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .header {
+            border-bottom: 2px solid #0e7490;
+            padding-bottom: 14px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .header h1 { color: #0e7490; margin: 0; font-size: 20px; font-weight: 800; }
+          .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+          .field { margin-bottom: 6px; }
+          .field label { font-size: 10.5px; color: #64748b; display: block; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+          .field span { font-size: 13.5px; font-weight: 600; color: #0f172a; }
+          @media print {
+            body {
+              padding: ${useLetterhead ? '135px 50px 85px 50px !important' : '0 !important'};
+              ${useLetterhead ? `background-image: url('${NANI_DENT_LETTERHEAD_BASE64}') !important; background-size: 100% 100% !important;` : ''}
+            }
+            ${useLetterhead ? '.header { display: none !important; }' : ''}
+          }
         </style>
       </head>
       <body>
+        ${useLetterhead ? '' : `
         <div class="header">
-          <div>
-            <h1>${clinicName}</h1>
-            <p style="color:#64748b; margin:4px 0 0; font-size:12px;">Ficha Administrativa del Paciente</p>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <img src="${NANI_DENT_LOGO_BASE64}" alt="Nani Dent" style="max-height:50px; width:auto; object-fit:contain;">
+            <div>
+              <h1>${clinicName}</h1>
+              <p style="color:#64748b; margin:2px 0 0; font-size:11px; letter-spacing:0.5px;">AMOR EN CADA SONRISA · Ficha del Paciente</p>
+            </div>
           </div>
-          <div style="text-align:right; font-size:12px; color:#64748b;">
-            Fecha: ${new Date().toLocaleDateString('es-AR')}
+          <div style="text-align:right; font-size:11px; color:#64748b;">
+            <div style="font-weight:700; color:#0e7490; font-size:12px;">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</div>
+            <div style="margin-top:2px;">Fecha: ${new Date().toLocaleDateString('es-AR')}</div>
           </div>
         </div>
+        `}
         
-        <div class="grid">
-          <div class="field"><label>Nombre completo</label><span>${patient.name || '-'}</span></div>
-          <div class="field"><label>Cédula / ID</label><span>${patient.dni || '-'}</span></div>
-          <div class="field"><label>Teléfono</label><span>${patient.phone || '-'}</span></div>
-          <div class="field"><label>Email</label><span>${patient.email || '-'}</span></div>
-          <div class="field"><label>Obra Social</label><span>${patient.health_insurance || patient.insurance || 'Particular'}</span></div>
-          <div class="field"><label>N° Afiliado</label><span>${patient.affiliate_number || patient.insuranceNumber || '-'}</span></div>
-          <div class="field"><label>Fecha de Nacimiento</label><span>${patient.birthdate || patient.birthDate || '-'}</span></div>
-          <div class="field"><label>Profesional Asignado</label><span>${prof ? prof.name : 'Sin asignar'}</span></div>
+        <div style="text-align:center; margin-bottom:20px;">
+          <h2 style="margin:0; font-size:17px; color:#0f172a; text-transform:uppercase; letter-spacing:0.5px;">Ficha Administrativa del Paciente</h2>
+          <span style="font-size:11px; color:#0e7490; font-weight:700;">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</span>
         </div>
 
-        <div style="margin-top:20px;">
-          <label style="font-size:11px; color:#64748b;">Observaciones Médicas / Alergias:</label>
-          <p style="background:#f8fafc; padding:12px; border-radius:6px; font-size:13px;">${patient.allergies || patient.notes || patient.generalNotes || 'Sin antecedentes registrados.'}</p>
+        <div class="grid">
+          <div class="field"><label>Nombre y Apellido</label><span>${patient.name || '-'}</span></div>
+          <div class="field"><label>Cédula / Identificación</label><span>${patient.dni || '-'}</span></div>
+          <div class="field"><label>Teléfono / WhatsApp</label><span>${patient.phone || '-'}</span></div>
+          <div class="field"><label>Email</label><span>${patient.email || '-'}</span></div>
+          <div class="field"><label>Fecha de Nacimiento</label><span>${patient.birthdate || patient.birthDate || '-'}</span></div>
+          <div class="field"><label>Género</label><span>${patient.sex || '-'}</span></div>
+          <div class="field"><label>Ocupación</label><span>${patient.occupation || 'Sin registrar'}</span></div>
+          <div class="field"><label>Profesional Asignado</label><span>${prof ? prof.name : 'Sin asignar'}</span></div>
+          <div class="field" style="grid-column: 1 / -1;"><label>Dirección de Residencia</label><span>${patient.address || 'No registrada'}</span></div>
+          <div class="field" style="grid-column: 1 / -1;"><label>Contacto de Emergencia</label><span>${emergencyInfo}</span></div>
+          ${patient.representativeName ? `<div class="field" style="grid-column: 1 / -1;"><label>Representante Legal</label><span>${patient.representativeName}</span></div>` : ''}
+        </div>
+
+        <div style="margin-top:20px; border-top:1px solid #e2e8f0; padding-top:14px;">
+          <label style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Alergias / Advertencias Clínicas Especiales:</label>
+          <p style="background:#fef2f2; border:1px solid #fee2e2; color:#991b1b; padding:10px; border-radius:6px; font-size:13px; font-weight:600; margin-top:4px;">${patient.allergies || 'Ninguna alergia registrada.'}</p>
+        </div>
+
+        <div style="margin-top:14px;">
+          <label style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Observaciones Generales / Motivo de Consulta Inicial:</label>
+          <p style="background:#f8fafc; border:1px solid #e2e8f0; padding:10px; border-radius:6px; font-size:13px; margin-top:4px;">${patient.notes || patient.generalNotes || 'Sin antecedentes registrados.'}</p>
         </div>
       </body>
       </html>
     `;
   }
   
-  function generateHistoriaHTML() {
+  function generateHistoriaHTML(useLetterhead = false) {
     const hc = patient.clinicalHistory || {};
+    const emergencyInfo = patient.emergencyPhone
+      ? `${patient.emergencyName ? patient.emergencyName + ' (' + patient.emergencyPhone + ')' : patient.emergencyPhone}`
+      : (patient.emergencyName || patient.emergencyContact || '-');
+
     let antecedentes = [];
     if (Array.isArray(hc.antecedentes)) {
       antecedentes = hc.antecedentes;
@@ -199,18 +263,29 @@ export function createExportActions(patient, notes = [], plans = [], professiona
         <meta charset="UTF-8">
         <title>Historia Clínica Odontológica - ${patient.name}</title>
         <style>
-          @page { size: A4; margin: 12mm; }
-          body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; line-height: 1.4; font-size: 12px; margin: 0; padding: 12px; }
-          .hc-header { border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end; }
-          .hc-title { font-size: 18px; font-weight: 700; color: #1e3a8a; margin: 0; }
-          .hc-subtitle { font-size: 11px; color: #64748b; margin: 2px 0 0; }
+          @page { size: A4; margin: ${useLetterhead ? '0' : '12mm'}; }
+          * { box-sizing: border-box; }
+          body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #1e293b;
+            line-height: 1.4;
+            font-size: 12px;
+            margin: 0;
+            padding: ${useLetterhead ? '135px 45px 85px 45px' : '16px 20px'};
+            ${useLetterhead ? `background-image: url('${NANI_DENT_LETTERHEAD_BASE64}'); background-size: 100% 100%; background-repeat: no-repeat; min-height: 1060px;` : ''}
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .hc-header { border-bottom: 2px solid #0e7490; padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+          .hc-title { font-size: 17px; font-weight: 800; color: #0e7490; margin: 0; }
+          .hc-subtitle { font-size: 10.5px; color: #64748b; margin: 2px 0 0; }
           .sec-box { border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px; overflow: hidden; page-break-inside: avoid; }
-          .sec-title { background: #f1f5f9; padding: 5px 10px; font-size: 11px; font-weight: 700; color: #1e40af; border-bottom: 1px solid #cbd5e1; text-transform: uppercase; }
+          .sec-title { background: #f1f5f9; padding: 5px 10px; font-size: 11px; font-weight: 700; color: #0e7490; border-bottom: 1px solid #cbd5e1; text-transform: uppercase; }
           .sec-body { padding: 8px 10px; }
           .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
           .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
           .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
-          .data-item label { font-size: 10px; color: #64748b; display: block; }
+          .data-item label { font-size: 10px; color: #64748b; display: block; font-weight: 700; }
           .data-item span { font-weight: 600; font-size: 12px; }
           .chip { display: inline-block; background: #e0e7ff; color: #3730a3; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin: 2px; }
           .alert-chip { background: #fee2e2; color: #991b1b; }
@@ -221,33 +296,44 @@ export function createExportActions(patient, notes = [], plans = [], professiona
           .badge-def { background: #dcfce7; color: #166534; padding: 2px 5px; border-radius: 3px; font-weight: 700; font-size: 9px; }
           .sig-box { display: flex; justify-content: space-around; margin-top: 25px; page-break-inside: avoid; }
           .sig-line { width: 200px; border-top: 1px solid #333; text-align: center; font-size: 11px; padding-top: 4px; }
+          @media print {
+            body {
+              padding: ${useLetterhead ? '135px 45px 85px 45px !important' : '0 !important'};
+              ${useLetterhead ? `background-image: url('${NANI_DENT_LETTERHEAD_BASE64}') !important; background-size: 100% 100% !important;` : ''}
+            }
+            ${useLetterhead ? '.hc-header { display: none !important; }' : ''}
+          }
         </style>
       </head>
       <body>
+        ${useLetterhead ? '' : `
         <div class="hc-header">
-          <div>
-            <div class="hc-title">${clinicName} - HISTORIA CLÍNICA ODONTOLÓGICA</div>
-            <div class="hc-subtitle">Sistema Odontológico Integral · Cumplimiento CIE-10 OMS / MSP</div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <img src="${NANI_DENT_LOGO_BASE64}" alt="Nani Dent" style="max-height:46px; width:auto; object-fit:contain;">
+            <div>
+              <div class="hc-title">${clinicName} - HISTORIA CLÍNICA ODONTOLÓGICA</div>
+              <div class="hc-subtitle">Sistema Odontológico Integral · Cumplimiento CIE-10 OMS / MSP</div>
+            </div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:12px; font-weight:700; color:#1e40af;">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</div>
+            <div style="font-size:12px; font-weight:700; color:#0e7490;">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</div>
             <div style="font-size:11px; color:#64748b; margin-top:2px;">Emisión: ${new Date().toLocaleDateString('es-AR')}</div>
           </div>
         </div>
+        `}
 
         <!-- Sec 1: Filiación -->
         <div class="sec-box">
           <div class="sec-title">1. Datos de Filiación y Registro</div>
           <div class="sec-body grid-4">
-            <div class="data-item"><label>HISTORIA CLÍNICA Nro:</label><span style="color:#1e40af;">${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</span></div>
+            <div class="data-item"><label>HISTORIA CLÍNICA Nro:</label><span style="color:#0e7490;">${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</span></div>
             <div class="data-item"><label>Paciente:</label><span>${patient.name || '-'}</span></div>
             <div class="data-item"><label>Cédula / ID:</label><span>${patient.dni || '-'}</span></div>
             <div class="data-item"><label>Género / Edad:</label><span>${patient.sex || 'No espec.'} / ${patient.birthdate ? (new Date().getFullYear() - new Date(patient.birthdate).getFullYear()) + ' años' : '-'}</span></div>
             <div class="data-item"><label>Teléfono:</label><span>${patient.phone || '-'}</span></div>
             <div class="data-item"><label>Ocupación:</label><span>${patient.occupation || '-'}</span></div>
-            <div class="data-item"><label>Cobertura:</label><span>${patient.health_insurance || patient.insurance || 'Particular'}</span></div>
-            <div class="data-item"><label>Representante Legal:</label><span>${patient.representativeName ? `${patient.representativeName} (Cédula ${patient.representativeDni || '-'})` : 'N/A'}</span></div>
-            <div class="data-item"><label>Contacto Emergencia:</label><span>${patient.emergencyPhone || '-'}</span></div>
+            <div class="data-item"><label>Dirección:</label><span>${patient.address || 'No registrada'}</span></div>
+            <div class="data-item"><label>Contacto Emergencia:</label><span>${emergencyInfo}</span></div>
           </div>
         </div>
 
@@ -471,11 +557,13 @@ export function createExportActions(patient, notes = [], plans = [], professiona
     });
 
     container.querySelector('#downloadFicha')?.addEventListener('click', () => {
-      downloadPDF(generateFichaHTML(), `Ficha_${patient.name}.pdf`);
+      const useLetterhead = container.querySelector('#exportUseLetterhead')?.checked || false;
+      downloadPDF(generateFichaHTML(useLetterhead), `Ficha_${patient.name}.pdf`);
     });
 
     container.querySelector('#downloadHistoria')?.addEventListener('click', () => {
-      downloadPDF(generateHistoriaHTML(), `Historia_${patient.name}.pdf`);
+      const useLetterhead = container.querySelector('#exportUseLetterhead')?.checked || false;
+      downloadPDF(generateHistoriaHTML(useLetterhead), `Historia_${patient.name}.pdf`);
     });
 
     container.querySelector('#downloadOdontogram')?.addEventListener('click', () => {
@@ -491,8 +579,9 @@ export function createExportActions(patient, notes = [], plans = [], professiona
     });
 
     container.querySelector('#downloadComplete')?.addEventListener('click', () => {
+      const useLetterhead = container.querySelector('#exportUseLetterhead')?.checked || false;
       const odontogramHtml = generateOdontogramHTML(patient, notes, prof, clinicName);
-      const completeHtml = generateFichaHTML() + '<div style="page-break-before:always;"></div>' + generateHistoriaHTML() + '<div style="page-break-before:always;"></div>' + odontogramHtml;
+      const completeHtml = generateFichaHTML(useLetterhead) + '<div style="page-break-before:always;"></div>' + generateHistoriaHTML(useLetterhead) + '<div style="page-break-before:always;"></div>' + odontogramHtml;
       downloadPDF(completeHtml, `Expediente_${patient.name}.pdf`);
     });
 
@@ -531,7 +620,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
       if (currentSendMethod === 'whatsapp') {
         let msg = `🦷 *RESUMEN CLÍNICO - ${patient.name.toUpperCase()}*%0A%0A`;
         if (includeFicha) {
-          msg += `📋 *Datos:* Cédula ${patient.dni || '-'} | OS: ${patient.health_insurance || 'Particular'}%0A`;
+          msg += `📋 *Datos:* Cédula ${patient.dni || '-'} | Tel: ${patient.phone || '-'}%0A`;
         }
         if (includeHistoria) {
           msg += `🩺 *Evoluciones Registradas:* ${notes.length}%0A`;
@@ -539,7 +628,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
             msg += `Última visita (${notes[0].date}): ${notes[0].procedimiento || notes[0].motivoTipo || 'Consulta'}%0A`;
           }
         }
-        msg += `%0A_Generado desde Consultorios.pro_`;
+        msg += `%0A_Generado desde ${clinicName}_`;
 
         const phone = dest.phone.replace(/\D/g, '');
         window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');

@@ -3,6 +3,7 @@
  */
 import { state, api } from './app-state.js';
 import { el, apiFetch, showToast } from './app-utils.js';
+import { NANI_DENT_LOGO_BASE64, CLINIC_BRANDING } from './branding-assets.js';
 
 let treasuryData = {
   accounts: [],
@@ -991,10 +992,13 @@ export function printTreasuryReceipt(m) {
     <body>
       <div class="receipt-box">
         <div class="head">
-          <div>
-            <h1 class="clinic-name">DOCTOR PRO</h1>
-            <p style="margin:2px 0 0; font-size:12px; color:#64748b;">Consultorios Médicos & Odontología Integral</p>
-            <p style="margin:1px 0 0; font-size:11px; color:#94a3b8;">Av. Central 1234 · Tel: +54 9 11 2345-6789</p>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <img src="${NANI_DENT_LOGO_BASE64}" alt="Nani Dent" style="max-height:50px; object-fit:contain;">
+            <div>
+              <h1 class="clinic-name" style="color:#008779; font-size:18px; margin:0;">NANI DENT</h1>
+              <p style="margin:2px 0 0; font-size:11px; font-weight:600; color:#0e7490;">${CLINIC_BRANDING.slogan}</p>
+              <p style="margin:1px 0 0; font-size:10px; color:#64748b;">${CLINIC_BRANDING.subtitle}</p>
+            </div>
           </div>
           <div style="text-align:right;">
             <div class="badge ${isIncome ? 'badge-inc' : 'badge-exp'}">

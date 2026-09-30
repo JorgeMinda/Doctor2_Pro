@@ -5,6 +5,7 @@
  */
 import { showToast, apiFetch } from './app-utils.js';
 import { state, api } from './app-state.js';
+import { NANI_DENT_LOGO_BASE64, CLINIC_BRANDING } from './branding-assets.js';
 
 export function createBudgetManager(patient, notes = [], plans = [], professionals = [], onSendEmail, onSaveBudget) {
   const container = document.createElement('div');
@@ -541,14 +542,18 @@ export function createBudgetManager(patient, notes = [], plans = [], professiona
     const printContainer = document.getElementById('printPlanSheet') || document.body;
     printContainer.innerHTML = `
       <div class="print-budget-page" style="padding:40px; font-family:Arial, sans-serif; color:#111; max-width:800px; margin:0 auto; background:#fff;">
-        <div style="display:flex; justify-content:space-between; border-bottom:2px solid #6366f1; padding-bottom:16px; margin-bottom:24px;">
-          <div>
-            <h1 style="color:#6366f1; margin:0; font-size:24px;">CONSULTORIOS.PRO</h1>
-            <p style="margin:4px 0 0; color:#555; font-size:12px;">Centro Odontológico & Médico Integral</p>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #008779; padding-bottom:16px; margin-bottom:24px;">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <img src="${NANI_DENT_LOGO_BASE64}" alt="Nani Dent" style="max-height:60px; object-fit:contain;">
+            <div>
+              <h1 style="color:#008779; margin:0; font-size:22px; font-weight:800; letter-spacing:0.5px;">NANI DENT</h1>
+              <p style="margin:2px 0 0; color:#0e7490; font-size:12px; font-weight:600;">${CLINIC_BRANDING.slogan}</p>
+              <p style="margin:2px 0 0; color:#64748b; font-size:11px;">${CLINIC_BRANDING.subtitle}</p>
+            </div>
           </div>
           <div style="text-align:right;">
-            <h2 style="margin:0; font-size:18px;">PRESUPUESTO N° ${b.number || '0001'}</h2>
-            <p style="margin:4px 0 0; font-size:12px; color:#555;">Fecha: ${b.date} | Validez: ${b.expiryDate || '15 días'}</p>
+            <h2 style="margin:0; font-size:18px; color:#1e293b;">PRESUPUESTO N° ${b.number || '0001'}</h2>
+            <p style="margin:4px 0 0; font-size:12px; color:#64748b;">Fecha: ${b.date} | Validez: ${b.expiryDate || '15 días'}</p>
           </div>
         </div>
 
