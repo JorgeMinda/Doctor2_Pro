@@ -37,6 +37,10 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
     <div class="ficha-content" id="fichaView" style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px;">
       <div class="ficha-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
         <div class="ficha-item">
+          <label class="muted" style="font-size:0.8rem; display:block;">HISTORIA CLÍNICA Nro:</label>
+          <strong style="font-size:1.05rem; color:var(--primary);">${escapeHtml(patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001'))}</strong>
+        </div>
+        <div class="ficha-item">
           <label class="muted" style="font-size:0.8rem; display:block;">Nombre y Apellido</label>
           <strong style="font-size:1.05rem;">${escapeHtml(patient.name || '-')}</strong>
         </div>

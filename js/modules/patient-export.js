@@ -229,8 +229,9 @@ export function createExportActions(patient, notes = [], plans = [], professiona
             <div class="hc-title">${clinicName} - HISTORIA CLÍNICA ODONTOLÓGICA</div>
             <div class="hc-subtitle">Sistema Odontológico Integral · Cumplimiento CIE-10 OMS / MSP</div>
           </div>
-          <div style="text-align:right; font-size:11px; color:#64748b;">
-            Emisión: ${new Date().toLocaleDateString('es-AR')}
+          <div style="text-align:right;">
+            <div style="font-size:12px; font-weight:700; color:#1e40af;">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</div>
+            <div style="font-size:11px; color:#64748b; margin-top:2px;">Emisión: ${new Date().toLocaleDateString('es-AR')}</div>
           </div>
         </div>
 
@@ -238,6 +239,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
         <div class="sec-box">
           <div class="sec-title">1. Datos de Filiación y Registro</div>
           <div class="sec-body grid-4">
+            <div class="data-item"><label>HISTORIA CLÍNICA Nro:</label><span style="color:#1e40af;">${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</span></div>
             <div class="data-item"><label>Paciente:</label><span>${patient.name || '-'}</span></div>
             <div class="data-item"><label>Cédula / ID:</label><span>${patient.dni || '-'}</span></div>
             <div class="data-item"><label>Género / Edad:</label><span>${patient.sex || 'No espec.'} / ${patient.birthdate ? (new Date().getFullYear() - new Date(patient.birthdate).getFullYear()) + ' años' : '-'}</span></div>

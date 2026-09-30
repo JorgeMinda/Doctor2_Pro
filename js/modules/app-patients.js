@@ -126,9 +126,10 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
         </button>
         <div style="border-left:2px solid var(--border); height:28px;"></div>
         <div>
-          <div style="display:flex; align-items:center; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <h3 style="margin:0; color:var(--primary); font-size:1.35rem; font-weight:800;">${patient.name}</h3>
             <span class="badge ${patient.status || 'active'}" style="font-size:0.75rem; text-transform:capitalize; padding:2px 8px;">${patient.status || 'Activo'}</span>
+            <span class="badge primary" style="font-size:0.75rem; font-weight:700; padding:2px 8px; background:rgba(99,102,241,0.12); color:var(--primary); border:1px solid rgba(99,102,241,0.25);">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</span>
           </div>
           <p class="muted" style="margin:3px 0 0 0; font-size:0.84rem;">
             Cédula / ID: <strong style="color:var(--text);">${patient.dni || 'Sin registrar'}</strong> · 
@@ -375,17 +376,107 @@ window.quickNewAptForPatient = (id, name, phone) => {
   });
 };
 
-export function openNewPatientModal() {
+const PATIENT_DRAFT_KEY = 'doctor2_new_patient_draft';
+
+export function savePatientDraft() {
+  const modal = el('patientModal');
+  if (!modal) return;
+  const draft = {
+    name: el('newPatName')?.value || '',
+    dni: el('newPatDni')?.value || '',
+    sex: el('newPatSex')?.value || 'Femenino',
+    birthdate: el('newPatBirthdate')?.value || '',
+    phone: el('newPatPhone')?.value || '',
+    email: el('newPatEmail')?.value || '',
+    occupation: el('newPatOccupation')?.value || '',
+    address: el('newPatAddress')?.value || '',
+    emergencyName: el('newPatEmergencyName')?.value || '',
+    emergencyPhone: el('newPatEmergencyPhone')?.value || '',
+    representative: el('newPatRepresentative')?.value || '',
+    allergies: el('newPatAllergies')?.value || '',
+    notes: el('newPatNotes')?.value || '',
+    openHC: el('newPatOpenHC')?.checked ?? true,
+    savedAt: Date.now()
+  };
+
+  if (draft.name || draft.dni || draft.phone || draft.email || draft.address || draft.notes || draft.emergencyName || draft.emergencyPhone) {
+    localStorage.setItem(PATIENT_DRAFT_KEY, JSON.stringify(draft));
+    const indicator = el('newPatDraftIndicator');
+    if (indicator) {
+      indicator.innerHTML = '<i class="fas fa-check-circle" style="color:#10b981;"></i> Autoguardado local activo';
+      indicator.classList.remove('hidden');
+    }
+  }
+}
+
+export function clearPatientDraft() {
+  localStorage.removeItem(PATIENT_DRAFT_KEY);
   const modal = el('patientModal');
   if (modal) {
     const inputs = modal.querySelectorAll('input, textarea');
     inputs.forEach(input => {
-      if (input.type === 'checkbox') {
-        input.checked = true;
-      } else {
-        input.value = '';
-      }
+      if (input.type === 'checkbox') input.checked = true;
+      else if (input.tagName === 'SELECT') input.selectedIndex = 0;
+      else input.value = '';
     });
+    const indicator = el('newPatDraftIndicator');
+    if (indicator) indicator.classList.add('hidden');
+  }
+}
+
+export function restorePatientDraft() {
+  try {
+    const saved = localStorage.getItem(PATIENT_DRAFT_KEY);
+    if (!saved) return false;
+    const draft = JSON.parse(saved);
+    if (!draft) return false;
+
+    if (el('newPatName')) el('newPatName').value = draft.name || '';
+    if (el('newPatDni')) el('newPatDni').value = draft.dni || '';
+    if (el('newPatSex')) el('newPatSex').value = draft.sex || 'Femenino';
+    if (el('newPatBirthdate')) el('newPatBirthdate').value = draft.birthdate || '';
+    if (el('newPatPhone')) el('newPatPhone').value = draft.phone || '';
+    if (el('newPatEmail')) el('newPatEmail').value = draft.email || '';
+    if (el('newPatOccupation')) el('newPatOccupation').value = draft.occupation || '';
+    if (el('newPatAddress')) el('newPatAddress').value = draft.address || '';
+    if (el('newPatEmergencyName')) el('newPatEmergencyName').value = draft.emergencyName || '';
+    if (el('newPatEmergencyPhone')) el('newPatEmergencyPhone').value = draft.emergencyPhone || '';
+    if (el('newPatRepresentative')) el('newPatRepresentative').value = draft.representative || '';
+    if (el('newPatAllergies')) el('newPatAllergies').value = draft.allergies || '';
+    if (el('newPatNotes')) el('newPatNotes').value = draft.notes || '';
+    if (el('newPatOpenHC') && draft.openHC !== undefined) el('newPatOpenHC').checked = draft.openHC;
+
+    const indicator = el('newPatDraftIndicator');
+    if (indicator) {
+      indicator.innerHTML = '<i class="fas fa-clock-rotate-left" style="color:#f59e0b;"></i> Borrador recuperado automáticamente <button type="button" id="discardPatDraftBtn" style="font-size:0.75rem; padding:2px 6px; margin-left:6px; color:var(--danger); text-decoration:underline; border:none; background:none; cursor:pointer; font-weight:700;">Descartar</button>';
+      indicator.classList.remove('hidden');
+      el('discardPatDraftBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        clearPatientDraft();
+        showToast('Borrador descartado', 'info');
+      });
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+export function openNewPatientModal() {
+  const modal = el('patientModal');
+  if (modal) {
+    const hasDraft = restorePatientDraft();
+    if (!hasDraft) {
+      const inputs = modal.querySelectorAll('input, textarea');
+      inputs.forEach(input => {
+        if (input.type === 'checkbox') {
+          input.checked = true;
+        } else {
+          input.value = '';
+        }
+      });
+      el('newPatDraftIndicator')?.classList.add('hidden');
+    }
     modal.classList.remove('hidden');
   }
 }
@@ -437,6 +528,7 @@ export async function saveNewPatient() {
     });
 
     showToast('Paciente guardado exitosamente', 'success');
+    clearPatientDraft();
     closeNewPatientModal();
     await loadPatients();
 
@@ -522,6 +614,16 @@ export function setupPatientImportExport() {
   });
 }
 
+export function setupPatientDraftAutoSave() {
+  const modal = el('patientModal');
+  if (!modal) return;
+  modal.addEventListener('input', savePatientDraft);
+  modal.addEventListener('change', savePatientDraft);
+}
+
 // Auto-run setup listeners
-setTimeout(setupPatientImportExport, 0);
+setTimeout(() => {
+  setupPatientImportExport();
+  setupPatientDraftAutoSave();
+}, 0);
 

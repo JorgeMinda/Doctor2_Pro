@@ -61,7 +61,12 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
       <div class="hc-hero-patient" style="display:flex; align-items:center; gap:14px;">
         <div class="hc-hero-avatar" style="width:52px; height:52px; border-radius:14px; background:linear-gradient(135deg, var(--primary), #8b5cf6); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.3rem; font-weight:800; box-shadow:0 4px 14px rgba(99,102,241,0.35); flex-shrink:0;">${patientInitials}</div>
         <div class="hc-hero-title">
-          <h3 style="margin:0; font-size:1.25rem; font-weight:800; color:var(--text); letter-spacing:-0.3px;">${patient.name || 'Paciente sin registrar'}</h3>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <h3 style="margin:0; font-size:1.25rem; font-weight:800; color:var(--text); letter-spacing:-0.3px;">${patient.name || 'Paciente sin registrar'}</h3>
+            <span class="badge primary" style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:6px; background:rgba(99,102,241,0.12); color:var(--primary); border:1px solid rgba(99,102,241,0.25);">
+              HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}
+            </span>
+          </div>
           <div class="hc-hero-meta" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; font-size:0.83rem; color:var(--muted);">
             <span><i class="fas fa-id-card" style="color:var(--primary);"></i> Cédula: <strong style="color:var(--text);">${patient.dni || 'Sin Cédula'}</strong></span>
             <span><i class="fas fa-venus-mars" style="color:var(--primary);"></i> Género: <strong style="color:var(--text);">${patient.sex || 'No espec.'}</strong></span>
@@ -110,6 +115,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
         </div>
         <div class="hc-accordion-body">
           <div class="grid-3" style="gap:14px;">
+            <label class="field"><span>HISTORIA CLÍNICA Nro:</span><input type="text" value="${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}" readonly class="field-readonly" style="font-weight:700; color:var(--primary);"></label>
             <label class="field"><span>Nombre Completo</span><input type="text" value="${patient.name || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Cédula / Identificación</span><input type="text" value="${patient.dni || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Fecha de Nacimiento / Edad</span><input type="text" value="${(patient.birthdate || patient.birthDate || patient.birth_date) ? `${patient.birthdate || patient.birthDate || patient.birth_date} (${calculateAge(patient.birthdate || patient.birthDate || patient.birth_date)})` : '(Sin edad)'}" readonly class="field-readonly"></label>
@@ -346,14 +352,56 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
           </div>
         </div>
         <div class="hc-accordion-body">
-          <div class="vital-signs-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px;">
-            <div class="vital-card"><div class="vital-label"><i class="fas fa-stethoscope"></i> Presión Art.</div><input id="hcPa" type="text" placeholder="120/80" value="${sig.pa || ''}"><span class="vital-unit">mmHg</span></div>
-            <div class="vital-card"><div class="vital-label"><i class="fas fa-heart"></i> Frec. Cardíaca</div><input id="hcFc" type="number" placeholder="72" value="${sig.fc || ''}"><span class="vital-unit">lpm</span></div>
-            <div class="vital-card"><div class="vital-label"><i class="fas fa-lungs"></i> Frec. Resp.</div><input id="hcFr" type="number" placeholder="16" value="${sig.fr || ''}"><span class="vital-unit">rpm</span></div>
-            <div class="vital-card"><div class="vital-label"><i class="fas fa-temperature-half"></i> Temperatura</div><input id="hcTemp" type="text" placeholder="36.5" value="${sig.temp || ''}"><span class="vital-unit">°C</span></div>
-            <div class="vital-card"><div class="vital-label"><i class="fas fa-lungs"></i> SpO2</div><input id="hcSpo2" type="number" placeholder="98" value="${sig.spo2 || ''}"><span class="vital-unit">%</span></div>
-            <div class="vital-card"><div class="vital-label"><i class="fas fa-ruler-vertical"></i> Talla</div><input id="hcTalla" type="number" step="0.01" placeholder="1.70" value="${sig.talla || ''}"><span class="vital-unit">m</span></div>
-            <div class="vital-card"><div class="vital-label"><i class="fas fa-weight-scale"></i> Peso</div><input id="hcPeso" type="number" step="0.1" placeholder="70.5" value="${sig.peso || ''}"><span class="vital-unit">kg</span></div>
+          <div class="vital-signs-grid">
+            <div class="vital-card">
+              <div class="vital-label"><i class="fas fa-stethoscope"></i> Presión Art.</div>
+              <div class="vital-input-wrap">
+                <input id="hcPa" type="text" placeholder="120/80" value="${sig.pa || ''}">
+                <span class="vital-unit">mmHg</span>
+              </div>
+            </div>
+            <div class="vital-card">
+              <div class="vital-label"><i class="fas fa-heart"></i> Frec. Cardíaca</div>
+              <div class="vital-input-wrap">
+                <input id="hcFc" type="number" placeholder="72" value="${sig.fc || ''}">
+                <span class="vital-unit">lpm</span>
+              </div>
+            </div>
+            <div class="vital-card">
+              <div class="vital-label"><i class="fas fa-lungs"></i> Frec. Resp.</div>
+              <div class="vital-input-wrap">
+                <input id="hcFr" type="number" placeholder="16" value="${sig.fr || ''}">
+                <span class="vital-unit">rpm</span>
+              </div>
+            </div>
+            <div class="vital-card">
+              <div class="vital-label"><i class="fas fa-temperature-half"></i> Temperatura</div>
+              <div class="vital-input-wrap">
+                <input id="hcTemp" type="text" placeholder="36.5" value="${sig.temp || ''}">
+                <span class="vital-unit">°C</span>
+              </div>
+            </div>
+            <div class="vital-card">
+              <div class="vital-label"><i class="fas fa-lungs"></i> SpO2</div>
+              <div class="vital-input-wrap">
+                <input id="hcSpo2" type="number" placeholder="98" value="${sig.spo2 || ''}">
+                <span class="vital-unit">%</span>
+              </div>
+            </div>
+            <div class="vital-card">
+              <div class="vital-label"><i class="fas fa-ruler-vertical"></i> Talla</div>
+              <div class="vital-input-wrap">
+                <input id="hcTalla" type="number" step="0.01" placeholder="1.70" value="${sig.talla || ''}">
+                <span class="vital-unit">m</span>
+              </div>
+            </div>
+            <div class="vital-card">
+              <div class="vital-label"><i class="fas fa-weight-scale"></i> Peso</div>
+              <div class="vital-input-wrap">
+                <input id="hcPeso" type="number" step="0.1" placeholder="70.5" value="${sig.peso || ''}">
+                <span class="vital-unit">kg</span>
+              </div>
+            </div>
           </div>
           <div style="margin-top:14px; display:flex; justify-content:flex-end;">
             <div id="hcImcBadge" class="badge" style="font-size:0.92rem; padding:6px 14px; font-weight:700; background:var(--primary-light); color:var(--primary);">
