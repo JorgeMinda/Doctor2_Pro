@@ -51,13 +51,8 @@
         <div class="login-form-side">
           <div>
             <div class="login-brand-head">
-              <div class="login-brand-logo" style="background:transparent; box-shadow:none; padding:0; display:flex; align-items:center; justify-content:center;">
-                <img src="assets/logo.png" alt="Nani Dent" style="max-height:46px; width:auto; object-fit:contain;">
-              </div>
-              <div class="login-brand-title">
-                <h2>Nani Dent</h2>
-                <p>Amor en cada sonrisa · Gestión Odontológica</p>
-              </div>
+              <img src="assets/logo.png" alt="Nani Dent · Amor en cada sonrisa" class="login-brand-img">
+              <span class="login-brand-subtitle">Gestión Odontológica & Ficha Clínica</span>
             </div>
 
             <form id="loginForm" class="login-fields-wrap" onsubmit="event.preventDefault(); window.login && window.login();">
@@ -1031,6 +1026,7 @@
         <button id="closeProfile" class="ghost"><i class="fas fa-times"></i></button>
       </div>
       <form id="profileForm" onsubmit="event.preventDefault();">
+        <input type="text" name="username" autocomplete="username" value="admin" style="display:none;" aria-hidden="true" tabindex="-1">
         <div class="field"><span>Email de Notificaciones</span><input id="profileEmail" type="email" value="contacto@consultorios.pro" autocomplete="email"></div>
         <div class="field"><span>Teléfono / WhatsApp</span><input id="profilePhone" type="tel" value="+5491123456789" autocomplete="tel"></div>
         <div class="field"><span>Código de Habilitación / Matrícula Profesional</span><input id="profileLicenseCode" type="text" placeholder="Ej: MSP-10293 / MED-4451" autocomplete="off"></div>

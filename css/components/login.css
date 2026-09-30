@@ -92,9 +92,26 @@
 
 .login-brand-head {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 26px;
+}
+
+.login-brand-img {
+  height: 52px;
+  width: auto;
+  max-width: 250px;
+  object-fit: contain;
+  display: block;
+}
+
+.login-brand-subtitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.2px;
+  margin-left: 2px;
 }
 
 .login-brand-logo {
@@ -741,8 +758,20 @@
   }
 
   .login-brand-head {
-    margin-bottom: 16px;
-    gap: 10px;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px;
+    gap: 6px;
+  }
+
+  .login-brand-img {
+    height: 46px;
+    max-width: 220px;
+  }
+
+  .login-brand-subtitle {
+    font-size: 0.76rem;
+    margin-left: 0;
   }
 
   .login-brand-logo {
