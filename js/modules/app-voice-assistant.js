@@ -302,7 +302,7 @@ export function handleVoiceIntent(rawText) {
   // 0. INTENT: COPILOTO CLÍNICO / ODONTOGRAMA / RESUMEN / CIERRE
   const isCopilotActive = document.getElementById('operitCopilotPanel') && !document.getElementById('operitCopilotPanel').classList.contains('hidden');
   const isOdontogramIntent = /\b(pieza|diente|molar|premolar|incisivo|canino|\d{2})\b/i.test(clean) &&
-    /\b(caries|obturad[ao]|sellante|endodoncia|conducto|extracci[oó]n|corona|sano)\b/i.test(clean);
+    /\b(caries|obturad[ao]|sellante|endodoncia|conducto|extracci[oó]n|corona|implante|pr[oó]tesis|sano)\b/i.test(clean);
   const isCopilotDirectCmd = clean.includes('cierre de consulta') || clean.includes('cerrar consulta') ||
     clean.includes('resumen paciente') || clean.includes('resumir paciente') ||
     clean.includes('abrir copiloto') || clean.includes('abrir asistente') || clean === 'copiloto';

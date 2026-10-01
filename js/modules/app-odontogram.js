@@ -8,7 +8,9 @@ let currentTool = 'caries';
 let currentColor = '#E24B4A'; // Rojo por defecto (#E24B4A / #378ADD)
 let autoSaveTimer = null;
 
-export const CORONA_SVG_ICON = `<svg width="15" height="15" viewBox="0 0 24 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 4 4 4 8c0 3 1.5 4.5 2 6.5h12c.5-2 2-3.5 2-6.5 0-4-4-6-8-6z"/><line x1="6" y1="15" x2="18" y2="15"/><line x1="6.7" y1="19" x2="17.3" y2="19"/><line x1="7.4" y1="23" x2="16.6" y2="23"/><path d="M9 15 L12 28 L15 15"/></svg>`;
+export const IMPLANTE_SVG_ICON = `<svg width="15" height="15" viewBox="0 0 24 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 4 4 4 8c0 3 1.5 4.5 2 6.5h12c.5-2 2-3.5 2-6.5 0-4-4-6-8-6z"/><line x1="6" y1="15" x2="18" y2="15"/><line x1="6.7" y1="19" x2="17.3" y2="19"/><line x1="7.4" y1="23" x2="16.6" y2="23"/><path d="M9 15 L12 28 L15 15"/></svg>`;
+
+export const CORONA_SVG_ICON = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1.5" /><rect x="8" y="8" width="8" height="8" rx="1" /></svg>`;
 
 export const ODONTO_TOOLS_LIST = [
   { id: 'caries', glyph: '●', label: 'Caries', scope: 'surface' },
@@ -18,10 +20,35 @@ export const ODONTO_TOOLS_LIST = [
   { id: 'perdida-otra', glyph: '⊗', label: 'Pérdida (otra causa)', scope: 'tooth' },
   { id: 'endodoncia', glyph: '△', label: 'Endodoncia', scope: 'tooth' },
   { id: 'corona', glyph: CORONA_SVG_ICON, label: 'Corona', isSvg: true, scope: 'tooth' },
+  { id: 'implante', glyph: IMPLANTE_SVG_ICON, label: 'Implante', isSvg: true, scope: 'tooth' },
   { id: 'protesis-fija', glyph: '┄', label: 'Prótesis fija', scope: 'tooth' },
   { id: 'protesis-removible', glyph: '(┄)', label: 'Prótesis removible', scope: 'tooth' },
   { id: 'protesis-total', glyph: '═', label: 'Prótesis total', scope: 'tooth' }
 ];
+
+export const ROW_ORDERS = [
+  [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28],
+  [55, 54, 53, 52, 51, 61, 62, 63, 64, 65],
+  [85, 84, 83, 82, 81, 71, 72, 73, 74, 75],
+  [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38]
+];
+
+let prosthesisRangeStart = null;
+
+function getToothRowNeighbors(num, tool, data) {
+  const n = parseInt(num, 10);
+  for (const row of ROW_ORDERS) {
+    const idx = row.indexOf(n);
+    if (idx !== -1) {
+      const leftNum = idx > 0 ? row[idx - 1] : null;
+      const rightNum = idx < row.length - 1 ? row[idx + 1] : null;
+      const hasLeft = leftNum !== null && data?.teeth && (typeof data.teeth[leftNum] === 'object' ? data.teeth[leftNum]?.tool : data.teeth[leftNum]) === tool;
+      const hasRight = rightNum !== null && data?.teeth && (typeof data.teeth[rightNum] === 'object' ? data.teeth[rightNum]?.tool : data.teeth[rightNum]) === tool;
+      return { hasLeft, hasRight };
+    }
+  }
+  return { hasLeft: false, hasRight: false };
+}
 
 export function renderOdontogram(containerId, patient) {
   const container = typeof containerId === 'string' ? el(containerId) : containerId;
@@ -237,11 +264,11 @@ function renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey) {
         </g>
       `;
     } else if (tool === 'sellante') {
-      const fs = isCenter ? '11px' : '8.5px';
-      const yOff = isCenter ? 4 : 3;
+      const fs = isCenter ? '15px' : '11.5px';
+      const yOff = isCenter ? 5 : 4;
       return `
         <g transform="translate(${cx}, ${cy})" pointer-events="none">
-          <circle cx="0" cy="0" r="${isCenter ? 5.5 : 4}" fill="rgba(255,255,255,0.92)" stroke="#ffffff" stroke-width="0.8" style="filter:drop-shadow(0px 0.5px 1px rgba(0,0,0,0.3));" />
+          <circle cx="0" cy="0" r="${isCenter ? 7.5 : 5.5}" fill="rgba(255,255,255,0.92)" stroke="#ffffff" stroke-width="0.8" style="filter:drop-shadow(0px 0.5px 1.5px rgba(0,0,0,0.35));" />
           <text x="0" y="${yOff}" text-anchor="middle" font-size="${fs}" font-weight="900" fill="${color}" style="user-select:none; font-family:sans-serif;">✱</text>
         </g>
       `;
@@ -250,11 +277,11 @@ function renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey) {
   }).join('');
 }
 
-function renderToothOverlay(tState, num) {
+function renderToothOverlay(tState, num, data) {
   if (!tState) return '';
   const tool = typeof tState === 'object' ? tState.tool : tState;
   const color = typeof tState === 'object' ? (tState.color || '#E24B4A') : (
-    tool === 'extraccion' ? '#E24B4A' : tool === 'corona' ? '#f59e0b' : tool === 'endodoncia' ? '#8b5cf6' : '#E24B4A'
+    tool === 'extraccion' ? '#E24B4A' : (tool === 'corona' || tool === 'implante') ? '#f59e0b' : tool === 'endodoncia' ? '#8b5cf6' : '#E24B4A'
   );
 
   switch (tool) {
@@ -275,31 +302,32 @@ function renderToothOverlay(tState, num) {
     case 'sellante':
       return `
         <g transform="translate(20, 20)" pointer-events="none">
-          <circle cx="0" cy="0" r="8.5" fill="rgba(255,255,255,0.95)" stroke="#ffffff" stroke-width="2" style="filter:drop-shadow(0px 1px 3px rgba(0,0,0,0.35));" />
-          <text x="0" y="4.5" text-anchor="middle" font-size="14px" font-weight="900" fill="${color}" style="user-select:none; font-family:sans-serif;">✱</text>
+          <circle cx="0" cy="0" r="11" fill="rgba(255,255,255,0.95)" stroke="#ffffff" stroke-width="2" style="filter:drop-shadow(0px 1px 3px rgba(0,0,0,0.35));" />
+          <text x="0" y="6" text-anchor="middle" font-size="19px" font-weight="900" fill="${color}" style="user-select:none; font-family:sans-serif;">✱</text>
         </g>
       `;
     case 'extraccion':
       return `
-        <line x1="2" y1="2" x2="38" y2="38" stroke="${color}" stroke-width="2.5" />
-        <line x1="38" y1="2" x2="2" y2="38" stroke="${color}" stroke-width="2.5" />
+        <line x1="2" y1="2" x2="38" y2="38" stroke="${color}" stroke-width="4.2" stroke-linecap="round" />
+        <line x1="38" y1="2" x2="2" y2="38" stroke="${color}" stroke-width="4.2" stroke-linecap="round" />
       `;
     case 'perdida-otra':
       return `
-        <circle cx="20" cy="20" r="16" fill="none" stroke="${color}" stroke-width="2.2" />
-        <line x1="8.5" y1="8.5" x2="31.5" y2="31.5" stroke="${color}" stroke-width="2" />
-        <line x1="31.5" y1="8.5" x2="8.5" y2="31.5" stroke="${color}" stroke-width="2" />
+        <circle cx="20" cy="20" r="16" fill="none" stroke="${color}" stroke-width="3.5" />
+        <line x1="8" y1="8" x2="32" y2="32" stroke="${color}" stroke-width="3.5" stroke-linecap="round" />
+        <line x1="32" y1="8" x2="8" y2="32" stroke="${color}" stroke-width="3.5" stroke-linecap="round" />
       `;
     case 'endodoncia':
       return `
-        <!-- Capa base de contraste / contorno exterior para diferenciar del diente -->
-        <polygon points="20,2.5 36,36.5 4,36.5" fill="rgba(255, 255, 255, 0.95)" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" style="filter: drop-shadow(0px 1px 3px rgba(0,0,0,0.35));" />
-        <!-- Triángulo principal con contorno de color destacado -->
-        <polygon points="20,4 34,36 6,36" fill="${color === '#E24B4A' || color === '#ef4444' ? 'rgba(239, 68, 68, 0.16)' : 'rgba(55, 138, 221, 0.16)'}" stroke="${color}" stroke-width="2.6" stroke-linejoin="round" />
-        <!-- Línea de conducto radicular con remate redondeado -->
-        <line x1="20" y1="10" x2="20" y2="34" stroke="${color}" stroke-width="2.4" stroke-linecap="round" />
+        <polygon points="20,2 38,37 2,37" fill="${color === '#E24B4A' || color === '#ef4444' ? 'rgba(239, 68, 68, 0.20)' : 'rgba(55, 138, 221, 0.20)'}" stroke="${color}" stroke-width="3.5" stroke-linejoin="round" />
+        <line x1="20" y1="9" x2="20" y2="35" stroke="${color}" stroke-width="3" stroke-linecap="round" />
       `;
     case 'corona':
+      return `
+        <rect x="3" y="3" width="34" height="34" rx="2" fill="none" stroke="${color}" stroke-width="3" />
+        <rect x="9" y="9" width="22" height="22" rx="1.5" fill="none" stroke="${color}" stroke-width="2.6" />
+      `;
+    case 'implante':
       return `
         <g transform="translate(8, 5) scale(1)" stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2C8 2 4 4 4 8c0 3 1.5 4.5 2 6.5h12c.5-2 2-3.5 2-6.5 0-4-4-6-8-6z" />
@@ -309,22 +337,44 @@ function renderToothOverlay(tState, num) {
           <path d="M9 15 L12 28 L15 15" />
         </g>
       `;
-    case 'protesis-fija':
+    case 'protesis-fija': {
+      const { hasLeft, hasRight } = getToothRowNeighbors(num, 'protesis-fija', data);
+      const leftCap = !hasLeft ? `<line x1="3" y1="12" x2="3" y2="28" stroke="${color}" stroke-width="3" stroke-linecap="round" />` : '';
+      const rightCap = !hasRight ? `<line x1="37" y1="12" x2="37" y2="28" stroke="${color}" stroke-width="3" stroke-linecap="round" />` : '';
+      const xStart = hasLeft ? -4 : 3;
+      const xEnd = hasRight ? 44 : 37;
       return `
-        <line x1="0" y1="14" x2="40" y2="14" stroke="${color}" stroke-width="2.5" stroke-dasharray="4,3" />
-        <line x1="0" y1="26" x2="40" y2="26" stroke="${color}" stroke-width="2.5" stroke-dasharray="4,3" />
+        ${leftCap}
+        <line x1="${xStart}" y1="14" x2="${xEnd}" y2="14" stroke="${color}" stroke-width="2.8" stroke-dasharray="4,3" />
+        <line x1="${xStart}" y1="26" x2="${xEnd}" y2="26" stroke="${color}" stroke-width="2.8" stroke-dasharray="4,3" />
+        ${rightCap}
       `;
-    case 'protesis-removible':
+    }
+    case 'protesis-removible': {
+      const { hasLeft, hasRight } = getToothRowNeighbors(num, 'protesis-removible', data);
+      const leftBracket = !hasLeft ? `<path d="M5 8 C1 14 1 26 5 32" fill="none" stroke="${color}" stroke-width="3.2" stroke-linecap="round" />` : '';
+      const rightBracket = !hasRight ? `<path d="M35 8 C39 14 39 26 35 32" fill="none" stroke="${color}" stroke-width="3.2" stroke-linecap="round" />` : '';
+      const xStart = hasLeft ? -4 : 6;
+      const xEnd = hasRight ? 44 : 34;
       return `
-        <path d="M5 8 C1 14 1 26 5 32" fill="none" stroke="${color}" stroke-width="2.5" />
-        <path d="M35 8 C39 14 39 26 35 32" fill="none" stroke="${color}" stroke-width="2.5" />
-        <line x1="7" y1="20" x2="33" y2="20" stroke="${color}" stroke-width="2.5" stroke-dasharray="3,3" />
+        ${leftBracket}
+        <line x1="${xStart}" y1="20" x2="${xEnd}" y2="20" stroke="${color}" stroke-width="3" stroke-dasharray="4,3" />
+        ${rightBracket}
       `;
-    case 'protesis-total':
+    }
+    case 'protesis-total': {
+      const { hasLeft, hasRight } = getToothRowNeighbors(num, 'protesis-total', data);
+      const leftCap = !hasLeft ? `<line x1="2" y1="13" x2="2" y2="27" stroke="${color}" stroke-width="3.2" stroke-linecap="round" />` : '';
+      const rightCap = !hasRight ? `<line x1="38" y1="13" x2="38" y2="27" stroke="${color}" stroke-width="3.2" stroke-linecap="round" />` : '';
+      const xStart = hasLeft ? -4 : 2;
+      const xEnd = hasRight ? 44 : 38;
       return `
-        <line x1="0" y1="16" x2="40" y2="16" stroke="${color}" stroke-width="2.8" />
-        <line x1="0" y1="24" x2="40" y2="24" stroke="${color}" stroke-width="2.8" />
+        ${leftCap}
+        <line x1="${xStart}" y1="15" x2="${xEnd}" y2="15" stroke="${color}" stroke-width="3" />
+        <line x1="${xStart}" y1="25" x2="${xEnd}" y2="25" stroke="${color}" stroke-width="3" />
+        ${rightCap}
       `;
+    }
     default:
       return '';
   }
@@ -340,8 +390,8 @@ function renderUpperPermanentItem(num, data, side) {
 
   return `
     <div class="tooth-item" data-tooth="${num}">
-      <input type="text" class="tooth-input-box recesion-input" data-tooth="${num}" value="${data.recesion[num] || ''}" maxlength="3" title="Recesión ${num}">
-      <input type="text" class="tooth-input-box movilidad-input" data-tooth="${num}" value="${data.movilidad[num] || ''}" maxlength="3" title="Movilidad ${num}">
+      <input type="text" class="tooth-input-box recesion-input" data-tooth="${num}" value="${data.recesion[num] || ''}" maxlength="1" pattern="[1-3]" placeholder="-" title="Recesión ${num} (1-3)">
+      <input type="text" class="tooth-input-box movilidad-input" data-tooth="${num}" value="${data.movilidad[num] || ''}" maxlength="1" pattern="[1-3]" placeholder="-" title="Movilidad ${num} (1-3)">
       <svg class="tooth-svg permanent" data-tooth="${num}" viewBox="0 0 40 40">
         <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 40,0 30,10 10,10" fill="${getFaceColor(surfaces, topKey)}" />
         <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="40,0 40,40 30,30 30,10" fill="${getFaceColor(surfaces, rightKey)}" />
@@ -349,7 +399,7 @@ function renderUpperPermanentItem(num, data, side) {
         <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" />
         <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" />
         ${renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey)}
-        ${renderToothOverlay(tState, num)}
+        ${renderToothOverlay(tState, num, data)}
       </svg>
       <span class="tooth-num" data-tooth="${num}">${num}</span>
     </div>
@@ -367,13 +417,13 @@ function renderUpperDeciduaItem(num, data, side) {
   return `
     <div class="tooth-item decidua-item" data-tooth="${num}">
       <svg class="tooth-svg decidua" data-tooth="${num}" viewBox="0 0 40 40">
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 40,0 30,10 10,10" fill="${getFaceColor(surfaces, topKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="40,0 40,40 30,30 30,10" fill="${getFaceColor(surfaces, rightKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="40,40 0,40 10,30 30,30" fill="${getFaceColor(surfaces, btmKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" />
-        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${topKey}" d="M 6.57,6.57 A 19 19 0 0 1 33.43,6.57 L 26.36,13.64 A 9 9 0 0 0 13.64,13.64 Z" fill="${getFaceColor(surfaces, topKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" d="M 33.43,6.57 A 19 19 0 0 1 33.43,33.43 L 26.36,26.36 A 9 9 0 0 0 26.36,13.64 Z" fill="${getFaceColor(surfaces, rightKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" d="M 33.43,33.43 A 19 19 0 0 1 6.57,33.43 L 13.64,26.36 A 9 9 0 0 0 26.36,26.36 Z" fill="${getFaceColor(surfaces, btmKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" d="M 6.57,33.43 A 19 19 0 0 1 6.57,6.57 L 13.64,13.64 A 9 9 0 0 0 13.64,26.36 Z" fill="${getFaceColor(surfaces, leftKey)}" />
+        <circle class="tooth-face center" data-tooth="${num}" data-surface="o" cx="20" cy="20" r="9" fill="${getFaceColor(surfaces, 'o')}" />
         ${renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey)}
-        ${renderToothOverlay(tState, num)}
+        ${renderToothOverlay(tState, num, data)}
       </svg>
       <span class="tooth-num decidua-num" data-tooth="${num}">${num}</span>
     </div>
@@ -391,13 +441,13 @@ function renderLowerDeciduaItem(num, data, side) {
   return `
     <div class="tooth-item decidua-item" data-tooth="${num}">
       <svg class="tooth-svg decidua" data-tooth="${num}" viewBox="0 0 40 40">
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 40,0 30,10 10,10" fill="${getFaceColor(surfaces, topKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="40,0 40,40 30,30 30,10" fill="${getFaceColor(surfaces, rightKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="40,40 0,40 10,30 30,30" fill="${getFaceColor(surfaces, btmKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" />
-        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${topKey}" d="M 6.57,6.57 A 19 19 0 0 1 33.43,6.57 L 26.36,13.64 A 9 9 0 0 0 13.64,13.64 Z" fill="${getFaceColor(surfaces, topKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" d="M 33.43,6.57 A 19 19 0 0 1 33.43,33.43 L 26.36,26.36 A 9 9 0 0 0 26.36,13.64 Z" fill="${getFaceColor(surfaces, rightKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" d="M 33.43,33.43 A 19 19 0 0 1 6.57,33.43 L 13.64,26.36 A 9 9 0 0 0 26.36,26.36 Z" fill="${getFaceColor(surfaces, btmKey)}" />
+        <path class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" d="M 6.57,33.43 A 19 19 0 0 1 6.57,6.57 L 13.64,13.64 A 9 9 0 0 0 13.64,26.36 Z" fill="${getFaceColor(surfaces, leftKey)}" />
+        <circle class="tooth-face center" data-tooth="${num}" data-surface="o" cx="20" cy="20" r="9" fill="${getFaceColor(surfaces, 'o')}" />
         ${renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey)}
-        ${renderToothOverlay(tState, num)}
+        ${renderToothOverlay(tState, num, data)}
       </svg>
       <span class="tooth-num decidua-num" data-tooth="${num}">${num}</span>
     </div>
@@ -422,10 +472,10 @@ function renderLowerPermanentItem(num, data, side) {
         <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" />
         <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" />
         ${renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey)}
-        ${renderToothOverlay(tState, num)}
+        ${renderToothOverlay(tState, num, data)}
       </svg>
-      <input type="text" class="tooth-input-box movilidad-input" data-tooth="${num}" value="${data.movilidad[num] || ''}" maxlength="3" title="Movilidad ${num}">
-      <input type="text" class="tooth-input-box recesion-input" data-tooth="${num}" value="${data.recesion[num] || ''}" maxlength="3" title="Recesión ${num}">
+      <input type="text" class="tooth-input-box movilidad-input" data-tooth="${num}" value="${data.movilidad[num] || ''}" maxlength="1" pattern="[1-3]" placeholder="-" title="Movilidad ${num} (1-3)">
+      <input type="text" class="tooth-input-box recesion-input" data-tooth="${num}" value="${data.recesion[num] || ''}" maxlength="1" pattern="[1-3]" placeholder="-" title="Recesión ${num} (1-3)">
     </div>
   `;
 }
@@ -444,7 +494,7 @@ function renderCpoSummary(data) {
 
     if (toothTool === 'extraccion' || toothTool === 'perdida-otra') {
       pPerm++;
-    } else if (toothTool === 'corona' || toothTool === 'endodoncia' || (toothTool && toothTool.startsWith('protesis'))) {
+    } else if (toothTool === 'corona' || toothTool === 'implante' || toothTool === 'endodoncia' || (toothTool && toothTool.startsWith('protesis'))) {
       oPerm++;
     } else {
       let hasC = false, hasO = false;
@@ -484,9 +534,32 @@ function applyToolToTooth(toothNum, surfKey, toolId, colorVal, data, container, 
       delete data.teeth[toothNum];
       delete data.surfaces[toothNum];
     }
+    prosthesisRangeStart = null;
   } else if (toolObj && toolObj.scope === 'tooth') {
-    data.teeth[toothNum] = { tool: toolId, color: colorVal };
+    if (toolId.startsWith('protesis')) {
+      const numA = Number(prosthesisRangeStart);
+      const numB = Number(toothNum);
+      const row = ROW_ORDERS.find(r => r.includes(numA) && r.includes(numB));
+      if (prosthesisRangeStart && row && numA !== numB) {
+        const idxA = row.indexOf(numA);
+        const idxB = row.indexOf(numB);
+        const start = Math.min(idxA, idxB);
+        const end = Math.max(idxA, idxB);
+        for (let i = start; i <= end; i++) {
+          data.teeth[row[i]] = { tool: toolId, color: colorVal };
+        }
+        showToast(`Prótesis extendida entre piezas ${row[start]} y ${row[end]}`, 'info');
+        prosthesisRangeStart = null;
+      } else {
+        data.teeth[toothNum] = { tool: toolId, color: colorVal };
+        prosthesisRangeStart = toothNum;
+      }
+    } else {
+      data.teeth[toothNum] = { tool: toolId, color: colorVal };
+      prosthesisRangeStart = null;
+    }
   } else {
+    prosthesisRangeStart = null;
     if (!data.surfaces[toothNum]) data.surfaces[toothNum] = {};
     data.surfaces[toothNum][surfKey || 'o'] = { tool: toolId, color: colorVal };
   }
@@ -509,7 +582,15 @@ function attachOdontogramEvents(container, patient, data) {
     if (pop) pop.style.display = 'flex';
     const activeToolObj = ODONTO_TOOLS_LIST.find(t => t.id === currentTool) || ODONTO_TOOLS_LIST[1];
     const colorName = currentColor === '#E24B4A' ? 'Rojo (Patológico / Por hacer)' : 'Azul (Restaurado / Existente)';
-    armedLabel.innerHTML = `<i class="fas fa-hand-pointer"></i> <strong>${activeToolObj.label}</strong> lista (${colorName}) · Clic o arrastrá al diente →`;
+    let extraHint = ' · Clic o arrastrá al diente →';
+    if (currentTool.startsWith('protesis')) {
+      if (prosthesisRangeStart) {
+        extraHint = ` · <strong style="text-decoration:underline;">Pieza ${prosthesisRangeStart} seleccionada</strong>: clic en la pieza final para abarcar el tramo`;
+      } else {
+        extraHint = ' · Clic en pieza inicial y luego en la última para abarcar el tramo';
+      }
+    }
+    armedLabel.innerHTML = `<i class="fas fa-hand-pointer"></i> <strong>${activeToolObj.label}</strong> lista (${colorName})${extraHint}`;
     armedLabel.style.color = currentColor;
   }
 
@@ -527,9 +608,12 @@ function attachOdontogramEvents(container, patient, data) {
         currentColor = '#378ADD'; // Azul: obturado / restaurado
       } else if (currentTool === 'sellante') {
         currentColor = '#378ADD'; // Azul: sellante
+      } else if (currentTool === 'corona' || currentTool === 'implante') {
+        currentColor = '#f59e0b';
       } else if (currentTool === 'extraccion' || currentTool === 'perdida-otra') {
         currentColor = '#E24B4A';
       }
+      prosthesisRangeStart = null;
 
       container.querySelectorAll('.odonto-color-swatch').forEach(s => {
         s.classList.toggle('active', s.dataset.color === currentColor);
@@ -620,17 +704,19 @@ function attachOdontogramEvents(container, patient, data) {
     });
   });
 
-  // Inputs de Recesión y Movilidad
+  // Inputs de Recesión y Movilidad (Solo valores 1 al 3)
   container.querySelectorAll('.recesion-input').forEach(inp => {
     inp.addEventListener('input', () => {
-      data.recesion[inp.dataset.tooth] = inp.value.trim();
+      inp.value = inp.value.replace(/[^1-3]/g, '').slice(0, 1);
+      data.recesion[inp.dataset.tooth] = inp.value;
       triggerDebouncedAutoSave(container, patient, data);
     });
   });
 
   container.querySelectorAll('.movilidad-input').forEach(inp => {
     inp.addEventListener('input', () => {
-      data.movilidad[inp.dataset.tooth] = inp.value.trim();
+      inp.value = inp.value.replace(/[^1-3]/g, '').slice(0, 1);
+      data.movilidad[inp.dataset.tooth] = inp.value;
       triggerDebouncedAutoSave(container, patient, data);
     });
   });

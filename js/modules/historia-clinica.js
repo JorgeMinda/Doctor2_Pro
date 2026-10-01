@@ -583,32 +583,32 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
               </label>
             </div>
 
-            <!-- Calculadoras CPO / ceo -->
-            <div class="cpo-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-              <div class="cpo-card ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'active-card' : 'disabled'}" id="cpoCardAdult">
+            <!-- Calculadoras CPO / ceo (Ambos activos) -->
+            <div class="cpo-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px;">
+              <div class="cpo-card active-card" id="cpoCardAdult">
                 <div class="cpo-card-head" style="display:flex; justify-content:space-between; align-items:center;">
-                  <label style="display:flex; align-items:center; gap:6px; margin:0; cursor:pointer; font-weight:700; color:inherit;">
-                    <input type="radio" name="cpoTypeSelect_${patient.id}" id="cpoRadioAdult" value="adult" style="cursor:pointer;" ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'checked' : ''}>
-                    <span>Índice CPO (Adulto)</span>
-                  </label>
+                  <span style="display:flex; align-items:center; gap:6px; font-weight:700; color:var(--primary);">
+                    <i class="fas fa-user"></i>
+                    <span>Índice CPO (Adulto / Permanente)</span>
+                  </span>
                   <span class="cpo-total-badge" id="cpoTotalBadge">${cpoData.totalCPO || 0}</span>
                 </div>
-                <div class="cpo-row"><span>Cariados (C):</span> <input id="cpoC" type="number" min="0" value="${cpoData.c || 0}" style="width:55px; text-align:center;" ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'disabled' : ''}></div>
-                <div class="cpo-row"><span>Perdidos (P):</span> <input id="cpoP" type="number" min="0" value="${cpoData.p || 0}" style="width:55px; text-align:center;" ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'disabled' : ''}></div>
-                <div class="cpo-row"><span>Obturados (O):</span> <input id="cpoO" type="number" min="0" value="${cpoData.o || 0}" style="width:55px; text-align:center;" ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'disabled' : ''}></div>
+                <div class="cpo-row"><span>Cariados (C):</span> <input id="cpoC" type="number" min="0" value="${cpoData.c || 0}" style="width:55px; text-align:center;"></div>
+                <div class="cpo-row"><span>Perdidos (P):</span> <input id="cpoP" type="number" min="0" value="${cpoData.p || 0}" style="width:55px; text-align:center;"></div>
+                <div class="cpo-row"><span>Obturados (O):</span> <input id="cpoO" type="number" min="0" value="${cpoData.o || 0}" style="width:55px; text-align:center;"></div>
               </div>
 
-              <div class="cpo-card ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'active-card' : 'disabled'}" id="cpoCardChild">
+              <div class="cpo-card active-card" id="cpoCardChild">
                 <div class="cpo-card-head" style="display:flex; justify-content:space-between; align-items:center;">
-                  <label style="display:flex; align-items:center; gap:6px; margin:0; cursor:pointer; font-weight:700; color:inherit;">
-                    <input type="radio" name="cpoTypeSelect_${patient.id}" id="cpoRadioChild" value="child" style="cursor:pointer;" ${(cpoData.totalCeo > 0 && !cpoData.totalCPO) ? 'checked' : ''}>
-                    <span>Índice ceo (Niño)</span>
-                  </label>
+                  <span style="display:flex; align-items:center; gap:6px; font-weight:700; color:#0284c7;">
+                    <i class="fas fa-child"></i>
+                    <span>Índice ceo (Niño / Temporal)</span>
+                  </span>
                   <span class="cpo-total-badge" id="ceoTotalBadge">${cpoData.totalCeo || 0}</span>
                 </div>
-                <div class="cpo-row"><span>cariados (c):</span> <input id="ceoC" type="number" min="0" value="${cpoData.c_min || 0}" style="width:55px; text-align:center;" ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'disabled' : ''}></div>
-                <div class="cpo-row"><span>extraídos (e):</span> <input id="ceoE" type="number" min="0" value="${cpoData.e_min || 0}" style="width:55px; text-align:center;" ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'disabled' : ''}></div>
-                <div class="cpo-row"><span>obturados (o):</span> <input id="ceoO" type="number" min="0" value="${cpoData.o_min || 0}" style="width:55px; text-align:center;" ${(!cpoData.totalCeo || cpoData.totalCPO > 0 || (!cpoData.totalCPO && !cpoData.totalCeo)) ? 'disabled' : ''}></div>
+                <div class="cpo-row"><span>cariados (c):</span> <input id="ceoC" type="number" min="0" value="${cpoData.c_min || 0}" style="width:55px; text-align:center;"></div>
+                <div class="cpo-row"><span>extraídos (e):</span> <input id="ceoE" type="number" min="0" value="${cpoData.e_min || 0}" style="width:55px; text-align:center;"></div>
+                <div class="cpo-row"><span>obturados (o):</span> <input id="ceoO" type="number" min="0" value="${cpoData.o_min || 0}" style="width:55px; text-align:center;"></div>
               </div>
             </div>
           </div>
@@ -1262,12 +1262,7 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   });
   updateIHOSTotals();
 
-  // 8. Calculadora Dinámica CPO / ceo con Estado Disabled Mutuo
-  const cardAdult = container.querySelector('#cpoCardAdult');
-  const cardChild = container.querySelector('#cpoCardChild');
-  const radioAdult = container.querySelector('#cpoRadioAdult');
-  const radioChild = container.querySelector('#cpoRadioChild');
-
+  // 8. Calculadora Dinámica CPO / ceo (Ambos Activos Simultáneamente)
   const cpoC = container.querySelector('#cpoC');
   const cpoP = container.querySelector('#cpoP');
   const cpoO = container.querySelector('#cpoO');
@@ -1278,98 +1273,23 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   const ceoO = container.querySelector('#ceoO');
   const ceoBadge = container.querySelector('#ceoTotalBadge');
 
-  function setCPOActiveMode(mode, clearOther = false) {
-    const isAdult = (mode === 'adult');
-    if (radioAdult) radioAdult.checked = isAdult;
-    if (radioChild) radioChild.checked = !isAdult;
-
-    if (cardAdult) {
-      cardAdult.classList.toggle('active-card', isAdult);
-      cardAdult.classList.toggle('disabled', !isAdult);
-    }
-    if (cardChild) {
-      cardChild.classList.toggle('active-card', !isAdult);
-      cardChild.classList.toggle('disabled', isAdult);
-    }
-
-    [cpoC, cpoP, cpoO].forEach(inp => {
-      if (inp) inp.disabled = !isAdult;
-    });
-
-    [ceoC, ceoE, ceoO].forEach(inp => {
-      if (inp) inp.disabled = isAdult;
-    });
-
-    if (clearOther) {
-      if (isAdult) {
-        if (ceoC) ceoC.value = 0;
-        if (ceoE) ceoE.value = 0;
-        if (ceoO) ceoO.value = 0;
-        if (ceoBadge) ceoBadge.textContent = '0';
-      } else {
-        if (cpoC) cpoC.value = 0;
-        if (cpoP) cpoP.value = 0;
-        if (cpoO) cpoO.value = 0;
-        if (cpoBadge) cpoBadge.textContent = '0';
-      }
-    }
-
-    updateCPOTotals();
-  }
-
-  radioAdult?.addEventListener('change', () => setCPOActiveMode('adult', true));
-  radioChild?.addEventListener('change', () => setCPOActiveMode('child', true));
-
-  cardAdult?.addEventListener('click', (e) => {
-    if (cardAdult.classList.contains('disabled')) {
-      setCPOActiveMode('adult', true);
-      cpoC?.focus();
-    }
-  });
-
-  cardChild?.addEventListener('click', (e) => {
-    if (cardChild.classList.contains('disabled')) {
-      setCPOActiveMode('child', true);
-      ceoC?.focus();
-    }
-  });
-
-  [cpoC, cpoP, cpoO].forEach(inp => {
-    inp?.addEventListener('focus', () => {
-      if (!radioAdult?.checked) setCPOActiveMode('adult', true);
-    });
-    inp?.addEventListener('input', () => {
-      if (!radioAdult?.checked) setCPOActiveMode('adult', true);
-      updateCPOTotals();
-    });
-  });
-
-  [ceoC, ceoE, ceoO].forEach(inp => {
-    inp?.addEventListener('focus', () => {
-      if (!radioChild?.checked) setCPOActiveMode('child', true);
-    });
-    inp?.addEventListener('input', () => {
-      if (!radioChild?.checked) setCPOActiveMode('child', true);
-      updateCPOTotals();
-    });
-  });
-
   function updateCPOTotals() {
-    const isAdult = radioAdult ? radioAdult.checked : true;
-    if (isAdult) {
-      const c = parseInt(cpoC?.value) || 0;
-      const p = parseInt(cpoP?.value) || 0;
-      const o = parseInt(cpoO?.value) || 0;
-      if (cpoBadge) cpoBadge.textContent = String(c + p + o);
-      if (ceoBadge) ceoBadge.textContent = '0';
-    } else {
-      const cMin = parseInt(ceoC?.value) || 0;
-      const eMin = parseInt(ceoE?.value) || 0;
-      const oMin = parseInt(ceoO?.value) || 0;
-      if (ceoBadge) ceoBadge.textContent = String(cMin + eMin + oMin);
-      if (cpoBadge) cpoBadge.textContent = '0';
-    }
+    const c = parseInt(cpoC?.value) || 0;
+    const p = parseInt(cpoP?.value) || 0;
+    const o = parseInt(cpoO?.value) || 0;
+    if (cpoBadge) cpoBadge.textContent = String(c + p + o);
+
+    const cMin = parseInt(ceoC?.value) || 0;
+    const eMin = parseInt(ceoE?.value) || 0;
+    const oMin = parseInt(ceoO?.value) || 0;
+    if (ceoBadge) ceoBadge.textContent = String(cMin + eMin + oMin);
   }
+
+  [cpoC, cpoP, cpoO, ceoC, ceoE, ceoO].forEach(inp => {
+    inp?.addEventListener('input', updateCPOTotals);
+    inp?.addEventListener('change', updateCPOTotals);
+  });
+  updateCPOTotals();
 
   // 9. Chips de Planes Diagnósticos con despliegue de detalles y creación automática de Nota Clínica
   const planMeta = {
@@ -1731,6 +1651,9 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   const saveHandler = async () => {
     await saveFullClinicalHistory(container, patient, onSaveFullHistory);
   };
+  container.querySelectorAll('#hcSaveAllBtn, #hcBottomSaveBtn').forEach(btn => {
+    btn.addEventListener('click', saveHandler);
+  });
 
   // 7. Renderizar Odontograma MSP Oficial en Sección 7
   const odontoBox = container.querySelector('#hcSection7Odontogram');
@@ -1951,13 +1874,17 @@ async function saveFullClinicalHistory(container, patient, onSaveFullHistory) {
       });
     }
 
-    showToast('Historia Clínica guardada con éxito', 'success');
+    showToast('Historia Clínica completa guardada con éxito', 'success');
   } catch (err) {
     showToast(err.message || 'Error al guardar la Historia Clínica', 'error');
   } finally {
     saveBtns.forEach(b => {
       b.disabled = false;
-      b.innerHTML = '<i class="fas fa-save"></i> Guardar Historia';
+      if (b.id === 'hcBottomSaveBtn') {
+        b.innerHTML = '<i class="fas fa-save"></i> Guardar Historia Clínica Completa';
+      } else {
+        b.innerHTML = '<i class="fas fa-save"></i> Guardar Historia';
+      }
     });
   }
 }

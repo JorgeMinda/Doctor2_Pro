@@ -408,7 +408,10 @@ function parseOdontogramDictation(text) {
     color = '#E24B4A';
   } else if (norm.includes('corona') || norm.includes('funda')) {
     tool = 'corona';
-    color = '#378ADD';
+    color = '#f59e0b';
+  } else if (norm.includes('implante')) {
+    tool = 'implante';
+    color = '#f59e0b';
   } else if (norm.includes('sano') || norm.includes('borrar') || norm.includes('limpiar')) {
     tool = 'sano';
   }
@@ -446,11 +449,12 @@ function applyParsedOdontogramActions(parsed, patient) {
     endodoncia: '△ Endodoncia',
     extraccion: '✕ Extracción',
     corona: 'Corona',
+    implante: 'Implante',
     sano: 'Sano / Limpio'
   };
 
   parsed.pieces.forEach(pNum => {
-    if (parsed.tool === 'endodoncia' || parsed.tool === 'extraccion' || parsed.tool === 'corona') {
+    if (parsed.tool === 'endodoncia' || parsed.tool === 'extraccion' || parsed.tool === 'corona' || parsed.tool === 'implante' || (parsed.tool && parsed.tool.startsWith('protesis'))) {
       data.teeth[pNum] = { tool: parsed.tool, color: parsed.color };
     } else if (parsed.tool === 'sano') {
       delete data.teeth[pNum];
