@@ -972,6 +972,7 @@
   gap: 12px;
   margin-bottom: 8px;
   position: relative;
+  z-index: 1;
 }
 
 .cie11-input-wrap {
@@ -987,10 +988,10 @@
   background: var(--surface);
   border: 1.5px solid var(--primary);
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  max-height: 220px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
+  max-height: 240px;
   overflow-y: auto;
-  z-index: 1200;
+  z-index: 9999;
   margin-top: 4px;
 }
 

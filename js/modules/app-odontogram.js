@@ -96,9 +96,11 @@ export function renderOdontogram(containerId, patient) {
           <div id="odontoToolsBar" style="display:flex; gap:5px; flex-wrap:wrap;">
             ${ODONTO_TOOLS_LIST.map(t => {
               const isActive = currentTool === t.id;
+              const isEndo = t.id === 'endodoncia';
+              const glyphColor = isEndo ? (isActive ? currentColor : (currentColor || '#8b5cf6')) : 'inherit';
               const iconHtml = t.isSvg
                 ? `<span aria-hidden="true" style="display:inline-flex; align-items:center;">${t.glyph}</span>`
-                : `<span aria-hidden="true" style="font-weight:bold; font-size:0.95rem;">${t.glyph}</span>`;
+                : `<span aria-hidden="true" style="font-weight:bold; font-size:0.95rem; color:${glyphColor};">${t.glyph}</span>`;
               return `
                 <button type="button" class="odonto-palette-btn ${isActive ? 'active' : ''}" data-tool="${t.id}" title="${t.label}">
                   ${iconHtml} ${t.label}
@@ -111,13 +113,13 @@ export function renderOdontogram(containerId, patient) {
           </div>
         </div>
 
-        <!-- Barra de Selector de Color y Estado Armado para Clic / Arrastre -->
+        <!-- Barra de Selector de Color y Estado Armado -->
         <div id="colorpop" style="display:${currentTool === 'sano' ? 'none' : 'flex'}; align-items:center; gap:10px; padding:6px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px; font-size:0.8rem; flex-wrap:wrap;">
           <span style="font-weight:600; color:var(--text);">Color:</span>
           <button type="button" class="odonto-color-swatch ${currentColor === '#E24B4A' ? 'active' : ''}" data-color="#E24B4A" style="background:#E24B4A;" title="Rojo: Patología / Por tratar"></button>
           <button type="button" class="odonto-color-swatch ${currentColor === '#378ADD' ? 'active' : ''}" data-color="#378ADD" style="background:#378ADD;" title="Azul: Restaurado / Realizado"></button>
           <span id="armed-label" class="odonto-armed-badge" draggable="true" style="color:${currentColor};">
-            <i class="fas fa-hand-pointer"></i> <strong>${activeToolObj.label}</strong> lista (${colorName}) · Clic o arrastrá al diente →
+            <i class="fas fa-hand-pointer"></i> <strong>${activeToolObj.label}</strong>
           </span>
         </div>
       </div>
@@ -221,17 +223,14 @@ function getFaceColor(surfaces, key) {
   if (!st) return '#f8fafc';
   const tool = typeof st === 'object' ? st.tool : st;
   const col = typeof st === 'object' ? st.color : (
-    tool === 'caries' ? '#E24B4A' : tool === 'obturacion' ? '#378ADD' : tool === 'sellante' ? '#06b6d4' : '#E24B4A'
+    tool === 'caries' ? '#E24B4A' : tool === 'obturacion' ? '#378ADD' : tool === 'sellante' ? '#378ADD' : '#E24B4A'
   );
 
   if (tool === 'caries') {
-    return col === '#E24B4A' || col === '#ef4444' ? 'rgba(239, 68, 68, 0.22)' : 'rgba(59, 130, 246, 0.22)';
+    return col === '#E24B4A' || col === '#ef4444' ? 'rgba(239, 68, 68, 0.28)' : 'rgba(59, 130, 246, 0.28)';
   }
-  if (tool === 'obturacion') {
-    return col === '#378ADD' || col === '#3b82f6' ? 'rgba(59, 130, 246, 0.22)' : 'rgba(239, 68, 68, 0.22)';
-  }
-  if (tool === 'sellante') {
-    return 'rgba(6, 182, 212, 0.22)';
+  if (tool === 'obturacion' || tool === 'sellante') {
+    return col === '#378ADD' || col === '#3b82f6' ? 'rgba(59, 130, 246, 0.28)' : 'rgba(239, 68, 68, 0.28)';
   }
   return col || '#f8fafc';
 }
@@ -319,8 +318,8 @@ function renderToothOverlay(tState, num, data) {
       `;
     case 'endodoncia':
       return `
-        <polygon points="20,2 38,37 2,37" fill="${color === '#E24B4A' || color === '#ef4444' ? 'rgba(239, 68, 68, 0.20)' : 'rgba(55, 138, 221, 0.20)'}" stroke="${color}" stroke-width="3.5" stroke-linejoin="round" />
-        <line x1="20" y1="9" x2="20" y2="35" stroke="${color}" stroke-width="3" stroke-linecap="round" />
+        <polygon points="20,2 38,37 2,37" fill="${color}" stroke="${color}" stroke-width="2" stroke-linejoin="round" />
+        <line x1="20" y1="8" x2="20" y2="35" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
       `;
     case 'corona':
       return `
@@ -581,16 +580,11 @@ function attachOdontogramEvents(container, patient, data) {
     }
     if (pop) pop.style.display = 'flex';
     const activeToolObj = ODONTO_TOOLS_LIST.find(t => t.id === currentTool) || ODONTO_TOOLS_LIST[1];
-    const colorName = currentColor === '#E24B4A' ? 'Rojo (Patológico / Por hacer)' : 'Azul (Restaurado / Existente)';
-    let extraHint = ' · Clic o arrastrá al diente →';
-    if (currentTool.startsWith('protesis')) {
-      if (prosthesisRangeStart) {
-        extraHint = ` · <strong style="text-decoration:underline;">Pieza ${prosthesisRangeStart} seleccionada</strong>: clic en la pieza final para abarcar el tramo`;
-      } else {
-        extraHint = ' · Clic en pieza inicial y luego en la última para abarcar el tramo';
-      }
+    let extraHint = '';
+    if (currentTool.startsWith('protesis') && prosthesisRangeStart) {
+      extraHint = ` <small style="font-size:0.75rem; opacity:0.85;">(${prosthesisRangeStart} → clic final)</small>`;
     }
-    armedLabel.innerHTML = `<i class="fas fa-hand-pointer"></i> <strong>${activeToolObj.label}</strong> lista (${colorName})${extraHint}`;
+    armedLabel.innerHTML = `<i class="fas fa-hand-pointer"></i> <strong>${activeToolObj.label}</strong>${extraHint}`;
     armedLabel.style.color = currentColor;
   }
 

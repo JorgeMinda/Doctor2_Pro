@@ -774,7 +774,19 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <h5 style="margin-bottom:14px; color:var(--primary); font-size:1rem;"><i class="fas fa-calendar-plus"></i> Registrar Nueva Sesión de Tratamiento</h5>
             <div class="grid-2" style="gap:12px;">
               <label class="field"><span>Fecha de Sesión</span><input id="sesDate" type="date" value="${formatDate(new Date())}"></label>
-              <label class="field"><span>Diagnóstico y Complicaciones</span><input id="sesDx" type="text" placeholder="Ej: Caries oclusal en 36, pulpitis reversible"></label>
+              <label class="field">
+                <span style="display:flex; justify-content:space-between; align-items:center;">
+                  <span>Diagnóstico y Complicaciones</span>
+                  <small class="muted" style="font-size:0.75rem; font-weight:normal;"><i class="fas fa-sync-alt"></i> CIE-10 (Sec. 11)</small>
+                </span>
+                <div style="display:flex; gap:6px;">
+                  <select id="sesDxSyncSelect" style="max-width:160px; font-size:0.83rem; background:var(--surface);" title="Seleccionar diagnóstico de la Sección 11 (CIE-10)">
+                    <option value="">-- De CIE-10 --</option>
+                  </select>
+                  <input id="sesDx" type="text" list="sesDxDatalist" placeholder="Ej: Caries oclusal en 36, pulpitis reversible" style="flex:1;">
+                  <datalist id="sesDxDatalist"></datalist>
+                </div>
+              </label>
               <label class="field" style="grid-column:1/-1;"><span>Procedimiento Clínico Ejecutado *</span><input id="sesProc" type="text" placeholder="Ej: Obturación con resina composite en pieza 36 / Profilaxis"></label>
               <label class="field" style="grid-column:1/-1;"><span>Prescripciones Farmacológicas (Receta médica)</span><input id="sesRx" type="text" placeholder="Ej: Amoxicilina 500mg c/8h x 7 días + Ibuprofeno 400mg c/8h x dolor"></label>
               <label class="field">
@@ -1419,6 +1431,18 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
         reindexOtrosPlanRows();
       });
     }
+
+    const inp = row.querySelector('.otro-plan-input');
+    if (inp) {
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (btnAddOtro) {
+            btnAddOtro.click();
+          }
+        }
+      });
+    }
   }
 
   function reindexOtrosPlanRows() {
@@ -1469,6 +1493,18 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     const preDefBtns = row.querySelectorAll('.pre-def-btn');
     const delBtn = row.querySelector('.cie-del-row-btn');
 
+    const closeDropdown = () => {
+      if (dropdown) dropdown.classList.add('hidden');
+      row.style.zIndex = '1';
+    };
+
+    const openDropdown = () => {
+      container.querySelectorAll('#cie11Container .cie11-dropdown').forEach(d => d.classList.add('hidden'));
+      container.querySelectorAll('#cie11Container .cie11-row-card').forEach(r => r.style.zIndex = '1');
+      if (dropdown) dropdown.classList.remove('hidden');
+      row.style.zIndex = '100';
+    };
+
     preDefBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         preDefBtns.forEach(b => b.classList.remove('active'));
@@ -1485,13 +1521,15 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
         if (dxInput) dxInput.value = '';
         if (codeInput) codeInput.value = '';
       }
+      syncSesDxWithCIE10();
     });
 
     if (dxInput && dropdown) {
       dxInput.addEventListener('input', () => {
         const q = dxInput.value.trim();
         if (q.length < 1) {
-          dropdown.classList.add('hidden');
+          closeDropdown();
+          syncSesDxWithCIE10();
           return;
         }
 
@@ -1502,7 +1540,7 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
               <span>No encontrado en catálogo base (puede escribir libremente)</span>
             </div>
           `;
-          dropdown.classList.remove('hidden');
+          openDropdown();
           return;
         }
 
@@ -1513,16 +1551,26 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
             <small class="muted" style="margin-left:auto; font-size:0.75rem; white-space:nowrap; padding-left:8px;">${r.category || ''}</small>
           </div>
         `).join('');
-        dropdown.classList.remove('hidden');
+        openDropdown();
 
         dropdown.querySelectorAll('.cie11-dropdown-item').forEach(item => {
           if (!item.dataset.code) return;
-          item.addEventListener('click', () => {
+          const selectItem = (e) => {
+            if (e) e.preventDefault();
             dxInput.value = item.dataset.name;
             if (codeInput) codeInput.value = item.dataset.code;
-            dropdown.classList.add('hidden');
-          });
+            closeDropdown();
+            syncSesDxWithCIE10();
+          };
+          item.addEventListener('mousedown', selectItem);
+          item.addEventListener('click', selectItem);
         });
+      });
+
+      dxInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeDropdown();
+        }
       });
 
       if (codeInput) {
@@ -1532,11 +1580,12 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
           if (match && !dxInput.value.trim()) {
             dxInput.value = match.name;
           }
+          syncSesDxWithCIE10();
         });
       }
 
       document.addEventListener('click', (e) => {
-        if (!row.contains(e.target)) dropdown.classList.add('hidden');
+        if (!row.contains(e.target)) closeDropdown();
       });
     }
   }
@@ -1568,9 +1617,46 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   const sesSaveBtn = container.querySelector('#sesSaveBtn');
   const sesProcInput = container.querySelector('#sesProc');
   const sesDxInput = container.querySelector('#sesDx');
+  const sesDxSyncSelect = container.querySelector('#sesDxSyncSelect');
+  const sesDxDatalist = container.querySelector('#sesDxDatalist');
   const sesCodeInput = container.querySelector('#sesCode');
   const sesSignSelect = container.querySelector('#sesSignSelect');
   const sesSignInput = container.querySelector('#sesSign');
+
+  const syncSesDxWithCIE10 = () => {
+    const rows = container.querySelectorAll('#cie11Container .cie11-row-card');
+    const dxList = [];
+    rows.forEach(r => {
+      const code = r.querySelector('.cie11-code-input')?.value.trim() || '';
+      const name = r.querySelector('.cie11-dx-input')?.value.trim() || '';
+      if (code && name) dxList.push(`${code} - ${name}`);
+      else if (name) dxList.push(name);
+      else if (code) dxList.push(code);
+    });
+
+    if (sesDxDatalist) {
+      sesDxDatalist.innerHTML = dxList.map(item => `<option value="${item}">`).join('');
+    }
+    if (sesDxSyncSelect) {
+      const currVal = sesDxSyncSelect.value;
+      sesDxSyncSelect.innerHTML = `<option value="">-- De CIE-10 (${dxList.length}) --</option>` +
+        dxList.map(item => `<option value="${item}">${item}</option>`).join('');
+      if (currVal && dxList.includes(currVal)) {
+        sesDxSyncSelect.value = currVal;
+      }
+    }
+    // If sesDxInput is empty and we have at least one diagnosis in Section 11, pre-fill with the first one
+    if (sesDxInput && !sesDxInput.value.trim() && dxList.length > 0) {
+      sesDxInput.value = dxList[0];
+      if (sesDxSyncSelect) sesDxSyncSelect.value = dxList[0];
+    }
+  };
+
+  sesDxSyncSelect?.addEventListener('change', () => {
+    if (sesDxSyncSelect.value && sesDxInput) {
+      sesDxInput.value = sesDxSyncSelect.value;
+    }
+  });
 
   const updateDoctorLicenseCode = () => {
     const selectedName = sesSignSelect?.value || sesSignInput?.value || defaultDoctorName;
@@ -1595,12 +1681,16 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   newSesBtn?.addEventListener('click', () => {
     sessionFormArea.style.display = 'block';
     sessionFormArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    syncSesDxWithCIE10();
     if (sesSignInput && !sesSignInput.value) {
       sesSignInput.value = defaultDoctorName;
     }
     updateDoctorLicenseCode();
     if (sesProcInput) sesProcInput.focus();
   });
+
+  // Run initial sync on load
+  syncSesDxWithCIE10();
 
   sesCancelBtn?.addEventListener('click', () => {
     sessionFormArea.style.display = 'none';
