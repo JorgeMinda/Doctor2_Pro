@@ -426,6 +426,24 @@
     ],
     "audit_logs": [
         {
+            "id": "aud_fd445f628b7139ca",
+            "timestamp": "2026-10-02T21:02:41+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "::1",
+            "entity": "AUTH",
+            "entityId": "usr-admin-1",
+            "action": "LOGIN",
+            "diff": {
+                "old": null,
+                "new": {
+                    "username": "admin",
+                    "status": "SUCCESS"
+                }
+            },
+            "meta": []
+        },
+        {
             "id": "aud_b3e6b3357c160c1f",
             "timestamp": "2026-09-28T14:05:24+00:00",
             "userId": "usr-admin-1",

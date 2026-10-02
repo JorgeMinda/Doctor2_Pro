@@ -96,11 +96,9 @@ export function renderOdontogram(containerId, patient) {
           <div id="odontoToolsBar" style="display:flex; gap:5px; flex-wrap:wrap;">
             ${ODONTO_TOOLS_LIST.map(t => {
               const isActive = currentTool === t.id;
-              const isEndo = t.id === 'endodoncia';
-              const glyphColor = isEndo ? (isActive ? currentColor : (currentColor || '#8b5cf6')) : 'inherit';
               const iconHtml = t.isSvg
                 ? `<span aria-hidden="true" style="display:inline-flex; align-items:center;">${t.glyph}</span>`
-                : `<span aria-hidden="true" style="font-weight:bold; font-size:0.95rem; color:${glyphColor};">${t.glyph}</span>`;
+                : `<span aria-hidden="true" style="font-weight:bold; font-size:0.95rem;">${t.glyph}</span>`;
               return `
                 <button type="button" class="odonto-palette-btn ${isActive ? 'active' : ''}" data-tool="${t.id}" title="${t.label}">
                   ${iconHtml} ${t.label}
@@ -226,11 +224,11 @@ function getFaceColor(surfaces, key) {
     tool === 'caries' ? '#E24B4A' : tool === 'obturacion' ? '#378ADD' : tool === 'sellante' ? '#378ADD' : '#E24B4A'
   );
 
-  if (tool === 'caries') {
-    return col === '#E24B4A' || col === '#ef4444' ? 'rgba(239, 68, 68, 0.28)' : 'rgba(59, 130, 246, 0.28)';
+  if (tool === 'caries' || tool === 'obturacion') {
+    return col;
   }
-  if (tool === 'obturacion' || tool === 'sellante') {
-    return col === '#378ADD' || col === '#3b82f6' ? 'rgba(59, 130, 246, 0.28)' : 'rgba(239, 68, 68, 0.28)';
+  if (tool === 'sellante') {
+    return col === '#E24B4A' || col === '#ef4444' ? 'rgba(239, 68, 68, 0.28)' : 'rgba(59, 130, 246, 0.28)';
   }
   return col || '#f8fafc';
 }
@@ -255,13 +253,7 @@ function renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey) {
     const isCenter = (key === 'o');
 
     if (tool === 'caries' || tool === 'obturacion') {
-      const r = isCenter ? 4.5 : 3.2;
-      return `
-        <g transform="translate(${cx}, ${cy})" pointer-events="none">
-          <circle cx="0" cy="0" r="${r + 0.9}" fill="#ffffff" />
-          <circle cx="0" cy="0" r="${r}" fill="${color}" stroke="#ffffff" stroke-width="0.8" style="filter:drop-shadow(0px 0.5px 1px rgba(0,0,0,0.35));" />
-        </g>
-      `;
+      return '';
     } else if (tool === 'sellante') {
       const fs = isCenter ? '15px' : '11.5px';
       const yOff = isCenter ? 5 : 4;
@@ -280,7 +272,7 @@ function renderToothOverlay(tState, num, data) {
   if (!tState) return '';
   const tool = typeof tState === 'object' ? tState.tool : tState;
   const color = typeof tState === 'object' ? (tState.color || '#E24B4A') : (
-    tool === 'extraccion' ? '#E24B4A' : (tool === 'corona' || tool === 'implante') ? '#f59e0b' : tool === 'endodoncia' ? '#8b5cf6' : '#E24B4A'
+    tool === 'extraccion' ? '#E24B4A' : (tool === 'corona' || tool === 'implante') ? '#f59e0b' : tool === 'endodoncia' ? '#E24B4A' : '#E24B4A'
   );
 
   switch (tool) {
@@ -318,8 +310,7 @@ function renderToothOverlay(tState, num, data) {
       `;
     case 'endodoncia':
       return `
-        <polygon points="20,2 38,37 2,37" fill="${color}" stroke="${color}" stroke-width="2" stroke-linejoin="round" />
-        <line x1="20" y1="8" x2="20" y2="35" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+        <polygon points="20,2 38,37 2,37" fill="${color}" fill-opacity="0.25" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" />
       `;
     case 'corona':
       return `
@@ -606,6 +597,10 @@ function attachOdontogramEvents(container, patient, data) {
         currentColor = '#f59e0b';
       } else if (currentTool === 'extraccion' || currentTool === 'perdida-otra') {
         currentColor = '#E24B4A';
+      } else if (currentTool === 'endodoncia') {
+        if (!currentColor || (currentColor !== '#E24B4A' && currentColor !== '#378ADD')) {
+          currentColor = '#E24B4A';
+        }
       }
       prosthesisRangeStart = null;
 
