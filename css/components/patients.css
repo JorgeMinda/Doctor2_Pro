@@ -110,24 +110,6 @@
   cursor: pointer;
 }
 
-.tooth-svg polygon, .tooth-svg rect {
-  fill: #f8fafc;
-  stroke: #cbd5e1;
-  stroke-width: 1.5;
-  transition: all 0.2s;
-}
-
-.tooth-svg polygon:hover, .tooth-svg rect:hover {
-  fill: #c7d2fe;
-}
-
-.tooth-svg.has-caries polygon.center {
-  fill: #ef4444;
-}
-
-.tooth-svg.has-restoration polygon.center {
-  fill: #3b82f6;
-}
 
 .tooth-num {
   font-size: 0.75rem;

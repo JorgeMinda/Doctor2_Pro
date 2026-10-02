@@ -310,7 +310,7 @@ function renderToothOverlay(tState, num, data) {
       `;
     case 'endodoncia':
       return `
-        <polygon points="20,2 38,37 2,37" fill="${color}" fill-opacity="0.25" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" />
+        <polygon class="odonto-endo-triangle" points="20,2 38,37 2,37" fill="${color}" fill-opacity="0.5" stroke="${color}" stroke-width="3.2" stroke-linejoin="round" style="fill:${color} !important; fill-opacity:0.5 !important; stroke:${color} !important; stroke-width:3.2px !important; pointer-events:none;" />
       `;
     case 'corona':
       return `
@@ -383,11 +383,11 @@ function renderUpperPermanentItem(num, data, side) {
       <input type="text" class="tooth-input-box recesion-input" data-tooth="${num}" value="${data.recesion[num] || ''}" maxlength="1" pattern="[1-3]" placeholder="-" title="Recesión ${num} (1-3)">
       <input type="text" class="tooth-input-box movilidad-input" data-tooth="${num}" value="${data.movilidad[num] || ''}" maxlength="1" pattern="[1-3]" placeholder="-" title="Movilidad ${num} (1-3)">
       <svg class="tooth-svg permanent" data-tooth="${num}" viewBox="0 0 40 40">
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 40,0 30,10 10,10" fill="${getFaceColor(surfaces, topKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="40,0 40,40 30,30 30,10" fill="${getFaceColor(surfaces, rightKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="40,40 0,40 10,30 30,30" fill="${getFaceColor(surfaces, btmKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" />
-        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 40,0 30,10 10,10" fill="${getFaceColor(surfaces, topKey)}" style="fill:${getFaceColor(surfaces, topKey)} !important;" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="40,0 40,40 30,30 30,10" fill="${getFaceColor(surfaces, rightKey)}" style="fill:${getFaceColor(surfaces, rightKey)} !important;" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="40,40 0,40 10,30 30,30" fill="${getFaceColor(surfaces, btmKey)}" style="fill:${getFaceColor(surfaces, btmKey)} !important;" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" style="fill:${getFaceColor(surfaces, leftKey)} !important;" />
+        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" style="fill:${getFaceColor(surfaces, 'o')} !important;" />
         ${renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey)}
         ${renderToothOverlay(tState, num, data)}
       </svg>
@@ -456,11 +456,11 @@ function renderLowerPermanentItem(num, data, side) {
     <div class="tooth-item" data-tooth="${num}">
       <span class="tooth-num" data-tooth="${num}">${num}</span>
       <svg class="tooth-svg permanent" data-tooth="${num}" viewBox="0 0 40 40">
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 40,0 30,10 10,10" fill="${getFaceColor(surfaces, topKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="40,0 40,40 30,30 30,10" fill="${getFaceColor(surfaces, rightKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="40,40 0,40 10,30 30,30" fill="${getFaceColor(surfaces, btmKey)}" />
-        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" />
-        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${topKey}" points="0,0 40,0 30,10 10,10" fill="${getFaceColor(surfaces, topKey)}" style="fill:${getFaceColor(surfaces, topKey)} !important;" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${rightKey}" points="40,0 40,40 30,30 30,10" fill="${getFaceColor(surfaces, rightKey)}" style="fill:${getFaceColor(surfaces, rightKey)} !important;" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${btmKey}" points="40,40 0,40 10,30 30,30" fill="${getFaceColor(surfaces, btmKey)}" style="fill:${getFaceColor(surfaces, btmKey)} !important;" />
+        <polygon class="tooth-face" data-tooth="${num}" data-surface="${leftKey}" points="0,40 0,0 10,10 10,30" fill="${getFaceColor(surfaces, leftKey)}" style="fill:${getFaceColor(surfaces, leftKey)} !important;" />
+        <polygon class="tooth-face center" data-tooth="${num}" data-surface="o" points="10,10 30,10 30,30 10,30" fill="${getFaceColor(surfaces, 'o')}" style="fill:${getFaceColor(surfaces, 'o')} !important;" />
         ${renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey)}
         ${renderToothOverlay(tState, num, data)}
       </svg>
