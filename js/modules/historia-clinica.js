@@ -1494,14 +1494,40 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     const delBtn = row.querySelector('.cie-del-row-btn');
 
     const closeDropdown = () => {
-      if (dropdown) dropdown.classList.add('hidden');
+      if (dropdown) {
+        dropdown.classList.add('hidden');
+        dropdown.classList.remove('drop-up');
+      }
       row.style.zIndex = '1';
     };
 
     const openDropdown = () => {
-      container.querySelectorAll('#cie11Container .cie11-dropdown').forEach(d => d.classList.add('hidden'));
+      container.querySelectorAll('#cie11Container .cie11-dropdown').forEach(d => {
+        d.classList.add('hidden');
+        d.classList.remove('drop-up');
+      });
       container.querySelectorAll('#cie11Container .cie11-row-card').forEach(r => r.style.zIndex = '1');
-      if (dropdown) dropdown.classList.remove('hidden');
+      if (dropdown) {
+        // Calcular espacio disponible abajo y arriba para decidir si se abre hacia abajo o hacia arriba
+        if (dxInput) {
+          const rect = dxInput.getBoundingClientRect();
+          const spaceBelow = window.innerHeight - rect.bottom;
+          const spaceAbove = rect.top;
+          const neededHeight = 230;
+
+          if (spaceBelow < neededHeight && spaceAbove >= 160) {
+            dropdown.classList.add('drop-up');
+          } else {
+            dropdown.classList.remove('drop-up');
+          }
+
+          // Si el espacio está muy apretado arriba y abajo, centrar la fila suavemente
+          if (spaceBelow < neededHeight && spaceAbove < neededHeight) {
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+        dropdown.classList.remove('hidden');
+      }
       row.style.zIndex = '100';
     };
 
@@ -1606,6 +1632,7 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     const newRow = tempDiv.firstElementChild;
     cieContainer.appendChild(newRow);
     setupCIERowEvents(newRow);
+    newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
     const newDxInput = newRow.querySelector('.cie11-dx-input');
     if (newDxInput) newDxInput.focus();
   });
