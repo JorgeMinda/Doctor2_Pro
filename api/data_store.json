@@ -37,9 +37,10 @@
     "patients": [
         {
             "id": "pat-101",
+            "hcNumber": "ND-0001",
             "name": "María Rodríguez",
             "dni": "35123456",
-            "phone": "+5491155551234",
+            "phone": "+593995551234",
             "email": "maria.rodriguez@email.com",
             "birthdate": "1990-05-14",
             "health_insurance": "OSDE 210",
@@ -232,6 +233,7 @@
         },
         {
             "id": "pat-be7c09b37d",
+            "hcNumber": "ND-0002",
             "name": "Jorge Minda",
             "dni": "172555656556",
             "sex": "Masculino",

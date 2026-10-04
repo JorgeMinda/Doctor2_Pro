@@ -144,3 +144,53 @@ export async function apiFetch(url, options = {}) {
     throw err;
   }
 }
+
+export function getPatientHcNumber(patient) {
+  if (!patient) return 'ND-0001';
+
+  const existing = patient.hcNumber || patient.hc_number;
+  if (existing && typeof existing === 'string' && existing.startsWith('ND-')) {
+    return existing;
+  }
+
+  // Si es el paciente demo inicial pat-101 o formato previo HC-101 / HC-001 -> ND-0001
+  if (patient.id === 'pat-101' || existing === 'HC-101' || existing === 'HC-001') {
+    return 'ND-0001';
+  }
+
+  // Numeración continua según el índice en la lista de pacientes
+  try {
+    const list = window.state?.patients;
+    if (Array.isArray(list) && list.length > 0) {
+      const idx = list.findIndex(p => p.id === patient.id);
+      if (idx !== -1) {
+        return `ND-${String(idx + 1).padStart(4, '0')}`;
+      }
+    }
+  } catch (e) {}
+
+  // Si trae un prefijo HC- previo, convertir a ND-
+  if (existing && typeof existing === 'string' && existing.startsWith('HC-')) {
+    const numPart = parseInt(existing.replace('HC-', ''), 10);
+    if (!isNaN(numPart)) {
+      if (numPart === 101) return 'ND-0001';
+      return `ND-${String(numPart).padStart(4, '0')}`;
+    }
+  }
+
+  if (patient.id && typeof patient.id === 'string') {
+    const numMatch = patient.id.match(/\d+/);
+    if (numMatch) {
+      const n = parseInt(numMatch[0], 10);
+      if (n === 101) return 'ND-0001';
+      return `ND-${String(n).padStart(4, '0')}`;
+    }
+  }
+
+  return 'ND-0001';
+}
+
+if (typeof window !== 'undefined') {
+  window.getPatientHcNumber = getPatientHcNumber;
+}
+

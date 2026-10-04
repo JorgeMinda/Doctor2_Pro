@@ -7,9 +7,9 @@ import { sendWhatsAppReport } from './whatsapp-manager.js';
 
 
 const mockChats = [
-  { id: '1', name: 'María Rodríguez', phone: '+5491155551234', lastMsg: 'Hola, quería confirmar mi turno para mañana', time: '10:45' },
-  { id: '2', name: 'Carlos Benítez', phone: '+5491144449876', lastMsg: 'Muchas gracias por la atención doctor', time: 'Ayer' },
-  { id: '3', name: 'Lucía Fernández', phone: '+5491133332211', lastMsg: '¿Cuánto sale la consulta particular?', time: '08/09' }
+  { id: '1', name: 'María Rodríguez', phone: '+593995551234', lastMsg: 'Hola, quería confirmar mi turno para mañana', time: '10:45' },
+  { id: '2', name: 'Carlos Benítez', phone: '+593994449876', lastMsg: 'Muchas gracias por la atención doctor', time: 'Ayer' },
+  { id: '3', name: 'Lucía Fernández', phone: '+593993332211', lastMsg: '¿Cuánto sale la consulta particular?', time: '08/09' }
 ];
 
 let activeChat = mockChats[0];

@@ -2,13 +2,16 @@
  * app-patients.js - Gestión de Pacientes, Ficha Médica e Historia Clínica
  */
 import { state, api } from './app-state.js';
-import { el, apiFetch, showToast, calculateAge } from './app-utils.js';
+import { el, apiFetch, showToast, calculateAge, getPatientHcNumber } from './app-utils.js';
 import { renderOdontogram } from './app-odontogram.js';
 
 export async function loadPatients() {
   try {
     const data = await apiFetch(api.patients);
     state.patients = data.patients || [];
+    state.patients.forEach((p, idx) => {
+      p.hcNumber = p.hcNumber || `ND-${String(idx + 1).padStart(4, '0')}`;
+    });
     renderPatients();
   } catch (err) {
     console.warn('Error al cargar pacientes:', err);
@@ -84,6 +87,7 @@ export async function selectPatient(patientId, defaultTab = 'historia') {
       if (inList?.age && !data.patient.age) {
         data.patient.age = inList.age;
       }
+      data.patient.hcNumber = inList?.hcNumber || getPatientHcNumber(data.patient);
       state.selectedPatient = data.patient;
       
       // Ocultar la tabla de pacientes y su cabezal para mostrar la ficha completa
@@ -129,7 +133,7 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <h3 style="margin:0; color:var(--primary); font-size:1.35rem; font-weight:800;">${patient.name}</h3>
             <span class="badge ${patient.status || 'active'}" style="font-size:0.75rem; text-transform:capitalize; padding:2px 8px;">${patient.status || 'Activo'}</span>
-            <span class="badge primary" style="font-size:0.75rem; font-weight:700; padding:2px 8px; background:rgba(99,102,241,0.12); color:var(--primary); border:1px solid rgba(99,102,241,0.25);">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</span>
+            <span class="badge primary" style="font-size:0.75rem; font-weight:700; padding:2px 8px; background:rgba(99,102,241,0.12); color:var(--primary); border:1px solid rgba(99,102,241,0.25);">HISTORIA CLÍNICA Nro: ${getPatientHcNumber(patient)}</span>
           </div>
           <p class="muted" style="margin:3px 0 0 0; font-size:0.84rem;">
             Cédula / ID: <strong style="color:var(--text);">${patient.dni || 'Sin registrar'}</strong> · 

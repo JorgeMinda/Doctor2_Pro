@@ -303,7 +303,7 @@ export function openProfile() {
   }
 
   if (el('profileEmail')) el('profileEmail').value = state.user?.email || 'contacto@consultorios.pro';
-  if (el('profilePhone')) el('profilePhone').value = state.user?.phone || '+5491123456789';
+  if (el('profilePhone')) el('profilePhone').value = state.user?.phone || '+593991234567';
   if (el('profileLicenseCode')) el('profileLicenseCode').value = state.user?.license_code || prof?.license_code || '';
   if (el('profilePass')) el('profilePass').value = '';
 

@@ -838,7 +838,7 @@ export function openReceiptPreview(m) {
               <i class="fas fa-hospital-user" style="color:#2563eb;"></i> DOCTOR PRO
             </h2>
             <p style="margin:2px 0 0; font-size:0.82rem; color:#64748b;">Consultorios Médicos & Odontología Integral</p>
-            <p style="margin:1px 0 0; font-size:0.78rem; color:#94a3b8;">Av. Central 1234 · Tel: +54 9 11 2345-6789</p>
+            <p style="margin:1px 0 0; font-size:0.78rem; color:#94a3b8;">Av. Central 1234 · Tel: +593 9 9123-4567</p>
           </div>
           <div style="text-align:right;">
             <div style="display:inline-block; padding:4px 10px; border-radius:6px; background:${isIncome ? '#ecfdf5' : '#fef2f2'}; border:1px solid ${isIncome ? '#10b981' : '#ef4444'}; color:${isIncome ? '#059669' : '#dc2626'}; font-weight:800; font-size:0.82rem; margin-bottom:4px;">

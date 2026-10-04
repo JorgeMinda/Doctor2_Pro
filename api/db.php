@@ -485,7 +485,7 @@ class TransactSafeDatabase {
                     'name' => 'Dr. Jorge Valenzuela',
                     'role' => 'admin',
                     'email' => 'contacto@consultorios.pro',
-                    'phone' => '+5491123456789',
+                    'phone' => '+593991234567',
                     'appearance' => [
                         'theme' => 'light',
                         'fontSize' => 'normal',
@@ -499,7 +499,7 @@ class TransactSafeDatabase {
                     'name' => 'Dr. Juan Carlos Gómez',
                     'specialty' => 'Odontología General',
                     'email' => 'juancarlos@consultorios.pro',
-                    'phone' => '+5491123456789',
+                    'phone' => '+593991234567',
                     'color' => '#3b82f6',
                     'slot_minutes' => 30,
                     'start_time' => '08:00',
@@ -511,12 +511,13 @@ class TransactSafeDatabase {
             'patients' => [
                 [
                     'id' => 'pat-101',
+                    'hcNumber' => 'ND-0001',
                     'name' => 'María Rodríguez',
                     'dni' => '35123456',
-                    'phone' => '+5491155551234',
+                    'phone' => '+593995551234',
                     'email' => 'maria.rodriguez@email.com',
                     'birthdate' => '1990-05-14',
-                    'health_insurance' => 'OSDE 210',
+                    'health_insurance' => 'Particular',
                     'affiliate_number' => '884920192',
                     'notes' => 'Paciente con antecedentes de hipertensión controlada.',
                     'allergies' => 'Penicilina'
@@ -527,7 +528,7 @@ class TransactSafeDatabase {
                     'id' => 'apt-sample-1',
                     'patient_id' => 'pat-101',
                     'patient_name' => 'María Rodríguez',
-                    'patient_phone' => '+5491155551234',
+                    'patient_phone' => '+593995551234',
                     'patient_email' => 'maria.rodriguez@email.com',
                     'professional_id' => 'prof-378c0d79a7',
                     'date' => date('Y-m-d'),

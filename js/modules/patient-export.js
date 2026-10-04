@@ -3,7 +3,7 @@
  */
 import { getWhatsAppStatus, sendWhatsAppReport } from './whatsapp-manager.js';
 import { generateOdontogramHTML } from './patient-charts.js';
-import { showToast } from './app-utils.js';
+import { showToast, getPatientHcNumber } from './app-utils.js';
 import { NANI_DENT_LOGO_BASE64, NANI_DENT_LETTERHEAD_BASE64, CLINIC_BRANDING } from './branding-assets.js';
 
 export function createExportActions(patient, notes = [], plans = [], professionals = [], onSendEmail, clinicName = CLINIC_BRANDING.name) {
@@ -157,15 +157,15 @@ export function createExportActions(patient, notes = [], plans = [], professiona
             </div>
           </div>
           <div style="text-align:right; font-size:11px; color:#64748b;">
-            <div style="font-weight:700; color:#0e7490; font-size:12px;">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</div>
-            <div style="margin-top:2px;">Fecha: ${new Date().toLocaleDateString('es-AR')}</div>
+            <div style="font-weight:700; color:#0e7490; font-size:12px;">HISTORIA CLÍNICA Nro: ${getPatientHcNumber(patient)}</div>
+            <div style="margin-top:2px;">Fecha: ${new Date().toLocaleDateString('es-EC')}</div>
           </div>
         </div>
         `}
         
         <div style="text-align:center; margin-bottom:20px;">
           <h2 style="margin:0; font-size:17px; color:#0f172a; text-transform:uppercase; letter-spacing:0.5px;">Ficha Administrativa del Paciente</h2>
-          <span style="font-size:11px; color:#0e7490; font-weight:700;">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</span>
+          <span style="font-size:11px; color:#0e7490; font-weight:700;">HISTORIA CLÍNICA Nro: ${getPatientHcNumber(patient)}</span>
         </div>
 
         <div class="grid">
@@ -316,8 +316,8 @@ export function createExportActions(patient, notes = [], plans = [], professiona
             </div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:12px; font-weight:700; color:#0e7490;">HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</div>
-            <div style="font-size:11px; color:#64748b; margin-top:2px;">Emisión: ${new Date().toLocaleDateString('es-AR')}</div>
+            <div style="font-size:12px; font-weight:700; color:#0e7490;">HISTORIA CLÍNICA Nro: ${getPatientHcNumber(patient)}</div>
+            <div style="font-size:11px; color:#64748b; margin-top:2px;">Emisión: ${new Date().toLocaleDateString('es-EC')}</div>
           </div>
         </div>
         `}
@@ -326,7 +326,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
         <div class="sec-box">
           <div class="sec-title">1. Datos de Filiación y Registro</div>
           <div class="sec-body grid-4">
-            <div class="data-item"><label>HISTORIA CLÍNICA Nro:</label><span style="color:#0e7490;">${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}</span></div>
+            <div class="data-item"><label>HISTORIA CLÍNICA Nro:</label><span style="color:#0e7490;">${getPatientHcNumber(patient)}</span></div>
             <div class="data-item"><label>Paciente:</label><span>${patient.name || '-'}</span></div>
             <div class="data-item"><label>Cédula / ID:</label><span>${patient.dni || '-'}</span></div>
             <div class="data-item"><label>Género / Edad:</label><span>${patient.sex || 'No espec.'} / ${patient.birthdate ? (new Date().getFullYear() - new Date(patient.birthdate).getFullYear()) + ' años' : '-'}</span></div>

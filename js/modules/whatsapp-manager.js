@@ -52,13 +52,13 @@ export function createWhatsAppManager(onStatusChange) {
         <div id="pairInputStage">
           <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:6px;">Ingresá tu número de WhatsApp (con código de país):</label>
           <div style="display:flex; gap:10px; margin-bottom:14px;">
-            <input type="tel" id="waPairPhoneInput" value="+5491123456789" placeholder="+54 9 11 2345-6789" autocomplete="tel" style="flex:1; padding:10px 14px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:1rem; font-weight:600;">
+            <input type="tel" id="waPairPhoneInput" value="+593991234567" placeholder="+593 9 9123-4567" autocomplete="tel" style="flex:1; padding:10px 14px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:1rem; font-weight:600;">
             <button class="primary" id="btnGeneratePairCode" style="background:#25d366; border-color:#25d366; font-size:0.9rem; padding:0 18px; white-space:nowrap;">
               <i class="fas fa-key"></i> Generar Código
             </button>
           </div>
           <p class="muted" style="font-size:0.8rem; margin:0;">
-            <i class="fas fa-info-circle" style="color:var(--primary);"></i> Ingresá el código de país sin el símbolo "+" si tenés problemas (Ej: <strong>5491123456789</strong> para Argentina).
+            <i class="fas fa-info-circle" style="color:var(--primary);"></i> Ingresá el código de país sin el símbolo "+" si tenés problemas (Ej: <strong>593991234567</strong> para Ecuador).
           </p>
         </div>
 
@@ -105,7 +105,7 @@ export function createWhatsAppManager(onStatusChange) {
         </div>
 
         <div style="display:flex; gap:10px; align-items:center;">
-          <input type="tel" id="waTestPhone" placeholder="Número de prueba (ej: 5491112345678)" style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.85rem;">
+          <input type="tel" id="waTestPhone" placeholder="Número de prueba (ej: 593991234567)" style="flex:1; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:0.85rem;">
           <button class="primary" id="waTestSendBtn" style="background:#25d366; border-color:#25d366; font-size:0.85rem; white-space:nowrap;"><i class="fab fa-whatsapp"></i> Probar Envío</button>
         </div>
       </div>
@@ -268,8 +268,11 @@ export async function sendWhatsAppReport(phone, patientName, customMessage = '')
   }
   
   if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
-  if (!cleanPhone.startsWith('54') && cleanPhone.length === 10) cleanPhone = '549' + cleanPhone;
-  if (cleanPhone.startsWith('54') && !cleanPhone.startsWith('549') && cleanPhone.length === 12) {
+  if (!cleanPhone.startsWith('593') && (cleanPhone.length === 9 || (cleanPhone.length === 10 && cleanPhone.startsWith('9')))) {
+    cleanPhone = '593' + (cleanPhone.length === 10 ? cleanPhone.substring(1) : cleanPhone);
+  } else if (!cleanPhone.startsWith('54') && cleanPhone.length === 10) {
+    cleanPhone = '549' + cleanPhone;
+  } else if (cleanPhone.startsWith('54') && !cleanPhone.startsWith('549') && cleanPhone.length === 12) {
     cleanPhone = '549' + cleanPhone.substring(2);
   }
 

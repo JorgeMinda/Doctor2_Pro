@@ -2,7 +2,7 @@
  * patient-ficha.js - Ficha de Datos Administrativos del Paciente
  * Permite ver y editar los datos demográficos, cobertura médica y agendar controles sugeridos.
  */
-import { showToast, formatDate, calculateAge } from './app-utils.js';
+import { showToast, formatDate, calculateAge, getPatientHcNumber } from './app-utils.js';
 
 export function createPatientFicha(patient, professionals = [], canEdit = true, onSave) {
   const container = document.createElement('div');
@@ -38,7 +38,7 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
       <div class="ficha-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
         <div class="ficha-item">
           <label class="muted" style="font-size:0.8rem; display:block;">HISTORIA CLÍNICA Nro:</label>
-          <strong style="font-size:1.05rem; color:var(--primary);">${escapeHtml(patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001'))}</strong>
+          <strong style="font-size:1.05rem; color:var(--primary);">${escapeHtml(getPatientHcNumber(patient))}</strong>
         </div>
         <div class="ficha-item">
           <label class="muted" style="font-size:0.8rem; display:block;">Nombre y Apellido</label>
@@ -143,7 +143,7 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
         </label>
         <label class="field">
           <span>Teléfono Contacto de Emergencia</span>
-          <input type="tel" id="fichaEmergencyPhone" value="${escapeHtml(patient.emergencyPhone || '')}" class="field-input" placeholder="+549... o número telefónico">
+          <input type="tel" id="fichaEmergencyPhone" value="${escapeHtml(patient.emergencyPhone || '')}" class="field-input" placeholder="+593 9... o número telefónico">
         </label>
         <label class="field">
           <span>Representante Legal (si es menor)</span>

@@ -213,8 +213,13 @@ if ($method === 'POST') {
         }
     }
 
+    $existingPatients = $db->getAll('patients') ?: [];
+    $nextSeq = count($existingPatients) + 1;
+    $hcNumber = 'ND-' . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
+
     $newPatient = [
         'id' => 'pat-' . substr(md5(uniqid(rand(), true)), 0, 10),
+        'hcNumber' => $hcNumber,
         'name' => $name,
         'dni' => trim($input['dni'] ?? ''),
         'sex' => trim($input['sex'] ?? ''),

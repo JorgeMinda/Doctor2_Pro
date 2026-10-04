@@ -1,4 +1,4 @@
-﻿-- ==========================================================
+-- ==========================================================
 -- DOCTOR2_PRO - BASE DE DATOS COMPLETA (MySQL / MariaDB)
 -- Compatible con: Aiven, TiDB Cloud, Clever Cloud, cPanel, InfinityFree
 -- ==========================================================
@@ -173,11 +173,11 @@ CREATE TABLE IF NOT EXISTS `audit_logs` (
 -- ==========================================================
 
 INSERT INTO `users` (`id`, `username`, `password`, `name`, `role`, `email`, `phone`) 
-VALUES ('usr-admin-1', 'admin', 'admin123', 'Dr. Jorge Valenzuela', 'admin', 'dr.valenzuela@doctor2.com', '+5491100001111')
+VALUES ('usr-admin-1', 'admin', 'admin123', 'Dr. Jorge Valenzuela', 'admin', 'dr.valenzuela@doctor2.com', '+593990001111')
 ON DUPLICATE KEY UPDATE `username`=`username`;
 
 INSERT INTO `professionals` (`id`, `name`, `specialty`, `email`, `phone`, `color`, `duration`, `schedule`, `license_code`) 
-VALUES ('prof-1', 'Dr. Jorge Valenzuela', 'Odontología Integral', 'dr.valenzuela@doctor2.com', '+5491100001111', '#4f46e5', 30, '{"mon":{"active":true,"start":"09:00","end":"18:00"},"tue":{"active":true,"start":"09:00","end":"18:00"},"wed":{"active":true,"start":"09:00","end":"18:00"},"thu":{"active":true,"start":"09:00","end":"18:00"},"fri":{"active":true,"start":"09:00","end":"18:00"}}', 'MSP-78421')
+VALUES ('prof-1', 'Dr. Jorge Valenzuela', 'Odontología Integral', 'dr.valenzuela@doctor2.com', '+593990001111', '#4f46e5', 30, '{"mon":{"active":true,"start":"09:00","end":"18:00"},"tue":{"active":true,"start":"09:00","end":"18:00"},"wed":{"active":true,"start":"09:00","end":"18:00"},"thu":{"active":true,"start":"09:00","end":"18:00"},"fri":{"active":true,"start":"09:00","end":"18:00"}}', 'MSP-78421')
 ON DUPLICATE KEY UPDATE `name`=`name`;
 
 INSERT INTO `treasury_accounts` (`id`, `name`, `type`, `balance`, `currency`) VALUES

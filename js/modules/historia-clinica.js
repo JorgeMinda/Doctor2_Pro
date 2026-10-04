@@ -2,7 +2,7 @@
  * historia-clinica.js - Sistema Integral de Historia Clínica Odontológica (12 Secciones Oficiales + CIE-10)
  * Diseñado con interfaz moderna en formato Accordion Card Deck (desplegable e interactivo)
  */
-import { showToast, apiFetch, formatDate, calculateAge } from './app-utils.js';
+import { showToast, apiFetch, formatDate, calculateAge, getPatientHcNumber } from './app-utils.js';
 import { searchCIE10, getCIE10ByCode, addCustomCIE10 } from './cie10-catalogue.js';
 import { renderOdontogram } from './app-odontogram.js';
 
@@ -69,7 +69,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <h3 style="margin:0; font-size:1.25rem; font-weight:800; color:var(--text); letter-spacing:-0.3px;">${patient.name || 'Paciente sin registrar'}</h3>
             <span class="badge primary" style="font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:6px; background:rgba(99,102,241,0.12); color:var(--primary); border:1px solid rgba(99,102,241,0.25);">
-              HISTORIA CLÍNICA Nro: ${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}
+              HISTORIA CLÍNICA Nro: ${getPatientHcNumber(patient)}
             </span>
           </div>
           <div class="hc-hero-meta" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; font-size:0.83rem; color:var(--muted);">
@@ -120,7 +120,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
         </div>
         <div class="hc-accordion-body">
           <div class="grid-3" style="gap:14px;">
-            <label class="field"><span>HISTORIA CLÍNICA Nro:</span><input type="text" value="${patient.hcNumber || patient.hc_number || (patient.id ? patient.id.replace('pat-', 'HC-').toUpperCase() : 'HC-001')}" readonly class="field-readonly" style="font-weight:700; color:var(--primary);"></label>
+            <label class="field"><span>HISTORIA CLÍNICA Nro:</span><input type="text" value="${getPatientHcNumber(patient)}" readonly class="field-readonly" style="font-weight:700; color:var(--primary);"></label>
             <label class="field"><span>Nombre Completo</span><input type="text" value="${patient.name || ''}" readonly class="field-readonly"></label>
             <label class="field"><span>Cédula / Identificación</span><input type="text" value="${patient.dni || ''}" readonly class="field-readonly"></label>
             <div class="field" style="display:flex; flex-direction:column; gap:4px;">
@@ -169,7 +169,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <span class="chip-toggle" data-val="Dolor dental agudo"><i class="fas fa-bolt"></i> Dolor Agudo</span>
             <span class="chip-toggle" data-val="Control y Limpieza Bucal"><i class="fas fa-sparkles"></i> Control y Limpieza</span>
             <span class="chip-toggle" data-val="Sangrado o inflamación de encías"><i class="fas fa-droplet"></i> Sangrado Encías</span>
-            <span class="chip-toggle" data-val="Restauración / Calce caído"><i class="fas fa-tooth"></i> Calce Caído</span>
+            <span class="chip-toggle" data-val="Calza Caído / Rota"><i class="fas fa-tooth"></i> Calza Caído / Rota</span>
             <span class="chip-toggle" data-val="Estética / Blanqueamiento"><i class="fas fa-wand-magic-sparkles"></i> Estética</span>
             <span class="chip-toggle" data-val="Prótesis / Implante dental"><i class="fas fa-cubes"></i> Prótesis / Implantes</span>
             <span class="chip-toggle" data-val="Traumatismo dental"><i class="fas fa-car-burst"></i> Traumatismo</span>
@@ -210,7 +210,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
               <span class="chip-toggle ${ch.enfermedadActual?.eva === '1-3' ? 'active' : ''}" data-val="1-3">1-3 Leve</span>
               <span class="chip-toggle warning ${ch.enfermedadActual?.eva === '4-6' ? 'active' : ''}" data-val="4-6">4-6 Moderado</span>
               <span class="chip-toggle danger ${ch.enfermedadActual?.eva === '7-9' ? 'active' : ''}" data-val="7-9">7-9 Severo</span>
-              <span class="chip-toggle danger ${ch.enfermedadActual?.eva === '10' ? 'active' : ''}" data-val="10">10 Insupportable</span>
+              <span class="chip-toggle danger ${ch.enfermedadActual?.eva === '10' ? 'active' : ''}" data-val="10">10 Insoportable</span>
             </div>
           </div>
           <label class="field" style="margin-top:14px;">
@@ -359,7 +359,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <div class="hc-acc-icon"><i class="fas fa-heart-pulse"></i></div>
             <div class="hc-acc-text">
               <span class="hc-acc-title"><span class="hc-acc-num">5.</span> Signos Vitales y Somatometría</span>
-              <span class="hc-acc-sub">PA, FC, FR, Temp, SpO2, Talla, Peso y cálculo automático de IMC</span>
+              <span class="hc-acc-sub">PA, FC, FR, Temp, Saturación, Talla, Peso y cálculo automático de IMC</span>
             </div>
           </div>
           <div class="hc-acc-right">
@@ -398,7 +398,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
               </div>
             </div>
             <div class="vital-card" style="min-width:0;">
-              <div class="vital-label" style="white-space:nowrap;"><i class="fas fa-lungs"></i> SpO2</div>
+              <div class="vital-label" style="white-space:nowrap;"><i class="fas fa-lungs"></i> Saturación</div>
               <div class="vital-input-wrap" style="display:flex !important; flex-direction:row !important; align-items:center !important; flex-wrap:nowrap !important; gap:6px;">
                 <input id="hcSpo2" type="number" placeholder="98" value="${sig.spo2 || ''}" style="flex:1 1 auto !important; min-width:0 !important; width:100% !important;">
                 <span class="vital-unit" style="flex-shrink:0 !important; white-space:nowrap !important;">%</span>

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * chat-inbox-ui.js - Renderizado de UI de Bandeja de Entrada de WhatsApp
  */
 
@@ -70,7 +70,7 @@ export function createChatInboxHTML() {
               <div class="avatar" style="width:40px; height:40px;"><i class="fas fa-user"></i></div>
               <div>
                 <strong id="chatContactName" style="font-size:1rem;">Paciente</strong><br>
-                <small id="chatContactPhone" class="muted">+54 9 11 ...</small>
+                <small id="chatContactPhone" class="muted">+593 9 ...</small>
               </div>
             </div>
             <div style="display:flex; gap:6px;">
