@@ -114,8 +114,8 @@ export function renderOdontogram(containerId, patient) {
         <!-- Barra de Selector de Color y Estado Armado -->
         <div id="colorpop" style="display:${currentTool === 'sano' ? 'none' : 'flex'}; align-items:center; gap:10px; padding:6px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px; font-size:0.8rem; flex-wrap:wrap;">
           <span style="font-weight:600; color:var(--text);">Color:</span>
-          <button type="button" class="odonto-color-swatch ${currentColor === '#E24B4A' ? 'active' : ''}" data-color="#E24B4A" style="background:#E24B4A;" title="Rojo: Patología / Por tratar"></button>
-          <button type="button" class="odonto-color-swatch ${currentColor === '#378ADD' ? 'active' : ''}" data-color="#378ADD" style="background:#378ADD;" title="Azul: Restaurado / Realizado"></button>
+          <button type="button" class="odonto-color-swatch ${currentColor === '#E24B4A' ? 'active' : ''}" data-color="#E24B4A" style="background:#E24B4A; display:${currentTool === 'obturacion' ? 'none' : 'inline-block'};" title="Rojo: Patología / Por tratar"></button>
+          <button type="button" class="odonto-color-swatch ${currentColor === '#378ADD' ? 'active' : ''}" data-color="#378ADD" style="background:#378ADD; display:${currentTool === 'caries' ? 'none' : 'inline-block'};" title="Azul: Restaurado / Realizado"></button>
           <span id="armed-label" class="odonto-armed-badge" draggable="true" style="color:${currentColor};">
             <i class="fas fa-hand-pointer"></i> <strong>${activeToolObj.label}</strong>
           </span>
@@ -248,19 +248,19 @@ function renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey) {
     if (!st) return '';
     const tool = typeof st === 'object' ? st.tool : st;
     const color = typeof st === 'object' ? (st.color || (tool === 'caries' ? '#E24B4A' : '#378ADD')) : (
-      tool === 'caries' ? '#E24B4A' : tool === 'obturacion' ? '#378ADD' : tool === 'sellante' ? '#06b6d4' : '#E24B4A'
+      tool === 'caries' ? '#E24B4A' : tool === 'obturacion' ? '#378ADD' : tool === 'sellante' ? '#378ADD' : '#E24B4A'
     );
     const isCenter = (key === 'o');
 
     if (tool === 'caries' || tool === 'obturacion') {
       return '';
     } else if (tool === 'sellante') {
-      const fs = isCenter ? '15px' : '11.5px';
-      const yOff = isCenter ? 5 : 4;
+      const fs = isCenter ? '25px' : '15px';
+      const yOff = isCenter ? 8.5 : 5;
       return `
         <g transform="translate(${cx}, ${cy})" pointer-events="none">
-          <circle cx="0" cy="0" r="${isCenter ? 7.5 : 5.5}" fill="rgba(255,255,255,0.92)" stroke="#ffffff" stroke-width="0.8" style="filter:drop-shadow(0px 0.5px 1.5px rgba(0,0,0,0.35));" />
-          <text x="0" y="${yOff}" text-anchor="middle" font-size="${fs}" font-weight="900" fill="${color}" style="user-select:none; font-family:sans-serif;">✱</text>
+          <circle cx="0" cy="0" r="${isCenter ? 9.8 : 6.5}" fill="rgba(255,255,255,0.92)" stroke="#ffffff" stroke-width="1" style="filter:drop-shadow(0px 0.5px 2px rgba(0,0,0,0.3));" />
+          <text x="0" y="${yOff}" text-anchor="middle" font-size="${fs}" font-weight="900" fill="${color}" style="user-select:none; font-family:sans-serif; line-height:1;">✱</text>
         </g>
       `;
     }
@@ -293,8 +293,8 @@ function renderToothOverlay(tState, num, data) {
     case 'sellante':
       return `
         <g transform="translate(20, 20)" pointer-events="none">
-          <circle cx="0" cy="0" r="11" fill="rgba(255,255,255,0.95)" stroke="#ffffff" stroke-width="2" style="filter:drop-shadow(0px 1px 3px rgba(0,0,0,0.35));" />
-          <text x="0" y="6" text-anchor="middle" font-size="19px" font-weight="900" fill="${color}" style="user-select:none; font-family:sans-serif;">✱</text>
+          <circle cx="0" cy="0" r="14" fill="rgba(255,255,255,0.95)" stroke="#ffffff" stroke-width="2" style="filter:drop-shadow(0px 1px 3px rgba(0,0,0,0.35));" />
+          <text x="0" y="9.5" text-anchor="middle" font-size="28px" font-weight="900" fill="${color}" style="user-select:none; font-family:sans-serif; line-height:1;">✱</text>
         </g>
       `;
     case 'extraccion':
@@ -570,6 +570,43 @@ function attachOdontogramEvents(container, patient, data) {
       return;
     }
     if (pop) pop.style.display = 'flex';
+
+    // Regla de color fija por herramienta clínica:
+    // Caries: solo rojo disponible y activo. Obturación: solo azul disponible y activo.
+    const redSwatch = container.querySelector('.odonto-color-swatch[data-color="#E24B4A"]');
+    const blueSwatch = container.querySelector('.odonto-color-swatch[data-color="#378ADD"]');
+
+    if (currentTool === 'caries') {
+      currentColor = '#E24B4A';
+      if (redSwatch) {
+        redSwatch.style.display = 'inline-block';
+        redSwatch.classList.add('active');
+      }
+      if (blueSwatch) {
+        blueSwatch.style.display = 'none';
+        blueSwatch.classList.remove('active');
+      }
+    } else if (currentTool === 'obturacion') {
+      currentColor = '#378ADD';
+      if (blueSwatch) {
+        blueSwatch.style.display = 'inline-block';
+        blueSwatch.classList.add('active');
+      }
+      if (redSwatch) {
+        redSwatch.style.display = 'none';
+        redSwatch.classList.remove('active');
+      }
+    } else {
+      if (redSwatch) {
+        redSwatch.style.display = 'inline-block';
+        redSwatch.classList.toggle('active', currentColor === '#E24B4A');
+      }
+      if (blueSwatch) {
+        blueSwatch.style.display = 'inline-block';
+        blueSwatch.classList.toggle('active', currentColor === '#378ADD');
+      }
+    }
+
     const activeToolObj = ODONTO_TOOLS_LIST.find(t => t.id === currentTool) || ODONTO_TOOLS_LIST[1];
     let extraHint = '';
     if (currentTool.startsWith('protesis') && prosthesisRangeStart) {
@@ -588,9 +625,9 @@ function attachOdontogramEvents(container, patient, data) {
 
       // Color inicial sugerido por convención odontológica oficial
       if (currentTool === 'caries') {
-        currentColor = '#E24B4A'; // Rojo: patológico / caries
+        currentColor = '#E24B4A'; // Rojo exclusivo: patológico / caries
       } else if (currentTool === 'obturacion') {
-        currentColor = '#378ADD'; // Azul: obturado / restaurado
+        currentColor = '#378ADD'; // Azul exclusivo: obturado / restaurado
       } else if (currentTool === 'sellante') {
         currentColor = '#378ADD'; // Azul: sellante
       } else if (currentTool === 'corona' || currentTool === 'implante') {
@@ -604,10 +641,6 @@ function attachOdontogramEvents(container, patient, data) {
       }
       prosthesisRangeStart = null;
 
-      container.querySelectorAll('.odonto-color-swatch').forEach(s => {
-        s.classList.toggle('active', s.dataset.color === currentColor);
-      });
-
       updateArmedBadge();
     });
   });
@@ -615,6 +648,7 @@ function attachOdontogramEvents(container, patient, data) {
   // Selector de Swatches de Color
   container.querySelectorAll('.odonto-color-swatch').forEach(swatch => {
     swatch.addEventListener('click', () => {
+      if (currentTool === 'caries' || currentTool === 'obturacion') return;
       container.querySelectorAll('.odonto-color-swatch').forEach(s => s.classList.remove('active'));
       swatch.classList.add('active');
       currentColor = swatch.dataset.color;

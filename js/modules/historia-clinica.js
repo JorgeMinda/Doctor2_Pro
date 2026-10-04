@@ -43,15 +43,20 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
   if (calcAge === 'Sin edad' && rawAge) calcAge = `${rawAge} años`;
 
 
-  const diagList = (ch.diagnosticosCIE10 && ch.diagnosticosCIE10.length > 0)
-    ? ch.diagnosticosCIE10
+  const rawDiagList = (ch.diagnosticosCIE10 && ch.diagnosticosCIE10.length > 0)
+    ? [...ch.diagnosticosCIE10]
     : (ch.diagnosticosCIE11 && ch.diagnosticosCIE11.length > 0)
-      ? ch.diagnosticosCIE11
+      ? [...ch.diagnosticosCIE11]
       : [
           { dx: 'Caries de la dentina', cie: 'K02.1', tipo: 'DEF' },
           { dx: 'Gingivitis crónica inducida por placa bacteriana', cie: 'K05.1', tipo: 'DEF' },
           { dx: 'Examen y control odontológico de rutina', cie: 'Z01.2', tipo: 'PRE' }
         ];
+
+  while (rawDiagList.length < 4) {
+    rawDiagList.push({ dx: '', cie: '', tipo: 'PRE' });
+  }
+  const diagList = rawDiagList;
 
   const patientInitials = (patient.name || 'P')
     .split(' ')
@@ -243,12 +248,12 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <span class="chip-toggle danger ${ant.alergiaAntibiotico ? 'active' : ''}" data-key="alergiaAntibiotico"><i class="fas fa-pills"></i> Alergia Antibióticos</span>
             <span class="chip-toggle danger ${ant.alergiaAnestesia ? 'active' : ''}" data-key="alergiaAnestesia"><i class="fas fa-syringe"></i> Alergia Anestesia</span>
             <span class="chip-toggle danger ${ant.hemorragias ? 'active' : ''}" data-key="hemorragias"><i class="fas fa-droplet"></i> Hemorragias / Anticoagulados</span>
+            <span class="chip-toggle ${ant.vih ? 'active' : ''}" data-key="vih"><i class="fas fa-shield-virus"></i> VIH / SIDA</span>
+            <span class="chip-toggle ${ant.tuberculosis ? 'active' : ''}" data-key="tuberculosis"><i class="fas fa-virus"></i> Tuberculosis</span>
+            <span class="chip-toggle ${ant.asma ? 'active' : ''}" data-key="asma"><i class="fas fa-lungs"></i> Asma / Respiratorio</span>
             <span class="chip-toggle warning ${ant.diabetes ? 'active' : ''}" data-key="diabetes"><i class="fas fa-cube"></i> Diabetes</span>
             <span class="chip-toggle warning ${ant.hipertension ? 'active' : ''}" data-key="hipertension"><i class="fas fa-heart"></i> Hipertensión Arterial</span>
             <span class="chip-toggle warning ${ant.cardiaca ? 'active' : ''}" data-key="cardiaca"><i class="fas fa-heart-pulse"></i> Enfermedad Cardíaca</span>
-            <span class="chip-toggle ${ant.asma ? 'active' : ''}" data-key="asma"><i class="fas fa-lungs"></i> Asma / Respiratorio</span>
-            <span class="chip-toggle ${ant.vih ? 'active' : ''}" data-key="vih"><i class="fas fa-shield-virus"></i> VIH / ITS</span>
-            <span class="chip-toggle ${ant.tuberculosis ? 'active' : ''}" data-key="tuberculosis"><i class="fas fa-virus"></i> Tuberculosis</span>
             <span class="chip-toggle ${ant.otro ? 'active' : ''}" data-key="otro"><i class="fas fa-plus"></i> Otro Antecedente</span>
           </div>
 
@@ -345,7 +350,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
 
           <div class="grid-2" style="margin-top:14px; gap:14px;">
             <label class="field"><span>Cirugías y Hospitalizaciones Previas</span><input id="hcCirugias" type="text" placeholder="Ej: Apendicectomía (2020)" value="${ant.cirugias || ''}"></label>
-            <label class="field"><span>Complicaciones en Anestesia / Cicatrización</span><input id="hcRecuperacion" type="text" placeholder="Ej: Cicatrización lenta, mareos con anestésico" value="${ant.recuperacion || ''}"></label>
+            <label class="field"><span>¿Cómo le fue en la recuperación post quirúrgica?</span><input id="hcRecuperacion" type="text" placeholder="Ej: Cicatrización lenta, mareos con anestésico" value="${ant.recuperacion || ''}"></label>
           </div>
         </div>
       </div>
@@ -996,8 +1001,13 @@ function renderCIE10Rows(diagList = []) {
     diagList = [
       { dx: 'Caries de la dentina', cie: 'K02.1', tipo: 'DEF' },
       { dx: 'Gingivitis crónica inducida por placa bacteriana', cie: 'K05.1', tipo: 'DEF' },
-      { dx: 'Examen y control odontológico de rutina', cie: 'Z01.2', tipo: 'PRE' }
+      { dx: 'Examen y control odontológico de rutina', cie: 'Z01.2', tipo: 'PRE' },
+      { dx: '', cie: '', tipo: 'PRE' }
     ];
+  } else {
+    while (diagList.length < 4) {
+      diagList.push({ dx: '', cie: '', tipo: 'PRE' });
+    }
   }
   return diagList.map((d, index) => createSingleCIERowHTML(index, d.dx || '', d.cie || '', d.tipo || 'PRE')).join('');
 }

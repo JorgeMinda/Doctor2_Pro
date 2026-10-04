@@ -227,7 +227,7 @@ export function createExportActions(patient, notes = [], plans = [], professiona
         }
       });
       if (a.cirugias) antecedentes.push(`<strong>Cirugías:</strong> ${a.cirugias}`);
-      if (a.recuperacion) antecedentes.push(`<strong>Complicaciones / Recuperación:</strong> ${a.recuperacion}`);
+      if (a.recuperacion) antecedentes.push(`<strong>Recuperación post quirúrgica:</strong> ${a.recuperacion}`);
     }
 
     const estomato = hc.estomatognatico || [];
