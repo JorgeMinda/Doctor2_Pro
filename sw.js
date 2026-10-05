@@ -3,7 +3,7 @@
  * Soporta instalación nativa en PC/Android/iOS y caché offline de activos estáticos.
  */
 
-const CACHE_NAME = 'doctor2-pro-v1.9';
+const CACHE_NAME = 'doctor2-pro-v2.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -27,6 +27,7 @@ const STATIC_ASSETS = [
   './js/modules/app-voice-assistant.js',
   './js/modules/drug-interactions.js',
   './js/modules/historia-clinica.js',
+  './js/modules/cie10-catalogue.js',
   './js/modules/app-odontogram.js',
   './js/modules/app-budget.js'
 ];

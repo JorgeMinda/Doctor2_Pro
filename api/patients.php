@@ -213,7 +213,7 @@ if ($method === 'POST') {
         }
     }
 
-    $existingPatients = $db->getAll('patients') ?: [];
+    $existingPatients = $db->getCollection('patients') ?: [];
     $nextSeq = count($existingPatients) + 1;
     $hcNumber = 'ND-' . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
 

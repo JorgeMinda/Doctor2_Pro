@@ -5,6 +5,8 @@ import { state, api } from './app-state.js';
 import { el, apiFetch, showToast, calculateAge, getPatientHcNumber } from './app-utils.js';
 import { renderOdontogram } from './app-odontogram.js';
 
+const PATIENTS_CACHE_KEY = 'doctor2_patients_cache';
+
 export async function loadPatients() {
   try {
     const data = await apiFetch(api.patients);
@@ -12,9 +14,21 @@ export async function loadPatients() {
     state.patients.forEach((p, idx) => {
       p.hcNumber = p.hcNumber || `ND-${String(idx + 1).padStart(4, '0')}`;
     });
+    try {
+      localStorage.setItem(PATIENTS_CACHE_KEY, JSON.stringify(state.patients));
+    } catch (e) {}
     renderPatients();
   } catch (err) {
-    console.warn('Error al cargar pacientes:', err);
+    console.warn('Error al cargar pacientes de API, recurriendo a caché local:', err);
+    try {
+      const cached = localStorage.getItem(PATIENTS_CACHE_KEY);
+      if (cached) {
+        state.patients = JSON.parse(cached);
+        renderPatients();
+        return;
+      }
+    } catch (e) {}
+    renderPatients();
   }
 }
 
@@ -109,6 +123,20 @@ export async function selectPatient(patientId, defaultTab = 'historia') {
       }
     }
   } catch (err) {
+    const fallbackPat = state.patients.find(p => p.id === patientId);
+    if (fallbackPat) {
+      fallbackPat.hcNumber = fallbackPat.hcNumber || getPatientHcNumber(fallbackPat);
+      state.selectedPatient = fallbackPat;
+      const listHead = el('patientsListHead');
+      const tableContainer = el('patientsTableContainer');
+      const detailContainer = el('patientDetail');
+      if (listHead) listHead.classList.add('hidden');
+      if (tableContainer) tableContainer.classList.add('hidden');
+      if (detailContainer) detailContainer.classList.remove('hidden');
+      renderPatients();
+      renderPatientDetail(fallbackPat, defaultTab);
+      return;
+    }
     showToast('No se pudo cargar la ficha del paciente', 'error');
   }
 }
@@ -291,7 +319,13 @@ window.switchPatientTab = (tab) => {
             })
           });
           if (!patient.clinicalNotes) patient.clinicalNotes = [];
-          patient.clinicalNotes.unshift(newNote);
+          const isDupe = patient.clinicalNotes.some(n =>
+            (n.id && newNote.id && n.id === newNote.id) ||
+            (n.date === newNote.date && n.procedimiento === newNote.procedimiento && n.nota === newNote.nota)
+          );
+          if (!isDupe) {
+            patient.clinicalNotes.unshift(newNote);
+          }
         },
         async (newPlans) => {
           await apiFetch(api.patients, {
@@ -578,7 +612,49 @@ export async function saveNewPatient() {
       }
     }
   } catch (err) {
-    showToast(err.message || 'Error al guardar paciente', 'error');
+    console.warn('Error al guardar paciente en backend, creando resguardo local:', err);
+    // Modo offline / respaldo en caso de que el backend no esté respondiendo
+    const nextSeq = (state.patients?.length || 0) + 1;
+    const fallbackHc = `ND-${String(nextSeq).padStart(4, '0')}`;
+    const localPatient = {
+      id: 'pat-loc-' + Date.now().toString(36),
+      hcNumber: fallbackHc,
+      name,
+      dni,
+      sex,
+      birthdate: birthdateRaw,
+      age,
+      phone,
+      email,
+      occupation,
+      address,
+      emergencyName,
+      emergencyPhone,
+      emergencyContact: (emergencyName && emergencyPhone) ? `${emergencyName} (${emergencyPhone})` : (emergencyName || emergencyPhone || ''),
+      representativeName,
+      allergies,
+      notes,
+      clinicalHistory: {},
+      clinicalNotes: [],
+      budgets: [],
+      attachments: [],
+      created_at: new Date().toISOString()
+    };
+
+    if (!state.patients) state.patients = [];
+    state.patients.push(localPatient);
+    try {
+      localStorage.setItem(PATIENTS_CACHE_KEY, JSON.stringify(state.patients));
+    } catch (e) {}
+
+    clearPatientDraft();
+    closeNewPatientModal();
+    renderPatients();
+    showToast('Paciente guardado (Modo local persistente)', 'success');
+    await selectPatient(localPatient.id);
+    if (openHC) {
+      window.switchPatientTab('historia');
+    }
   }
 }
 

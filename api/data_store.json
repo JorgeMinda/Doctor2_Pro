@@ -174,60 +174,6 @@
                     "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
                     "code": "PLN-BIO",
                     "professionalName": "Dr. Asignado"
-                },
-                {
-                    "patientId": "pat-101",
-                    "date": "2026-09-22",
-                    "procedimiento": "Plan Educacional: Higiene Oral",
-                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
-                    "nota": "Instrucción y entrenamiento de técnica de cepillado de Bass modificada, uso de seda dental y control de placa.",
-                    "code": "PLN-EDU",
-                    "professionalName": "Dr. Asignado"
-                },
-                {
-                    "patientId": "pat-101",
-                    "date": "2026-09-22",
-                    "procedimiento": "Plan Tomográfico: Tomografía Dental CBCT",
-                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
-                    "nota": "Solicitud de Tomografía Dental Cone Beam (CBCT) 3D para planificación de implantes \/ estudio óseo.",
-                    "code": "PLN-CBCT",
-                    "professionalName": "Dr. Asignado"
-                },
-                {
-                    "patientId": "pat-101",
-                    "date": "2026-09-22",
-                    "procedimiento": "Plan Radiológico: Rayos X Panorámica",
-                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
-                    "nota": "Solicitud de Radiografía Panorámica (Ortopantomografía) para valoración de arcadas y terceros molares.",
-                    "code": "PLN-RXPAN",
-                    "professionalName": "Dr. Asignado"
-                },
-                {
-                    "patientId": "pat-101",
-                    "date": "2026-09-22",
-                    "procedimiento": "Plan de Diagnóstico: Química Sanguínea \/ Glucosa",
-                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
-                    "nota": "Solicitud de Química Sanguínea (Glucemia en ayunas, Urea, Creatinina y perfil de coagulación).",
-                    "code": "PLN-LAB",
-                    "professionalName": "Dr. Asignado"
-                },
-                {
-                    "patientId": "pat-101",
-                    "date": "2026-09-22",
-                    "procedimiento": "Plan Radiológico: Rayos X Periapical",
-                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
-                    "nota": "Toma e informe de Radiografía Periapical para evaluación diagnóstica dental y periapical.",
-                    "code": "PLN-RXP",
-                    "professionalName": "Dr. Asignado"
-                },
-                {
-                    "patientId": "pat-101",
-                    "date": "2026-09-22",
-                    "procedimiento": "Plan de Diagnóstico: Biometría Hemática",
-                    "diagnosticoTipo": "Plan Clínico \/ Diagnóstico",
-                    "nota": "Solicitud de Biometría Hemática completa (recuento leucocitario y plaquetario preoperatorio).",
-                    "code": "PLN-BIO",
-                    "professionalName": "Dr. Asignado"
                 }
             ]
         },
@@ -427,6 +373,35 @@
         }
     ],
     "audit_logs": [
+        {
+            "id": "aud_59f3a1435fd0506b",
+            "timestamp": "2026-10-05T21:06:48+00:00",
+            "userId": "usr-admin-1",
+            "userName": "Dr. Jorge Valenzuela",
+            "ip": "127.0.0.1",
+            "entity": "PATIENT",
+            "entityId": "pat-59657b4189",
+            "action": "CREATE",
+            "diff": {
+                "old": null,
+                "new": {
+                    "id": "pat-59657b4189",
+                    "hcNumber": "ND-0003",
+                    "name": "Paciente Test Persistencia",
+                    "dni": "1799887766",
+                    "sex": "Femenino",
+                    "occupation": "Arquitecta",
+                    "phone": "+593998887766",
+                    "email": "testpersistencia@email.com",
+                    "birthdate": "1998-04-12",
+                    "age": 28,
+                    "address": "Quito Norte",
+                    "notes": "Paciente de prueba para validar persistencia",
+                    "created_at": "2026-10-05 21:06:47"
+                }
+            },
+            "meta": []
+        },
         {
             "id": "aud_fd445f628b7139ca",
             "timestamp": "2026-10-02T21:02:41+00:00",

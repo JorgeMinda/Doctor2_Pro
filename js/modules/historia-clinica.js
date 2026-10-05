@@ -3,7 +3,7 @@
  * Diseñado con interfaz moderna en formato Accordion Card Deck (desplegable e interactivo)
  */
 import { showToast, apiFetch, formatDate, calculateAge, getPatientHcNumber } from './app-utils.js';
-import { searchCIE10, getCIE10ByCode, addCustomCIE10 } from './cie10-catalogue.js';
+import { searchCIE10, getCIE10ByCode, addCustomCIE10, getCIE10Categories, getPopularCIE10, getFullCIE10Catalogue } from './cie10-catalogue.js';
 import { renderOdontogram } from './app-odontogram.js';
 
 export function createHistoriaClinica(patient, notes = [], plans = [], canEdit = true, onSaveNote, onUpdatePlan, onSaveFullHistory, professionals = []) {
@@ -737,10 +737,15 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
         </div>
         <div class="hc-accordion-body">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-            <p class="muted" style="font-size:0.85rem; margin:0;">Escriba para autocompletar diagnósticos del catálogo odontológico CIE-10 (K00-K14, Z01.2):</p>
-            <button type="button" id="cieAddNewBtn" class="ghost" style="font-size:0.82rem; color:var(--primary); border:1.5px dashed var(--primary); padding:6px 14px; border-radius:8px; font-weight:700;">
-              <i class="fas fa-plus"></i> + Nuevo Diagnóstico
-            </button>
+            <p class="muted" style="font-size:0.85rem; margin:0;">Escriba o seleccione del catálogo oficial odontológico CIE-10 (K00-K14, Z01.2 y afines):</p>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <button type="button" id="cieBrowseCatalogBtn" class="ghost" style="font-size:0.82rem; color:var(--primary); border:1px solid var(--border); padding:6px 12px; border-radius:8px; font-weight:700; background:var(--surface);" title="Explorar todos los diagnósticos CIE-10 por categoría">
+                <i class="fas fa-book-medical"></i> Explorar Catálogo Completo
+              </button>
+              <button type="button" id="cieAddNewBtn" class="ghost" style="font-size:0.82rem; color:var(--primary); border:1.5px dashed var(--primary); padding:6px 14px; border-radius:8px; font-weight:700;">
+                <i class="fas fa-plus"></i> + Fila de Diagnóstico
+              </button>
+            </div>
           </div>
           <div id="cie11Container">
             ${renderCIE10Rows(diagList)}
@@ -981,14 +986,20 @@ function createSingleCIERowHTML(index, dx = '', cie = '', tipo = 'PRE') {
     <div class="cie11-row-card" data-index="${index}">
       <span class="cie-row-num" style="font-weight:700; color:var(--muted); min-width:24px;">#${index + 1}</span>
       <div class="cie11-input-wrap">
-        <input type="text" class="field-input cie11-dx-input" placeholder="Buscar diagnóstico CIE-10 (ej: K02 Caries, K05 Gingivitis, Z01.2 Control)..." value="${dx}" autocomplete="off">
+        <input type="text" class="field-input cie11-dx-input" placeholder="Buscar diagnóstico CIE-10 (clic para ver frecuentes)..." value="${dx}" autocomplete="off">
         <div class="cie11-dropdown hidden"></div>
       </div>
-      <input type="text" class="field-input cie11-code-input" placeholder="CIE-10" value="${cie}" style="width:95px; text-align:center; font-weight:700;">
-      <div class="pre-def-btn-group">
-        <button type="button" class="pre-def-btn pre ${tipo === 'PRE' ? 'active' : ''}" data-tipo="PRE">PRE</button>
-        <button type="button" class="pre-def-btn def ${tipo === 'DEF' ? 'active' : ''}" data-tipo="DEF">DEF</button>
+      <div style="position:relative; display:flex; align-items:center;">
+        <input type="text" class="field-input cie11-code-input" placeholder="CIE-10" value="${cie}" style="width:95px; text-align:center; font-weight:700;" autocomplete="off" title="Código CIE-10">
+        <div class="cie11-code-dropdown hidden"></div>
       </div>
+      <div class="pre-def-btn-group">
+        <button type="button" class="pre-def-btn pre ${tipo === 'PRE' ? 'active' : ''}" data-tipo="PRE" title="Presuntivo">PRE</button>
+        <button type="button" class="pre-def-btn def ${tipo === 'DEF' ? 'active' : ''}" data-tipo="DEF" title="Definitivo">DEF</button>
+      </div>
+      <button type="button" class="cie-row-picker-btn ghost" title="Elegir del Catálogo CIE-10" style="padding:6px 8px; border-radius:6px; color:var(--primary); font-size:0.88rem;">
+        <i class="fas fa-list-ul"></i>
+      </button>
       <button type="button" class="cie-del-row-btn" title="Eliminar fila" style="background:transparent; border:none; color:var(--muted); cursor:pointer; padding:6px 8px; border-radius:6px; font-size:0.9rem; transition:color 0.15s ease;">
         <i class="fas fa-trash-alt"></i>
       </button>
@@ -1019,11 +1030,22 @@ function renderSessionHistory(notes = []) {
     return '<div class="empty"><i class="fas fa-file-medical" style="font-size:2rem; margin-bottom:8px; display:block;"></i>No hay sesiones de tratamiento registradas aún.</div>';
   }
 
-  return notes.map((n, i) => `
+  // Deduplicación preventiva de sesiones por id o por clave única (fecha + procedimiento + nota)
+  const seen = new Set();
+  const uniqueNotes = [];
+  for (const n of notes) {
+    const key = n.id || `${n.date || ''}|${n.procedimiento || ''}|${n.nota || ''}|${n.receta || ''}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueNotes.push(n);
+    }
+  }
+
+  return uniqueNotes.map((n, i) => `
     <div class="session-card">
       <div class="session-header">
         <div style="display:flex; align-items:center; gap:8px;">
-          <span class="session-badge">Sesión #${notes.length - i}</span>
+          <span class="session-badge">Sesión #${uniqueNotes.length - i}</span>
           <strong><i class="fas fa-calendar-day" style="color:var(--primary); margin-right:4px;"></i> ${n.date || 'Sin fecha'}</strong>
           ${n.pieza ? `<span class="badge pending">Pieza #${n.pieza}</span>` : ''}
         </div>
@@ -1348,7 +1370,7 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   };
 
   container.querySelectorAll('#planesDxChips .chip-toggle').forEach(chip => {
-    chip.addEventListener('click', async () => {
+    chip.addEventListener('click', () => {
       chip.classList.toggle('active');
       const key = chip.dataset.key;
       const detWrap = container.querySelector(`#detWrap_plan_${key}`);
@@ -1359,65 +1381,6 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
         detWrap.style.display = isActive ? 'block' : 'none';
         if (isActive && detInput) {
           detInput.focus();
-        }
-      }
-
-      // Si se activa y tenemos la función onSaveNote, registrar automáticamente la evolución en notas clínicas
-      if (isActive && onSaveNote && planMeta[key]) {
-        const meta = planMeta[key];
-        const userDet = detInput?.value.trim() || '';
-        const notePayload = {
-          patientId: patient.id,
-          date: formatDate(new Date()),
-          procedimiento: meta.title,
-          diagnosticoTipo: 'Plan Clínico / Diagnóstico',
-          nota: userDet || meta.defaultNote,
-          code: meta.code,
-          professionalName: patient.assignedProfessionalName || 'Dr. Asignado'
-        };
-
-        try {
-          await onSaveNote(notePayload);
-          if (!patient.clinicalNotes) patient.clinicalNotes = [];
-          patient.clinicalNotes.unshift(notePayload);
-          const listDiv = container.querySelector('#sessionHistoryList');
-          if (listDiv) listDiv.innerHTML = renderSessionHistory(patient.clinicalNotes);
-          showToast(`"${meta.title}" registrado como nota clínica`, 'info');
-        } catch (e) {
-          console.error('Error al registrar nota de plan:', e);
-        }
-      }
-    });
-  });
-
-  // Actualizar nota clínica cuando el usuario edita o especifica la indicación en el campo de texto
-  container.querySelectorAll('.hc-plan-det-input').forEach(inp => {
-    inp.addEventListener('change', async () => {
-      const key = inp.dataset.plan;
-      const chip = container.querySelector(`#planesDxChips [data-key="${key}"]`);
-      if (chip && chip.classList.contains('active') && onSaveNote && planMeta[key]) {
-        const meta = planMeta[key];
-        const userDet = inp.value.trim();
-        if (userDet) {
-          const notePayload = {
-            patientId: patient.id,
-            date: formatDate(new Date()),
-            procedimiento: `${meta.title} (Indicación)`,
-            diagnosticoTipo: 'Plan Clínico / Especificación',
-            nota: userDet,
-            code: meta.code,
-            professionalName: patient.assignedProfessionalName || 'Dr. Asignado'
-          };
-          try {
-            await onSaveNote(notePayload);
-            if (!patient.clinicalNotes) patient.clinicalNotes = [];
-            patient.clinicalNotes.unshift(notePayload);
-            const listDiv = container.querySelector('#sessionHistoryList');
-            if (listDiv) listDiv.innerHTML = renderSessionHistory(patient.clinicalNotes);
-            showToast('Especificación guardada en notas clínicas', 'info');
-          } catch (e) {
-            console.error(e);
-          }
         }
       }
     });
@@ -1496,29 +1459,191 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     });
   }
 
+  function openCIE10CatalogModal(targetRow = null) {
+    const existingModal = document.getElementById('cie10CatalogModal');
+    if (existingModal) existingModal.remove();
+
+    const categories = ['Todas', ...getCIE10Categories()];
+    let activeCategory = 'Todas';
+    let searchQuery = '';
+
+    const modal = document.createElement('div');
+    modal.id = 'cie10CatalogModal';
+    modal.className = 'modal';
+    modal.style.zIndex = '999999';
+    modal.innerHTML = `
+      <div class="modal-body" style="max-width: 820px; width: 95%;">
+        <div class="modal-head" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 14px;">
+          <div>
+            <p class="muted" style="font-size:0.8rem; margin:0;"><i class="fas fa-stethoscope"></i> Clasificación Internacional de Enfermedades (OMS)</p>
+            <h3 style="margin:2px 0 0 0; font-size:1.25rem;"><i class="fas fa-book-medical" style="color:var(--primary); margin-right:6px;"></i> Catálogo Odontológico CIE-10</h3>
+          </div>
+          <button type="button" class="ghost close-cie-modal" style="font-size:1.1rem;"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom:12px;">
+          <div style="position:relative; flex:1;">
+            <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:0.9rem;"></i>
+            <input type="text" id="cieModalSearch" class="field-input" placeholder="Buscar por código (ej: K02.1), nombre (ej: Caries, Pulpitis) o categoría..." style="padding-left:36px; width:100%; font-size:0.92rem;">
+          </div>
+          <button type="button" id="cieModalClearSearch" class="ghost" style="padding:6px 12px; font-size:0.85rem;" title="Limpiar búsqueda">
+            <i class="fas fa-eraser"></i> Limpiar
+          </button>
+        </div>
+
+        <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:12px; scrollbar-width:thin;" id="cieCategoryChips">
+          ${categories.map(cat => `
+            <span class="cie-category-chip ${cat === 'Todas' ? 'active' : ''}" data-cat="${cat}">${cat}</span>
+          `).join('')}
+        </div>
+
+        <div class="cie-catalog-grid" id="cieCatalogGrid"></div>
+
+        <div class="modal-actions" style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:12px;">
+          <span class="muted" id="cieModalCounter" style="font-size:0.82rem;">Cargando...</span>
+          <button type="button" class="ghost close-cie-modal">Cerrar</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const grid = modal.querySelector('#cieCatalogGrid');
+    const searchInp = modal.querySelector('#cieModalSearch');
+    const counter = modal.querySelector('#cieModalCounter');
+    const catChips = modal.querySelectorAll('.cie-category-chip');
+
+    const renderGrid = () => {
+      const items = searchCIE10(searchQuery, activeCategory);
+      if (items.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align:center; padding:30px; color:var(--muted);">
+            <i class="fas fa-search" style="font-size:2rem; margin-bottom:8px; display:block;"></i>
+            No se encontraron diagnósticos para "${searchQuery}".
+          </div>
+        `;
+        counter.textContent = '0 diagnósticos';
+        return;
+      }
+
+      counter.textContent = `${items.length} diagnóstico${items.length === 1 ? '' : 's'} disponible${items.length === 1 ? '' : 's'}`;
+      grid.innerHTML = items.map(item => `
+        <div class="cie-catalog-card" data-code="${item.code}" data-name="${item.name}">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="cie11-code-badge">${item.code}</span>
+            <small class="muted" style="font-size:0.73rem;">${item.category || ''}</small>
+          </div>
+          <div style="font-weight:600; font-size:0.85rem; color:var(--text); line-height:1.35;">${item.name}</div>
+          <div style="margin-top:auto; font-size:0.75rem; color:var(--primary); font-weight:700; display:flex; align-items:center; gap:4px;">
+            <i class="fas fa-check-circle"></i> Seleccionar
+          </div>
+        </div>
+      `).join('');
+
+      grid.querySelectorAll('.cie-catalog-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const code = card.dataset.code;
+          const name = card.dataset.name;
+
+          let rowToUse = targetRow;
+          if (!rowToUse) {
+            const allRows = container.querySelectorAll('#cie11Container .cie11-row-card');
+            for (const r of allRows) {
+              const dxVal = r.querySelector('.cie11-dx-input')?.value.trim();
+              const cieVal = r.querySelector('.cie11-code-input')?.value.trim();
+              if (!dxVal && !cieVal) {
+                rowToUse = r;
+                break;
+              }
+            }
+          }
+
+          if (!rowToUse) {
+            const cieContainer = container.querySelector('#cie11Container');
+            if (cieContainer) {
+              const count = cieContainer.querySelectorAll('.cie11-row-card').length;
+              const temp = document.createElement('div');
+              temp.innerHTML = createSingleCIERowHTML(count, name, code, 'PRE');
+              rowToUse = temp.firstElementChild;
+              cieContainer.appendChild(rowToUse);
+              setupCIERowEvents(rowToUse);
+            }
+          }
+
+          if (rowToUse) {
+            const dxInp = rowToUse.querySelector('.cie11-dx-input');
+            const codeInp = rowToUse.querySelector('.cie11-code-input');
+            if (dxInp) dxInp.value = name;
+            if (codeInp) codeInp.value = code;
+            rowToUse.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            syncSesDxWithCIE10();
+          }
+
+          showToast(`CIE-10 seleccionado: ${code} - ${name}`, 'success');
+          modal.remove();
+        });
+      });
+    };
+
+    catChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        catChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeCategory = chip.dataset.cat;
+        renderGrid();
+      });
+    });
+
+    searchInp?.addEventListener('input', () => {
+      searchQuery = searchInp.value.trim();
+      renderGrid();
+    });
+
+    modal.querySelector('#cieModalClearSearch')?.addEventListener('click', () => {
+      if (searchInp) searchInp.value = '';
+      searchQuery = '';
+      renderGrid();
+      searchInp?.focus();
+    });
+
+    const closeModal = () => modal.remove();
+    modal.querySelectorAll('.close-cie-modal').forEach(b => b.addEventListener('click', closeModal));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    renderGrid();
+    setTimeout(() => searchInp?.focus(), 80);
+  }
+
   function setupCIERowEvents(row) {
     const dxInput = row.querySelector('.cie11-dx-input');
     const codeInput = row.querySelector('.cie11-code-input');
     const dropdown = row.querySelector('.cie11-dropdown');
+    const codeDropdown = row.querySelector('.cie11-code-dropdown');
     const preDefBtns = row.querySelectorAll('.pre-def-btn');
+    const pickerBtn = row.querySelector('.cie-row-picker-btn');
     const delBtn = row.querySelector('.cie-del-row-btn');
 
-    const closeDropdown = () => {
+    const closeAllDropdowns = () => {
       if (dropdown) {
         dropdown.classList.add('hidden');
         dropdown.classList.remove('drop-up');
+      }
+      if (codeDropdown) {
+        codeDropdown.classList.add('hidden');
+        codeDropdown.classList.remove('drop-up');
       }
       row.style.zIndex = '1';
     };
 
     const openDropdown = () => {
-      container.querySelectorAll('#cie11Container .cie11-dropdown').forEach(d => {
+      container.querySelectorAll('#cie11Container .cie11-dropdown, #cie11Container .cie11-code-dropdown').forEach(d => {
         d.classList.add('hidden');
         d.classList.remove('drop-up');
       });
       container.querySelectorAll('#cie11Container .cie11-row-card').forEach(r => r.style.zIndex = '1');
       if (dropdown) {
-        // Calcular espacio disponible abajo y arriba para decidir si se abre hacia abajo o hacia arriba
         if (dxInput) {
           const rect = dxInput.getBoundingClientRect();
           const spaceBelow = window.innerHeight - rect.bottom;
@@ -1530,8 +1655,6 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
           } else {
             dropdown.classList.remove('drop-up');
           }
-
-          // Si el espacio está muy apretado arriba y abajo, centrar la fila suavemente
           if (spaceBelow < neededHeight && spaceAbove < neededHeight) {
             row.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
@@ -1541,11 +1664,36 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
       row.style.zIndex = '100';
     };
 
+    const openCodeDropdown = () => {
+      container.querySelectorAll('#cie11Container .cie11-dropdown, #cie11Container .cie11-code-dropdown').forEach(d => {
+        d.classList.add('hidden');
+      });
+      container.querySelectorAll('#cie11Container .cie11-row-card').forEach(r => r.style.zIndex = '1');
+      if (codeDropdown) {
+        if (codeInput) {
+          const rect = codeInput.getBoundingClientRect();
+          const spaceBelow = window.innerHeight - rect.bottom;
+          if (spaceBelow < 220 && rect.top >= 150) {
+            codeDropdown.classList.add('drop-up');
+          } else {
+            codeDropdown.classList.remove('drop-up');
+          }
+        }
+        codeDropdown.classList.remove('hidden');
+      }
+      row.style.zIndex = '100';
+    };
+
     preDefBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         preDefBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
       });
+    });
+
+    pickerBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openCIE10CatalogModal(row);
     });
 
     delBtn?.addEventListener('click', () => {
@@ -1560,75 +1708,146 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
       syncSesDxWithCIE10();
     });
 
-    if (dxInput && dropdown) {
-      dxInput.addEventListener('input', () => {
-        const q = dxInput.value.trim();
-        if (q.length < 1) {
-          closeDropdown();
-          syncSesDxWithCIE10();
-          return;
-        }
-
-        const results = searchCIE10(q);
-        if (results.length === 0) {
-          dropdown.innerHTML = `
-            <div class="cie11-dropdown-item" style="color:var(--muted); font-style:italic; justify-content:center; padding:10px;">
-              <span>No encontrado en catálogo base (puede escribir libremente)</span>
-            </div>
-          `;
-          openDropdown();
-          return;
-        }
-
-        dropdown.innerHTML = results.slice(0, 8).map(r => `
+    // Renderizado del dropdown de diagnósticos
+    const renderDxDropdown = (results, isPopular = false) => {
+      if (!dropdown) return;
+      if (results.length === 0) {
+        dropdown.innerHTML = `
+          <div class="cie11-dropdown-item" style="color:var(--muted); font-style:italic; justify-content:center; padding:10px;">
+            <span>No encontrado en catálogo base (puede escribir libremente)</span>
+          </div>
+        `;
+      } else {
+        const headerHtml = isPopular
+          ? `<div style="padding:6px 12px; font-size:0.75rem; font-weight:700; color:var(--primary); background:var(--bg-page); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+               <span><i class="fas fa-star" style="margin-right:4px;"></i> Diagnósticos Odontológicos Frecuentes:</span>
+               <span style="font-size:0.72rem; color:var(--muted); font-weight:normal;">o escriba para filtrar</span>
+             </div>`
+          : '';
+        dropdown.innerHTML = headerHtml + results.slice(0, 10).map(r => `
           <div class="cie11-dropdown-item" data-code="${r.code}" data-name="${r.name}">
             <span class="cie11-code-badge">${r.code}</span>
             <span style="font-weight:600; font-size:0.83rem;">${r.name}</span>
             <small class="muted" style="margin-left:auto; font-size:0.75rem; white-space:nowrap; padding-left:8px;">${r.category || ''}</small>
           </div>
         `).join('');
-        openDropdown();
+      }
+      openDropdown();
 
-        dropdown.querySelectorAll('.cie11-dropdown-item').forEach(item => {
-          if (!item.dataset.code) return;
-          const selectItem = (e) => {
-            if (e) e.preventDefault();
-            dxInput.value = item.dataset.name;
-            if (codeInput) codeInput.value = item.dataset.code;
-            closeDropdown();
-            syncSesDxWithCIE10();
-          };
-          item.addEventListener('mousedown', selectItem);
-          item.addEventListener('click', selectItem);
-        });
+      dropdown.querySelectorAll('.cie11-dropdown-item').forEach(item => {
+        if (!item.dataset.code) return;
+        const selectItem = (e) => {
+          if (e) e.preventDefault();
+          dxInput.value = item.dataset.name;
+          if (codeInput) codeInput.value = item.dataset.code;
+          closeAllDropdowns();
+          syncSesDxWithCIE10();
+        };
+        item.addEventListener('mousedown', selectItem);
+        item.addEventListener('click', selectItem);
       });
+    };
 
-      dxInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          closeDropdown();
+    if (dxInput && dropdown) {
+      dxInput.addEventListener('focus', () => {
+        const q = dxInput.value.trim();
+        if (!q) {
+          renderDxDropdown(getPopularCIE10(), true);
+        } else {
+          renderDxDropdown(searchCIE10(q), false);
         }
       });
 
-      if (codeInput) {
-        codeInput.addEventListener('change', () => {
-          const c = codeInput.value.trim().toUpperCase();
-          const match = getCIE10ByCode(c);
-          if (match && !dxInput.value.trim()) {
-            dxInput.value = match.name;
-          }
-          syncSesDxWithCIE10();
-        });
-      }
+      dxInput.addEventListener('click', () => {
+        const q = dxInput.value.trim();
+        if (!q) {
+          renderDxDropdown(getPopularCIE10(), true);
+        } else {
+          renderDxDropdown(searchCIE10(q), false);
+        }
+      });
 
-      document.addEventListener('click', (e) => {
-        if (!row.contains(e.target)) closeDropdown();
+      dxInput.addEventListener('input', () => {
+        const q = dxInput.value.trim();
+        if (!q) {
+          renderDxDropdown(getPopularCIE10(), true);
+          syncSesDxWithCIE10();
+          return;
+        }
+        renderDxDropdown(searchCIE10(q), false);
+      });
+
+      dxInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAllDropdowns();
       });
     }
+
+    // Dropdown interactivo para el código CIE-10
+    const renderCodeDropdown = (q = '') => {
+      if (!codeDropdown) return;
+      const results = searchCIE10(q);
+      if (results.length === 0) {
+        codeDropdown.classList.add('hidden');
+        return;
+      }
+      codeDropdown.innerHTML = results.slice(0, 8).map(r => `
+        <div class="cie11-dropdown-item" data-code="${r.code}" data-name="${r.name}" style="padding:6px 10px; font-size:0.8rem;">
+          <span class="cie11-code-badge">${r.code}</span>
+          <span style="font-size:0.78rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.name}</span>
+        </div>
+      `).join('');
+      openCodeDropdown();
+
+      codeDropdown.querySelectorAll('.cie11-dropdown-item').forEach(item => {
+        const selectCode = (e) => {
+          if (e) e.preventDefault();
+          codeInput.value = item.dataset.code;
+          if (dxInput) dxInput.value = item.dataset.name;
+          closeAllDropdowns();
+          syncSesDxWithCIE10();
+        };
+        item.addEventListener('mousedown', selectCode);
+        item.addEventListener('click', selectCode);
+      });
+    };
+
+    if (codeInput) {
+      codeInput.addEventListener('focus', () => {
+        renderCodeDropdown(codeInput.value.trim());
+      });
+      codeInput.addEventListener('click', () => {
+        renderCodeDropdown(codeInput.value.trim());
+      });
+      codeInput.addEventListener('input', () => {
+        renderCodeDropdown(codeInput.value.trim());
+      });
+      codeInput.addEventListener('change', () => {
+        const c = codeInput.value.trim().toUpperCase();
+        const match = getCIE10ByCode(c);
+        if (match && !dxInput.value.trim()) {
+          dxInput.value = match.name;
+        }
+        syncSesDxWithCIE10();
+      });
+      codeInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAllDropdowns();
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!row.contains(e.target)) closeAllDropdowns();
+    });
   }
 
   // Bind initial CIE-10 rows
   container.querySelectorAll('#cie11Container .cie11-row-card').forEach(row => {
     setupCIERowEvents(row);
+  });
+
+  // Handler for "Explorar Catálogo Completo" button
+  const cieBrowseCatalogBtn = container.querySelector('#cieBrowseCatalogBtn');
+  cieBrowseCatalogBtn?.addEventListener('click', () => {
+    openCIE10CatalogModal(null);
   });
 
   // Handler for "+ Nuevo Diagnóstico" button
@@ -1762,7 +1981,9 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
       showToast('Sesión registrada exitosamente', 'success');
       sessionFormArea.style.display = 'none';
       if (!patient.clinicalNotes) patient.clinicalNotes = [];
-      patient.clinicalNotes.unshift(notePayload);
+      if (!patient.clinicalNotes.some(n => n.id === notePayload.id || (n.date === notePayload.date && n.procedimiento === notePayload.procedimiento && n.nota === notePayload.nota))) {
+        patient.clinicalNotes.unshift(notePayload);
+      }
       const listDiv = container.querySelector('#sessionHistoryList');
       if (listDiv) listDiv.innerHTML = renderSessionHistory(patient.clinicalNotes);
 

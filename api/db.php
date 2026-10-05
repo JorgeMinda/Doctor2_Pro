@@ -138,6 +138,10 @@ class TransactSafeDatabase {
         return $this->data[$name] ?? [];
     }
 
+    public function getAll($name) {
+        return $this->getCollection($name);
+    }
+
     public function insert($collection, $item) {
         $autoTx = !$this->inTransaction;
         if ($autoTx) $this->beginTransaction();
