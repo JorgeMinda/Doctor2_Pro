@@ -47,11 +47,7 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
     ? [...ch.diagnosticosCIE10]
     : (ch.diagnosticosCIE11 && ch.diagnosticosCIE11.length > 0)
       ? [...ch.diagnosticosCIE11]
-      : [
-          { dx: 'Caries de la dentina', cie: 'K02.1', tipo: 'DEF' },
-          { dx: 'Gingivitis crónica inducida por placa bacteriana', cie: 'K05.1', tipo: 'DEF' },
-          { dx: 'Examen y control odontológico de rutina', cie: 'Z01.2', tipo: 'PRE' }
-        ];
+      : [];
 
   while (rawDiagList.length < 4) {
     rawDiagList.push({ dx: '', cie: '', tipo: 'PRE' });
@@ -786,15 +782,18 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
               <label class="field"><span>Fecha de Sesión</span><input id="sesDate" type="date" value="${formatDate(new Date())}"></label>
               <label class="field">
                 <span style="display:flex; justify-content:space-between; align-items:center;">
-                  <span>Diagnóstico y Complicaciones</span>
-                  <small class="muted" style="font-size:0.75rem; font-weight:normal;"><i class="fas fa-sync-alt"></i> CIE-10 (Sec. 11)</small>
+                  <span>Diagnóstico y Complicaciones (CIE-10)</span>
+                  <small class="muted" style="font-size:0.75rem; font-weight:normal;"><i class="fas fa-book-medical"></i> Catálogo Completo</small>
                 </span>
                 <div style="display:flex; gap:6px;">
-                  <select id="sesDxSyncSelect" style="max-width:160px; font-size:0.83rem; background:var(--surface);" title="Seleccionar diagnóstico de la Sección 11 (CIE-10)">
-                    <option value="">-- De CIE-10 --</option>
+                  <select id="sesDxSyncSelect" style="max-width:175px; font-size:0.83rem; background:var(--surface);" title="Seleccionar del Catálogo CIE-10 o de la Sec. 11">
+                    <option value="">-- Seleccionar CIE-10 --</option>
                   </select>
-                  <input id="sesDx" type="text" list="sesDxDatalist" placeholder="Ej: Caries oclusal en 36, pulpitis reversible" style="flex:1;">
+                  <input id="sesDx" type="text" list="sesDxDatalist" placeholder="Escriba o elija cualquier código CIE-10..." style="flex:1;">
                   <datalist id="sesDxDatalist"></datalist>
+                  <button type="button" id="sesDxPickerBtn" class="ghost" style="padding:6px 10px; font-size:0.85rem; border:1px solid var(--border); border-radius:8px; color:var(--primary); background:var(--surface);" title="Abrir Catálogo Completo CIE-10">
+                    <i class="fas fa-book-medical"></i>
+                  </button>
                 </div>
               </label>
               <label class="field" style="grid-column:1/-1;"><span>Procedimiento Clínico Ejecutado *</span><input id="sesProc" type="text" placeholder="Ej: Obturación con resina composite en pieza 36 / Profilaxis"></label>
@@ -1010,9 +1009,9 @@ function createSingleCIERowHTML(index, dx = '', cie = '', tipo = 'PRE') {
 function renderCIE10Rows(diagList = []) {
   if (!diagList || diagList.length === 0) {
     diagList = [
-      { dx: 'Caries de la dentina', cie: 'K02.1', tipo: 'DEF' },
-      { dx: 'Gingivitis crónica inducida por placa bacteriana', cie: 'K05.1', tipo: 'DEF' },
-      { dx: 'Examen y control odontológico de rutina', cie: 'Z01.2', tipo: 'PRE' },
+      { dx: '', cie: '', tipo: 'PRE' },
+      { dx: '', cie: '', tipo: 'PRE' },
+      { dx: '', cie: '', tipo: 'PRE' },
       { dx: '', cie: '', tipo: 'PRE' }
     ];
   } else {
@@ -1545,6 +1544,13 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
           const code = card.dataset.code;
           const name = card.dataset.name;
 
+          // Si se especificó un callback (por ejemplo, desde Sección 12 Sesiones)
+          if (typeof targetRow === 'function') {
+            targetRow(code, name);
+            modal.remove();
+            return;
+          }
+
           let rowToUse = targetRow;
           if (!rowToUse) {
             const allRows = container.querySelectorAll('#cie11Container .cie11-row-card');
@@ -1880,31 +1886,54 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   const sesSignInput = container.querySelector('#sesSign');
 
   const syncSesDxWithCIE10 = () => {
+    const allCatalogue = getFullCIE10Catalogue();
     const rows = container.querySelectorAll('#cie11Container .cie11-row-card');
-    const dxList = [];
+    const sec11List = [];
     rows.forEach(r => {
       const code = r.querySelector('.cie11-code-input')?.value.trim() || '';
       const name = r.querySelector('.cie11-dx-input')?.value.trim() || '';
-      if (code && name) dxList.push(`${code} - ${name}`);
-      else if (name) dxList.push(name);
-      else if (code) dxList.push(code);
+      if (code && name) sec11List.push(`${code} - ${name}`);
+      else if (name) sec11List.push(name);
+      else if (code) sec11List.push(code);
     });
 
     if (sesDxDatalist) {
-      sesDxDatalist.innerHTML = dxList.map(item => `<option value="${item}">`).join('');
+      const combinedDatalist = [...new Set([
+        ...sec11List,
+        ...allCatalogue.map(c => `${c.code} - ${c.name}`)
+      ])];
+      sesDxDatalist.innerHTML = combinedDatalist.map(item => `<option value="${item}">`).join('');
     }
+
     if (sesDxSyncSelect) {
       const currVal = sesDxSyncSelect.value;
-      sesDxSyncSelect.innerHTML = `<option value="">-- De CIE-10 (${dxList.length}) --</option>` +
-        dxList.map(item => `<option value="${item}">${item}</option>`).join('');
-      if (currVal && dxList.includes(currVal)) {
+      let optionsHtml = '<option value="">-- Seleccionar CIE-10 --</option>';
+
+      if (sec11List.length > 0) {
+        optionsHtml += `<optgroup label="📋 Diagnósticos del Paciente (Sec. 11)">`;
+        sec11List.forEach(item => {
+          optionsHtml += `<option value="${item}">${item}</option>`;
+        });
+        optionsHtml += `</optgroup>`;
+      }
+
+      const categories = getCIE10Categories();
+      categories.forEach(cat => {
+        const catItems = allCatalogue.filter(i => i.category === cat);
+        if (catItems.length > 0) {
+          optionsHtml += `<optgroup label="🩺 ${cat}">`;
+          catItems.forEach(i => {
+            const label = `${i.code} - ${i.name}`;
+            optionsHtml += `<option value="${label}">${label}</option>`;
+          });
+          optionsHtml += `</optgroup>`;
+        }
+      });
+
+      sesDxSyncSelect.innerHTML = optionsHtml;
+      if (currVal) {
         sesDxSyncSelect.value = currVal;
       }
-    }
-    // If sesDxInput is empty and we have at least one diagnosis in Section 11, pre-fill with the first one
-    if (sesDxInput && !sesDxInput.value.trim() && dxList.length > 0) {
-      sesDxInput.value = dxList[0];
-      if (sesDxSyncSelect) sesDxSyncSelect.value = dxList[0];
     }
   };
 
@@ -1912,6 +1941,16 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
     if (sesDxSyncSelect.value && sesDxInput) {
       sesDxInput.value = sesDxSyncSelect.value;
     }
+  });
+
+  const sesDxPickerBtn = container.querySelector('#sesDxPickerBtn');
+  sesDxPickerBtn?.addEventListener('click', () => {
+    openCIE10CatalogModal((code, name) => {
+      const val = `${code} - ${name}`;
+      if (sesDxInput) sesDxInput.value = val;
+      if (sesDxSyncSelect) sesDxSyncSelect.value = val;
+      showToast(`Diagnóstico asignado a sesión: ${code}`, 'success');
+    });
   });
 
   const updateDoctorLicenseCode = () => {
