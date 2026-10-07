@@ -780,21 +780,22 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
             <h5 style="margin-bottom:14px; color:var(--primary); font-size:1rem;"><i class="fas fa-calendar-plus"></i> Registrar Nueva Sesión de Tratamiento</h5>
             <div class="grid-2" style="gap:12px;">
               <label class="field"><span>Fecha de Sesión</span><input id="sesDate" type="date" value="${formatDate(new Date())}"></label>
-              <label class="field" style="position:relative;">
-                <span style="display:flex; justify-content:space-between; align-items:center;">
-                  <span>Diagnóstico y Complicaciones (CIE-10)</span>
+              <div></div>
+              <label class="field" style="grid-column:1/-1; position:relative;">
+                <span style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                  <span style="font-weight:700;"><i class="fas fa-stethoscope" style="color:var(--primary);"></i> Diagnóstico y Complicaciones (CIE-10)</span>
                   <small class="muted" style="font-size:0.75rem; font-weight:normal;"><i class="fas fa-search"></i> Búsqueda en vivo / Catálogo</small>
                 </span>
-                <div style="display:flex; gap:6px; position:relative;">
-                  <select id="sesDxSyncSelect" style="max-width:170px; font-size:0.83rem; background:var(--surface);" title="Seleccionar del Catálogo CIE-10 o de la Sec. 11">
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; position:relative;">
+                  <select id="sesDxSyncSelect" style="flex:0 0 180px; max-width:210px; font-size:0.83rem; background:var(--surface);" title="Seleccionar del Catálogo CIE-10 o de la Sec. 11">
                     <option value="">-- Seleccionar CIE-10 --</option>
                   </select>
-                  <div style="flex:1; position:relative;">
-                    <input id="sesDx" type="text" placeholder="Escriba código o diagnóstico para buscar en vivo..." style="width:100%; font-size:0.88rem;" autocomplete="off">
+                  <div style="flex:1 1 240px; min-width:160px; position:relative;">
+                    <input id="sesDx" type="text" placeholder="Escriba código o diagnóstico para buscar en vivo (Ej: K02.1, Caries, Gingivitis)..." style="width:100%; font-size:0.88rem;" autocomplete="off">
                     <div id="sesDxDropdown" class="cie11-dropdown hidden" style="position:absolute; top:calc(100% + 4px); left:0; right:0; max-height:260px; overflow-y:auto; z-index:999; background:var(--surface); border:1px solid var(--border); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.18);"></div>
                   </div>
-                  <button type="button" id="sesDxPickerBtn" class="ghost" style="padding:6px 10px; font-size:0.85rem; border:1px solid var(--border); border-radius:8px; color:var(--primary); background:var(--surface);" title="Abrir Catálogo Completo CIE-10">
-                    <i class="fas fa-book-medical"></i>
+                  <button type="button" id="sesDxPickerBtn" class="ghost" style="flex-shrink:0; padding:8px 12px; font-size:0.85rem; border:1px solid var(--border); border-radius:8px; color:var(--primary); background:var(--surface);" title="Abrir Catálogo Completo CIE-10">
+                    <i class="fas fa-book-medical"></i> Catálogo
                   </button>
                 </div>
               </label>
