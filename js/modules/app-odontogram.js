@@ -321,12 +321,15 @@ function renderToothOverlay(tState, num, data) {
       `;
     case 'implante':
       return `
-        <g transform="translate(5, 2) scale(1.2)" stroke="${color}" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0px 1px 3px rgba(0,0,0,0.35)); pointer-events:none;">
-          <path d="M12 2 C7.5 2 4.5 4 4.5 8 c0 3 1.5 4.5 2 6.5 h11 c.5-2 2-3.5 2-6.5 0-4-3-6-7.5-6 z" fill="rgba(255,255,255,0.92)" stroke-width="2.8" />
-          <line x1="5.5" y1="15" x2="18.5" y2="15" stroke-width="2.8" />
-          <line x1="6.5" y1="19" x2="17.5" y2="19" stroke-width="2.8" />
-          <line x1="7.5" y1="23" x2="16.5" y2="23" stroke-width="2.8" />
-          <path d="M8.5 15 L12 28.5 L15.5 15" stroke-width="2.8" fill="rgba(255,255,255,0.85)" />
+        <g transform="translate(20, 20)" pointer-events="none">
+          <circle cx="0" cy="0" r="16" fill="rgba(255,255,255,0.92)" stroke="${color}" stroke-width="2.6" style="filter:drop-shadow(0px 1px 3px rgba(0,0,0,0.3));" />
+          <g transform="translate(-12, -14) scale(1)" stroke="${color}" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 C8 2 5 4 5 7.5 c0 2.5 1.5 4 2 5.5 h10 c.5-1.5 2-3 2-5.5 0-3.5-3-5.5-7-5.5 z" fill="${color}" fill-opacity="0.15" stroke-width="2.8" />
+            <line x1="6" y1="15" x2="18" y2="15" stroke-width="2.8" />
+            <line x1="7" y1="19" x2="17" y2="19" stroke-width="2.8" />
+            <line x1="8" y1="23" x2="16" y2="23" stroke-width="2.8" />
+            <path d="M9 15 L12 27.5 L15 15" stroke-width="2.8" fill="${color}" fill-opacity="0.25" />
+          </g>
         </g>
       `;
     case 'protesis-fija': {

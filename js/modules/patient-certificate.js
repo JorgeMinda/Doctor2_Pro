@@ -1,5 +1,5 @@
 /**
- * patient-certificate.js - Generador Oficial de Certificados de Asistencia y Atención Médica
+ * patient-certificate.js - Generador Oficial de Certificados Odontológicos y Médicos (MSP / Ecuador)
  */
 import { showToast } from './app-utils.js';
 import { state } from './app-state.js';
@@ -7,53 +7,124 @@ import { NANI_DENT_LOGO_BASE64, NANI_DENT_LETTERHEAD_BASE64, CLINIC_BRANDING } f
 
 export const DEFAULT_CLINIC_LOGO = `<img src="${NANI_DENT_LOGO_BASE64}" alt="Nani Dent" style="max-height:65px; width:auto; max-width:210px; object-fit:contain;">`;
 
+/* ============================================================
+ *  Utilidades oficiales de texto y fecha en español
+ * ============================================================ */
+const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const UNIDADES = ['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve'];
+const DECENAS = ['','','','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+
+export function numeroALetras(n) {
+  n = Number(n);
+  if (isNaN(n)) return '';
+  if (n < 30) return UNIDADES[n] || String(n);
+  if (n < 100) {
+    const d = Math.floor(n / 10), u = n % 10;
+    return u === 0 ? DECENAS[d] : `${DECENAS[d]} y ${UNIDADES[u]}`;
+  }
+  if (n === 100) return 'cien';
+  if (n < 1000) {
+    const c = ['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+    const r = n % 100;
+    return r === 0 ? c[Math.floor(n / 100)] : `${c[Math.floor(n / 100)]} ${numeroALetras(r)}`;
+  }
+  if (n < 1000000) {
+    const miles = Math.floor(n / 1000), r = n % 1000;
+    const pref = miles === 1 ? 'mil' : `${numeroALetras(miles)} mil`;
+    return r === 0 ? pref : `${pref} ${numeroALetras(r)}`;
+  }
+  return String(n);
+}
+
+export function anioALetras(y) {
+  const resto = y % 100;
+  const base = Math.floor(y / 100) * 100;
+  const parteBase = numeroALetras(base);
+  if (resto === 0) return parteBase;
+  if (resto < 20) return `${parteBase} ${numeroALetras(resto)}`;
+  const d = Math.floor(resto / 10), u = resto % 10;
+  return u === 0 ? `${parteBase} ${DECENAS[d]}` : `${parteBase} ${DECENAS[d]} y ${UNIDADES[u]}`;
+}
+
+const pad = (n) => String(n).padStart(2, '0');
+
+export function parseFecha(iso) {
+  if (!iso) return { corta: '', letras: '', largaNumerica: '' };
+  const parts = iso.split('-').map(Number);
+  if (parts.length < 3 || isNaN(parts[0])) return { corta: iso, letras: iso, largaNumerica: iso };
+  const [y, m, d] = parts;
+  const mesName = MESES[m - 1] || 'enero';
+  return {
+    corta: `${pad(d)}/${pad(m)}/${y}`,
+    letras: `${numeroALetras(d)} de ${mesName} del ${anioALetras(y)}`,
+    largaNumerica: `${pad(d)} de ${mesName.replace(/^./, c => c.toUpperCase())} del ${y}`,
+  };
+}
+
 export function openCertificateModal(patient, initialData = {}) {
   const existingModal = document.getElementById('certificateModal');
   if (existingModal) existingModal.remove();
 
   const savedClinic = JSON.parse(localStorage.getItem('doctor2_clinic_settings') || '{}');
-  const clinicName = savedClinic.name || CLINIC_BRANDING.name;
-  const clinicAddress = savedClinic.address || CLINIC_BRANDING.address;
-  const clinicPhone = savedClinic.phone || CLINIC_BRANDING.phone;
-  const clinicEmail = savedClinic.email || CLINIC_BRANDING.email;
+  const clinicName = savedClinic.name || CLINIC_BRANDING.name || 'Consultorio Odontológico NaniDent';
+  const clinicAddress = savedClinic.address || CLINIC_BRANDING.address || 'Calle Juan Larrea N13-128 y Arenas';
+  const clinicPhone = savedClinic.phone || CLINIC_BRANDING.phone || '099 261 4402';
+  const clinicEmail = savedClinic.email || CLINIC_BRANDING.email || 'nanident.ec@gmail.com';
+  const clinicUnicodigo = savedClinic.unicodigo || CLINIC_BRANDING.unicodigo || '85997';
+  const clinicCity = savedClinic.city || CLINIC_BRANDING.city || 'Quito DM';
   const clinicLogoUrl = savedClinic.logoUrl || NANI_DENT_LOGO_BASE64;
 
   const profs = state.professionals || [];
   const currentUser = state.user || {};
   let selectedProf = profs.find(p => p.id === patient?.assignedProfessionalId) || profs[0] || {
-    name: currentUser.name || 'Dr. Médico / Odontólogo Tratante',
-    specialty: 'Odontología General / Medicina',
-    license_code: currentUser.license_code || 'MSP-12345-EC'
+    name: currentUser.name || 'Karla Daniela Sanunga Sánchez',
+    specialty: currentUser.specialty || 'ODONTÓLOGA GENERAL',
+    dni: currentUser.dni || currentUser.cedula || '1722381124',
+    email: currentUser.email || 'nanident.ec@gmail.com',
+    senescyt: currentUser.senescyt || '1032-2022-2565446',
+    phone: currentUser.phone || '099 261 4402',
+    license_code: currentUser.license_code || 'MSP-1032-EC'
   };
 
   const now = new Date();
   const currentDate = now.toISOString().slice(0, 10);
   const currentTime = now.toTimeString().slice(0, 5);
   
-  // Calcular hora de ingreso (ej. 45 min antes) y salida (hora actual)
+  // Calcular hora de ingreso y salida por defecto
   const inDate = new Date(now.getTime() - 45 * 60000);
   const defaultTimeIn = inDate.toTimeString().slice(0, 5);
   const defaultTimeOut = currentTime;
 
-  // Extraer último procedimiento del paciente si existe
+  // Extraer último diagnóstico y procedimiento del paciente si existe
   const lastNote = patient?.clinicalNotes?.[0];
-  const defaultTreatment = initialData.treatment || (lastNote ? `${lastNote.procedimiento || lastNote.diagnosticoTipo || 'Atención odontológica'}${lastNote.pieza ? ' en pieza ' + lastNote.pieza : ''}` : 'Consulta y atención clínica odontológica / procedimiento terapéutico');
+  const lastDx = patient?.clinicalHistory?.diagnosticosCIE10?.[0]?.dx || lastNote?.diagnostico || lastNote?.diagnosticoTipo || 'Examen y control odontológico de rutina';
+  const lastCie = patient?.clinicalHistory?.diagnosticosCIE10?.[0]?.cie || lastNote?.cie || 'Z01.2';
+  const defaultDxText = initialData.diagnosis || `${lastDx} (CIE-10: ${lastCie})`;
+  const defaultObservation = initialData.treatment || (lastNote ? `${lastNote.procedimiento || lastNote.diagnosticoTipo || 'Atención odontológica'}${lastNote.pieza ? ' en pieza ' + lastNote.pieza : ''}` : 'Luego de examen clínico y valoración se realiza tratamiento odontológico integral según protocolo clínico.');
+
+  const defaultHcNumber = patient?.hcNumber || patient?.historiaClinica || (patient?.dni ? patient.dni : 'ND-0001');
+  const defaultAddress = patient?.address || patient?.direccion || 'Quito, Ecuador';
+
+  // Fechas de reposo por defecto
+  const dateFrom = currentDate;
+  const toDateObj = new Date(now.getTime() + 2 * 86400000);
+  const dateTo = toDateObj.toISOString().slice(0, 10);
 
   const modal = document.createElement('div');
   modal.id = 'certificateModal';
   modal.className = 'modal';
 
   modal.innerHTML = `
-    <div class="modal-body" style="max-width:760px; width:95%; max-height:92vh; overflow-y:auto; padding:24px;">
+    <div class="modal-body" style="max-width:820px; width:95%; max-height:92vh; overflow-y:auto; padding:24px; background:var(--surface);">
       <!-- Modal Header -->
       <div class="modal-head" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:14px; margin-bottom:18px;">
         <div style="display:flex; align-items:center; gap:12px;">
-          <div style="width:40px; height:40px; border-radius:10px; background:rgba(37,99,235,0.12); display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:1.3rem;">
+          <div style="width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg, var(--primary), #8b5cf6); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.3rem; box-shadow:0 4px 12px rgba(99,102,241,0.3);">
             <i class="fas fa-certificate"></i>
           </div>
           <div>
-            <h3 style="margin:0; font-size:1.25rem; color:var(--text);">Certificado de Asistencia y Atención Médica</h3>
-            <p class="muted" style="margin:2px 0 0; font-size:0.82rem;">Emisión de constancia oficial con horarios de ingreso/salida, código médico y firmas</p>
+            <h3 style="margin:0; font-size:1.25rem; color:var(--text); font-weight:800;">Emisión de Certificado Odontológico</h3>
+            <p class="muted" style="margin:2px 0 0; font-size:0.82rem;">Formato oficial para constancia de atención, diagnóstico CIE-10 y prescripción de reposo absoluto</p>
           </div>
         </div>
         <button class="ghost close-cert-modal" style="font-size:1.2rem; cursor:pointer;" title="Cerrar"><i class="fas fa-times"></i></button>
@@ -65,26 +136,38 @@ export function openCertificateModal(patient, initialData = {}) {
         <!-- SECCIÓN 1: DATOS DE LA CLÍNICA / DISPENSARIO -->
         <div style="background:var(--bg-page); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:700; font-size:0.85rem; color:var(--primary);"><i class="fas fa-clinic-medical"></i> Datos del Dispensario / Clínica</span>
-            <small class="muted">Aparecerán en el membrete superior</small>
+            <span style="font-weight:700; font-size:0.85rem; color:var(--primary);"><i class="fas fa-clinic-medical"></i> Datos del Consultorio / Clínica</span>
+            <small class="muted">Aparecerán en el encabezado superior</small>
           </div>
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Nombre del Dispensario / Clínica</label>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Nombre del Consultorio / Clínica</label>
               <input type="text" id="certClinicName" value="${clinicName}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
             </div>
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Dirección / Ciudad</label>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Dirección</label>
               <input type="text" id="certClinicAddress" value="${clinicAddress}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
             </div>
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Teléfono de Contacto</label>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Ciudad</label>
+              <input type="text" id="certClinicCity" value="${clinicCity}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Teléfono</label>
               <input type="text" id="certClinicPhone" value="${clinicPhone}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
             </div>
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Logo (URL o cargar imagen)</label>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Correo Electrónico</label>
+              <input type="email" id="certClinicEmail" value="${clinicEmail}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--primary); display:block; margin-bottom:4px;">Unicódigo (MSP)</label>
+              <input type="text" id="certClinicUnicodigo" value="${clinicUnicodigo}" placeholder="Ej: 85997" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem; font-weight:700;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Logo (URL o imagen local)</label>
               <div style="display:flex; gap:6px;">
-                <input type="text" id="certClinicLogoUrl" value="${clinicLogoUrl}" placeholder="URL o usar predeterminado" class="input-field" style="flex:1; padding:7px 10px; font-size:0.85rem;">
+                <input type="text" id="certClinicLogoUrl" value="${clinicLogoUrl}" placeholder="URL o base64" class="input-field" style="flex:1; padding:7px 10px; font-size:0.85rem;">
                 <label class="ghost" style="padding:7px 10px; cursor:pointer; font-size:0.85rem;" title="Subir logo desde este equipo">
                   <i class="fas fa-upload"></i>
                   <input type="file" id="certLogoFile" accept="image/*" style="display:none;">
@@ -103,7 +186,7 @@ export function openCertificateModal(patient, initialData = {}) {
             </label>
           </div>
           <span class="badge" style="font-size:0.75rem; background:var(--surface); border:1px solid var(--border); color:var(--muted);">
-            Ajusta los márgenes exactos de la hoja membretada
+            Ajusta los márgenes exactos para hoja membretada
           </span>
         </div>
 
@@ -117,18 +200,34 @@ export function openCertificateModal(patient, initialData = {}) {
               </select>
             ` : ''}
           </div>
-          <div style="display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:10px;">
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
             <div>
               <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Nombre del Médico / Odontólogo</label>
               <input type="text" id="certDoctorName" value="${selectedProf.name || ''}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;" required>
             </div>
             <div>
               <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Especialidad</label>
-              <input type="text" id="certDoctorSpecialty" value="${selectedProf.specialty || 'Odontología General'}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+              <input type="text" id="certDoctorSpecialty" value="${selectedProf.specialty || 'ODONTÓLOGA GENERAL'}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
             </div>
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--primary); display:block; margin-bottom:4px;">Código de Habilitación / Matrícula</label>
-              <input type="text" id="certDoctorCode" value="${selectedProf.license_code || selectedProf.licenseCode || currentUser.license_code || ''}" placeholder="Ej: MSP-10492-OD" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem; font-weight:700; color:var(--primary);" required>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Cédula CI del Profesional</label>
+              <input type="text" id="certDoctorCedula" value="${selectedProf.dni || selectedProf.cedula || '1722381124'}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Correo del Profesional</label>
+              <input type="email" id="certDoctorEmail" value="${selectedProf.email || clinicEmail}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--primary); display:block; margin-bottom:4px;">Reg. Senescyt</label>
+              <input type="text" id="certDoctorSenescyt" value="${selectedProf.senescyt || '1032-2022-2565446'}" placeholder="Ej: 1032-2022-2565446" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem; font-weight:700;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Teléfono del Profesional</label>
+              <input type="text" id="certDoctorPhone" value="${selectedProf.phone || clinicPhone}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Código de Habilitación / Matrícula MSP</label>
+              <input type="text" id="certDoctorCode" value="${selectedProf.license_code || selectedProf.licenseCode || currentUser.license_code || 'MSP-1032-EC'}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem; font-weight:700;">
             </div>
           </div>
         </div>
@@ -136,75 +235,88 @@ export function openCertificateModal(patient, initialData = {}) {
         <!-- SECCIÓN 3: DATOS DEL PACIENTE -->
         <div style="background:var(--bg-page); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:16px;">
           <span style="font-weight:700; font-size:0.85rem; color:var(--primary); display:block; margin-bottom:10px;"><i class="fas fa-user-injured"></i> Datos del Paciente</span>
-          <div style="display:grid; grid-template-columns:1.4fr 1fr 0.8fr 1fr; gap:10px;">
-            <div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+            <div style="grid-column: span 2;">
               <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Nombre Completo del Paciente</label>
-              <input type="text" id="certPatientName" value="${patient?.name || ''}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;" required>
+              <input type="text" id="certPatientName" value="${patient?.name || ''}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem; font-weight:700;" required>
             </div>
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Cédula / Documento ID</label>
-              <input type="text" id="certPatientDni" value="${patient?.dni || ''}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Cédula de Identidad</label>
+              <input type="text" id="certPatientDni" value="${patient?.dni || ''}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;" required>
             </div>
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Edad</label>
-              <input type="text" id="certPatientAge" value="${patient?.birthdate ? (new Date().getFullYear() - new Date(patient.birthdate).getFullYear()) + ' años' : (patient?.age ? patient.age + ' años' : '')}" placeholder="Ej: 32 años" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--primary); display:block; margin-bottom:4px;">Número de Historia Clínica</label>
+              <input type="text" id="certPatientHc" value="${defaultHcNumber}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem; font-weight:700; color:var(--primary);">
             </div>
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Seguro / Obra Social</label>
-              <input type="text" id="certPatientInsurance" value="${patient?.health_insurance || patient?.insurance || 'Particular'}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Teléfono</label>
+              <input type="text" id="certPatientPhone" value="${patient?.phone || ''}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+            </div>
+            <div style="grid-column: span 2;">
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Dirección de Domicilio</label>
+              <input type="text" id="certPatientAddress" value="${defaultAddress}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
             </div>
           </div>
         </div>
 
-        <!-- SECCIÓN 4: FECHA, HORA DE INGRESO Y HORA DE SALIDA -->
+        <!-- SECCIÓN 4: FECHA Y HORA DE ATENCIÓN -->
         <div style="background:var(--bg-page); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:16px;">
-          <span style="font-weight:700; font-size:0.85rem; color:var(--primary); display:block; margin-bottom:10px;"><i class="fas fa-clock"></i> Fecha y Horarios de Atención</span>
-          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+          <span style="font-weight:700; font-size:0.85rem; color:var(--primary); display:block; margin-bottom:10px;"><i class="fas fa-clock"></i> Fecha y Horario de Atención</span>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px;">
             <div>
               <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Fecha de Atención</label>
               <input type="date" id="certDate" value="${currentDate}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;" required>
             </div>
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:#059669; display:block; margin-bottom:4px;"><i class="fas fa-sign-in-alt"></i> Hora de Ingreso</label>
-              <input type="time" id="certTimeIn" value="${defaultTimeIn}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem; font-weight:600;" required>
+              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Hora de Atención (Texto)</label>
+              <input type="text" id="certTime" value="10:00 am" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
             </div>
             <div>
-              <label style="font-size:0.75rem; font-weight:600; color:#dc2626; display:block; margin-bottom:4px;"><i class="fas fa-sign-out-alt"></i> Hora de Salida</label>
-              <input type="time" id="certTimeOut" value="${defaultTimeOut}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem; font-weight:600;" required>
+              <label style="font-size:0.75rem; font-weight:600; color:#059669; display:block; margin-bottom:4px;"><i class="fas fa-sign-in-alt"></i> Hora Ingreso</label>
+              <input type="time" id="certTimeIn" value="${defaultTimeIn}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; font-weight:600; color:#dc2626; display:block; margin-bottom:4px;"><i class="fas fa-sign-out-alt"></i> Hora Salida</label>
+              <input type="time" id="certTimeOut" value="${defaultTimeOut}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
             </div>
           </div>
         </div>
 
-        <!-- SECCIÓN 5: TRATAMIENTO, REPOSO E INDICACIONES -->
+        <!-- SECCIÓN 5: DIAGNÓSTICO, OBSERVACIÓN Y REPOSO MÉDICO -->
         <div style="background:var(--bg-page); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:18px;">
-          <span style="font-weight:700; font-size:0.85rem; color:var(--primary); display:block; margin-bottom:10px;"><i class="fas fa-stethoscope"></i> Tratamiento Efectuado y Reposo Médico</span>
+          <span style="font-weight:700; font-size:0.85rem; color:var(--primary); display:block; margin-bottom:10px;"><i class="fas fa-stethoscope"></i> Diagnóstico, Observación y Reposo Médico</span>
           
           <div style="margin-bottom:10px;">
-            <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Tratamiento / Procedimiento / Acto Clínico Efectuado</label>
-            <textarea id="certTreatment" rows="2" class="input-field" style="width:100%; padding:8px 10px; font-size:0.88rem; resize:vertical;" required>${defaultTreatment}</textarea>
+            <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Diagnóstico(s) (con código CIE-10)</label>
+            <input type="text" id="certDiagnosis" value="${defaultDxText}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;" required>
           </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:10px; margin-bottom:10px;">
-            <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Diagnóstico / Motivo de Consulta</label>
-              <input type="text" id="certDiagnosis" value="${lastNote?.diagnosticoTipo || patient?.motivoConsulta || 'Atención y control odontológico / procedimiento ambulatorio'}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
-            </div>
-            <div>
-              <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Reposo Médico Sugerido / Justificación</label>
-              <select id="certRestQuick" style="width:100%; padding:7px 10px; font-size:0.85rem; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); margin-bottom:4px;">
-                <option value="Constancia de atención clínica sin reposo laboral (alta inmediata).">Constancia simple (Sin reposo - Alta inmediata)</option>
-                <option value="Se recomienda reposo médico por 24 horas por procedimiento efectuado.">Reposo Médico por 24 horas</option>
-                <option value="Se recomienda reposo médico por 48 horas con cuidados post-operatorios.">Reposo Médico por 48 horas</option>
-                <option value="Se recomienda reposo médico por 72 horas para recuperación post-quirúrgica.">Reposo Médico por 72 horas</option>
-                <option value="custom">Otro (Personalizar texto abajo...)</option>
-              </select>
-              <input type="text" id="certRestText" value="Constancia de atención clínica sin reposo laboral (alta inmediata)." class="input-field" style="width:100%; padding:7px 10px; font-size:0.85rem;">
-            </div>
+          <div style="margin-bottom:12px;">
+            <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Observación / Procedimiento Clínico Efectuado</label>
+            <textarea id="certObservation" rows="3" class="input-field" style="width:100%; padding:8px 10px; font-size:0.88rem; resize:vertical;" required>${defaultObservation}</textarea>
           </div>
 
-          <div>
-            <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Indicaciones / Observaciones Adicionales</label>
-            <input type="text" id="certNotes" value="Paciente en condiciones estables. Se emite el presente certificado a solicitud del interesado para los fines que estime convenientes." class="input-field" style="width:100%; padding:7px 10px; font-size:0.85rem;">
+          <!-- BLOQUE DE REPOSO ABSOLUTO -->
+          <div style="background:var(--surface); border:1.5px dashed var(--primary); border-radius:8px; padding:12px 14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+              <span style="font-weight:700; font-size:0.85rem; color:var(--primary);"><i class="fas fa-bed"></i> Prescripción de Reposo Absoluto</span>
+              <small class="muted">Si es 0 días, no se incluirá el párrafo de reposo</small>
+            </div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Días de Reposo (0 = Ninguno)</label>
+                <input type="number" id="certRestDays" min="0" max="30" value="3" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem; font-weight:700;">
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Desde (Fecha)</label>
+                <input type="date" id="certRestFrom" value="${dateFrom}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+              </div>
+              <div>
+                <label style="font-size:0.75rem; font-weight:600; color:var(--muted); display:block; margin-bottom:4px;">Hasta (Fecha)</label>
+                <input type="date" id="certRestTo" value="${dateTo}" class="input-field" style="width:100%; padding:7px 10px; font-size:0.88rem;">
+              </div>
+            </div>
           </div>
         </div>
 
@@ -216,8 +328,8 @@ export function openCertificateModal(patient, initialData = {}) {
             <button type="button" class="ghost" id="certWhatsAppBtn" style="background:#25d366; color:#fff; border-color:#25d366; font-size:0.88rem; font-weight:600;">
               <i class="fab fa-whatsapp"></i> Compartir WhatsApp
             </button>
-            <button type="button" class="primary" id="certPrintBtn" style="font-size:0.88rem; font-weight:700; padding:8px 18px;">
-              <i class="fas fa-print"></i> Imprimir / Descargar PDF
+            <button type="button" class="primary" id="certPrintBtn" style="font-size:0.88rem; font-weight:700; padding:8px 20px;">
+              <i class="fas fa-print"></i> Imprimir / Guardar PDF
             </button>
           </div>
         </div>
@@ -239,22 +351,15 @@ export function openCertificateModal(patient, initialData = {}) {
       const p = profs.find(pr => pr.id === e.target.value);
       if (p) {
         modal.querySelector('#certDoctorName').value = p.name || '';
-        modal.querySelector('#certDoctorSpecialty').value = p.specialty || 'Odontología';
+        modal.querySelector('#certDoctorSpecialty').value = p.specialty || 'ODONTÓLOGA GENERAL';
+        modal.querySelector('#certDoctorCedula').value = p.dni || p.cedula || '1722381124';
+        modal.querySelector('#certDoctorEmail').value = p.email || clinicEmail;
+        modal.querySelector('#certDoctorSenescyt').value = p.senescyt || '1032-2022-2565446';
+        modal.querySelector('#certDoctorPhone').value = p.phone || clinicPhone;
         modal.querySelector('#certDoctorCode').value = p.license_code || p.licenseCode || '';
       }
     });
   }
-
-  // Manejar selector rápido de reposo
-  const restQuick = modal.querySelector('#certRestQuick');
-  const restText = modal.querySelector('#certRestText');
-  restQuick?.addEventListener('change', () => {
-    if (restQuick.value !== 'custom') {
-      restText.value = restQuick.value;
-    } else {
-      restText.focus();
-    }
-  });
 
   // Manejar subida local de imagen de logo
   const logoFileInput = modal.querySelector('#certLogoFile');
@@ -271,45 +376,106 @@ export function openCertificateModal(patient, initialData = {}) {
     }
   });
 
-  // Recolectar datos del certificado
+  // Actualizar automáticamente fecha 'Hasta' cuando cambian los días de reposo
+  const restDaysInput = modal.querySelector('#certRestDays');
+  const restFromInput = modal.querySelector('#certRestFrom');
+  const restToInput = modal.querySelector('#certRestTo');
+
+  const updateRestToDate = () => {
+    const days = parseInt(restDaysInput?.value, 10) || 0;
+    const fromStr = restFromInput?.value || currentDate;
+    if (days > 0 && fromStr) {
+      const fromParts = fromStr.split('-').map(Number);
+      const dObj = new Date(fromParts[0], fromParts[1] - 1, fromParts[2]);
+      dObj.setDate(dObj.getDate() + (days - 1));
+      restToInput.value = dObj.toISOString().slice(0, 10);
+    }
+  };
+
+  restDaysInput?.addEventListener('input', updateRestToDate);
+  restFromInput?.addEventListener('change', updateRestToDate);
+
+  // Recolectar datos estructurados del certificado
   function collectCertData() {
     const clinic = {
-      name: modal.querySelector('#certClinicName')?.value.trim() || 'Clínica Odontológica & Médica Integral',
-      address: modal.querySelector('#certClinicAddress')?.value.trim() || '',
-      phone: modal.querySelector('#certClinicPhone')?.value.trim() || '',
-      email: clinicEmail,
-      logoUrl: modal.querySelector('#certClinicLogoUrl')?.value.trim() || ''
+      nombre: modal.querySelector('#certClinicName')?.value.trim() || clinicName,
+      direccion: modal.querySelector('#certClinicAddress')?.value.trim() || clinicAddress,
+      ciudad: modal.querySelector('#certClinicCity')?.value.trim() || clinicCity,
+      telefono: modal.querySelector('#certClinicPhone')?.value.trim() || clinicPhone,
+      correo: modal.querySelector('#certClinicEmail')?.value.trim() || clinicEmail,
+      unicodigo: modal.querySelector('#certClinicUnicodigo')?.value.trim() || clinicUnicodigo,
+      logoUrl: modal.querySelector('#certClinicLogoUrl')?.value.trim() || clinicLogoUrl
     };
 
-    // Guardar para futuros certificados
+    // Guardar ajustes de clínica para futuras emisiones
     localStorage.setItem('doctor2_clinic_settings', JSON.stringify({
-      name: clinic.name,
-      address: clinic.address,
-      phone: clinic.phone,
+      name: clinic.nombre,
+      address: clinic.direccion,
+      city: clinic.ciudad,
+      phone: clinic.telefono,
+      email: clinic.correo,
+      unicodigo: clinic.unicodigo,
       logoUrl: clinic.logoUrl
     }));
 
+    const doctorRawName = modal.querySelector('#certDoctorName')?.value.trim() || 'Karla Daniela Sanunga Sánchez';
+    const doctor = {
+      nombre: doctorRawName,
+      nombreConTitulo: doctorRawName.toLowerCase().startsWith('od.') || doctorRawName.toLowerCase().startsWith('dr.') ? doctorRawName : `Od. ${doctorRawName}`,
+      nombreMayusculas: doctorRawName.toUpperCase().startsWith('OD.') ? doctorRawName.toUpperCase() : `OD. ${doctorRawName.toUpperCase()}`,
+      especialidad: modal.querySelector('#certDoctorSpecialty')?.value.trim() || 'ODONTÓLOGA GENERAL',
+      cedula: modal.querySelector('#certDoctorCedula')?.value.trim() || '1722381124',
+      correo: modal.querySelector('#certDoctorEmail')?.value.trim() || clinic.correo,
+      senescyt: modal.querySelector('#certDoctorSenescyt')?.value.trim() || '1032-2022-2565446',
+      telefono: modal.querySelector('#certDoctorPhone')?.value.trim() || clinic.telefono,
+      code: modal.querySelector('#certDoctorCode')?.value.trim() || 'MSP-1032-EC'
+    };
+
+    const patientData = {
+      nombre: (modal.querySelector('#certPatientName')?.value.trim() || patient?.name || '').toUpperCase(),
+      cedula: modal.querySelector('#certPatientDni')?.value.trim() || patient?.dni || '',
+      historiaClinica: modal.querySelector('#certPatientHc')?.value.trim() || defaultHcNumber,
+      telefono: modal.querySelector('#certPatientPhone')?.value.trim() || patient?.phone || '',
+      direccion: modal.querySelector('#certPatientAddress')?.value.trim() || defaultAddress
+    };
+
+    const atencionFechaIso = modal.querySelector('#certDate')?.value || currentDate;
+    const atencionHora = modal.querySelector('#certTime')?.value.trim() || '10:00 am';
+    const fAtencion = parseFecha(atencionFechaIso);
+
+    const restDays = parseInt(modal.querySelector('#certRestDays')?.value, 10) || 0;
+    const restFromIso = modal.querySelector('#certRestFrom')?.value || atencionFechaIso;
+    const restToIso = modal.querySelector('#certRestTo')?.value || atencionFechaIso;
+    const fDesde = parseFecha(restFromIso);
+    const fHasta = parseFecha(restToIso);
+
+    let reposo = null;
+    if (restDays > 0) {
+      reposo = {
+        dias: restDays,
+        desde: restFromIso,
+        hasta: restToIso,
+        diasTexto: `${restDays} (${numeroALetras(restDays)}) días`,
+        desdeTexto: `${fDesde.corta} ${fDesde.letras}`,
+        hastaTexto: `${fHasta.corta} ${fHasta.letras}`
+      };
+    }
+
     return {
-      clinic,
-      doctor: {
-        name: modal.querySelector('#certDoctorName')?.value.trim() || 'Dr. Médico Tratante',
-        specialty: modal.querySelector('#certDoctorSpecialty')?.value.trim() || 'Odontología General',
-        code: modal.querySelector('#certDoctorCode')?.value.trim() || 'Sin código registrado'
+      clinica: clinic,
+      doctor,
+      paciente: patientData,
+      ciudadFechaLarga: `${clinic.ciudad}, ${fAtencion.largaNumerica}`,
+      atencion: {
+        fecha: atencionFechaIso,
+        hora: atencionHora,
+        fechaTexto: `${fAtencion.letras}. (${fAtencion.corta})`,
+        timeIn: modal.querySelector('#certTimeIn')?.value || defaultTimeIn,
+        timeOut: modal.querySelector('#certTimeOut')?.value || defaultTimeOut
       },
-      patient: {
-        name: modal.querySelector('#certPatientName')?.value.trim() || patient?.name || '',
-        dni: modal.querySelector('#certPatientDni')?.value.trim() || patient?.dni || 'Sin registrar',
-        age: modal.querySelector('#certPatientAge')?.value.trim() || '-',
-        insurance: modal.querySelector('#certPatientInsurance')?.value.trim() || 'Particular',
-        phone: patient?.phone || ''
-      },
-      date: modal.querySelector('#certDate')?.value || currentDate,
-      timeIn: modal.querySelector('#certTimeIn')?.value || defaultTimeIn,
-      timeOut: modal.querySelector('#certTimeOut')?.value || defaultTimeOut,
-      treatment: modal.querySelector('#certTreatment')?.value.trim() || 'Atención odontológica / médica',
-      diagnosis: modal.querySelector('#certDiagnosis')?.value.trim() || '',
-      rest: modal.querySelector('#certRestText')?.value.trim() || 'Constancia simple de atención.',
-      notes: modal.querySelector('#certNotes')?.value.trim() || '',
+      diagnosticoTexto: modal.querySelector('#certDiagnosis')?.value.trim() || defaultDxText,
+      observacion: modal.querySelector('#certObservation')?.value.trim() || defaultObservation,
+      reposo,
       folio: `CERT-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`
     };
   }
@@ -322,7 +488,7 @@ export function openCertificateModal(patient, initialData = {}) {
     
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      showToast('Permití las ventanas emergentes para ver el Certificado / PDF', 'warning');
+      showToast('Permita las ventanas emergentes para ver el Certificado / PDF', 'warning');
       return;
     }
     printWindow.document.write(html);
@@ -336,22 +502,27 @@ export function openCertificateModal(patient, initialData = {}) {
   // Evento WhatsApp
   modal.querySelector('#certWhatsAppBtn')?.addEventListener('click', () => {
     const certData = collectCertData();
-    const phone = (certData.patient.phone || '').replace(/\D/g, '');
+    const phone = (certData.paciente.telefono || '').replace(/\D/g, '');
     
-    const msg = `📜 *CERTIFICADO DE ATENCIÓN MÉDICA / ODONTOLÓGICA*%0A` +
-      `*Institución:* ${certData.clinic.name}%0A` +
-      `*Folio:* ${certData.folio}%0A%0A` +
-      `👤 *Paciente:* ${certData.patient.name}%0A` +
-      `🆔 *Cédula/ID:* ${certData.patient.dni}%0A` +
-      `📅 *Fecha:* ${certData.date}%0A` +
-      `⏱️ *Horario:* De ${certData.timeIn} hs a ${certData.timeOut} hs%0A%0A` +
-      `🩺 *Tratamiento Efectuado:* ${certData.treatment}%0A` +
-      `📋 *Diagnóstico:* ${certData.diagnosis || 'Atención integral'}%0A` +
-      `🛌 *Indicación / Reposo:* ${certData.rest}%0A%0A` +
-      `👨‍⚕️ *Médico Tratante:* ${certData.doctor.name}%0A` +
-      `🏛️ *Código / Matrícula:* ${certData.doctor.code}%0A` +
-      `🏥 *Especialidad:* ${certData.doctor.specialty}%0A%0A` +
-      `_Certificado emitido formalmente desde Consultorios.pro_`;
+    let msg = `📜 *CERTIFICADO ODONTOLÓGICO*%0A` +
+      `*${certData.clinica.nombre}*%0A` +
+      `*Unicódigo MSP:* ${certData.clinica.unicodigo}%0A` +
+      `*Emisión:* ${certData.ciudadFechaLarga}%0A%0A` +
+      `👤 *Paciente:* ${certData.paciente.nombre}%0A` +
+      `🆔 *Cédula CI:* ${certData.paciente.cedula}%0A` +
+      `📋 *Historia Clínica N°:* ${certData.paciente.historiaClinica}%0A` +
+      `📅 *Fecha y Hora de Atención:* ${certData.atencion.fechaTexto} · ${certData.atencion.hora}%0A` +
+      `🩺 *Diagnóstico:* ${certData.diagnosticoTexto}%0A` +
+      `📝 *Observación:* ${certData.observacion}%0A`;
+
+    if (certData.reposo && certData.reposo.dias > 0) {
+      msg += `%0A🛌 *Prescripción:* Reposo absoluto durante ${certData.reposo.diasTexto}, desde ${certData.reposo.desdeTexto} hasta ${certData.reposo.hastaTexto}.%0A`;
+    }
+
+    msg += `%0A👨‍⚕️ *Profesional:* ${certData.doctor.nombreMayusculas}%0A` +
+      `🏥 *Especialidad:* ${certData.doctor.especialidad}%0A` +
+      `🏛️ *Reg. Senescyt:* ${certData.doctor.senescyt} · CI: ${certData.doctor.cedula}%0A` +
+      `_Certificado emitido formalmente desde Doctor2 Pro_`;
 
     if (phone) {
       window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
@@ -365,409 +536,222 @@ export function openCertificateModal(patient, initialData = {}) {
 window.openCertificateModal = openCertificateModal;
 
 /**
- * Genera el documento HTML A4 de alta fidelidad para el Certificado de Atención y Asistencia
+ * Genera el documento HTML oficial A4 para el Certificado Odontológico
  */
 export function generateCertificateHTML(data, useLetterhead = false) {
-  const logoHtml = data.clinic.logoUrl
-    ? `<img src="${data.clinic.logoUrl}" alt="Logo" style="max-height:55px; width:auto; max-width:200px; object-fit:contain;">`
-    : `<img src="${NANI_DENT_LOGO_BASE64}" alt="Nani Dent" style="max-height:55px; width:auto; max-width:200px; object-fit:contain;">`;
+  const logoHtml = data.clinica.logoUrl
+    ? `<img src="${data.clinica.logoUrl}" alt="Logo" class="cert-logo" style="max-width:85mm; max-height:28mm; object-fit:contain;">`
+    : `<img src="${NANI_DENT_LOGO_BASE64}" alt="Logo" class="cert-logo" style="max-width:85mm; max-height:28mm; object-fit:contain;">`;
 
   return `
     <!DOCTYPE html>
     <html lang="es">
     <head>
       <meta charset="UTF-8">
-      <title>Certificado de Atención - ${data.patient.name}</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Certificado Odontológico - ${data.paciente.nombre}</title>
       <style>
         @page {
-          size: A4 portrait;
-          margin: ${useLetterhead ? '0' : '15mm'};
+          size: A4;
+          margin: ${useLetterhead ? '0' : '0'};
         }
         * {
           box-sizing: border-box;
         }
         body {
-          font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
-          color: #1e293b;
-          background: #ffffff;
-          line-height: 1.5;
-          font-size: 13px;
           margin: 0;
-          padding: ${useLetterhead ? '0' : '24px 28px'};
+          background: #e5e7eb;
+          font-family: Arial, Helvetica, sans-serif;
+          color: #000000;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
-        .cert-container {
-          max-width: 800px;
+        .cert-page {
+          width: 210mm;
+          min-height: 297mm;
           margin: 0 auto;
-          border: 2px solid #0e7490;
-          border-radius: 12px;
-          padding: 28px 32px;
-          position: relative;
           background: #ffffff;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+          padding: 14mm 22mm 18mm;
+          font-size: 11pt;
+          line-height: 1.6;
+          position: relative;
         }
-        .cert-container.on-letterhead {
-          border: none !important;
-          box-shadow: none !important;
+        .cert-page.on-letterhead {
           background-image: url('${NANI_DENT_LETTERHEAD_BASE64}') !important;
           background-size: 100% 100% !important;
           background-repeat: no-repeat !important;
           background-position: center !important;
-          min-height: 1060px !important;
-          padding: 135px 50px 85px 50px !important;
+          padding: 38mm 22mm 24mm 22mm !important;
         }
-        .cert-container.on-letterhead .cert-header,
-        .cert-container.on-letterhead .cert-footer {
-          display: none !important;
+        .cert-page.on-letterhead .cert-header {
+          visibility: hidden !important;
         }
         .cert-header {
           display: flex;
           justify-content: space-between;
-          align-items: center;
-          border-bottom: 2px solid #e2e8f0;
-          padding-bottom: 16px;
-          margin-bottom: 20px;
+          align-items: flex-start;
           gap: 16px;
         }
-        .clinic-info h1 {
-          margin: 0;
-          color: #1e3a8a;
-          font-size: 20px;
-          font-weight: 800;
-          letter-spacing: -0.3px;
+        .cert-logo {
+          max-width: 85mm;
+          max-height: 28mm;
+          object-fit: contain;
         }
-        .clinic-info p {
-          margin: 3px 0 0;
-          color: #64748b;
-          font-size: 11.5px;
-        }
-        .cert-folio-badge {
+        .cert-clinic {
           text-align: right;
-          background: #f8fafc;
-          border: 1px solid #cbd5e1;
-          padding: 8px 14px;
-          border-radius: 8px;
+          font-weight: 700;
+          font-size: 11pt;
+          line-height: 1.35;
         }
-        .cert-folio-badge .folio-num {
-          font-size: 12px;
-          font-weight: 800;
-          color: #2563eb;
+        .cert-clinic a {
+          color: #0563c1;
+          text-decoration: none;
+        }
+        .cert-title {
+          text-align: center;
+          font-weight: 700;
+          font-size: 12pt;
+          margin: 14mm 0 8mm;
           letter-spacing: 0.5px;
         }
-        .cert-folio-badge .folio-date {
-          font-size: 11px;
-          color: #64748b;
-          margin-top: 2px;
-        }
-        .cert-main-title {
-          text-align: center;
-          margin: 18px 0 22px;
-        }
-        .cert-main-title h2 {
-          margin: 0;
-          font-size: 19px;
-          font-weight: 900;
-          color: #0f172a;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-        }
-        .cert-main-title .sub-title {
-          font-size: 12px;
-          font-weight: 600;
-          color: #2563eb;
-          margin-top: 3px;
-          letter-spacing: 0.5px;
-        }
-        .patient-card {
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          padding: 14px 18px;
-          margin-bottom: 18px;
-          display: grid;
-          grid-template-columns: 1.5fr 1fr 0.8fr 1fr;
-          gap: 10px;
-        }
-        .patient-card .p-item label {
-          font-size: 10px;
+        .cert-city-date {
+          text-align: right;
           font-weight: 700;
-          color: #64748b;
-          text-transform: uppercase;
-          display: block;
-          margin-bottom: 2px;
+          margin-bottom: 8mm;
+          font-size: 11pt;
         }
-        .patient-card .p-item span {
-          font-size: 13px;
+        .cert-body {
+          padding: 0 4mm 0 0;
+        }
+        .cert-row {
+          margin: 0 0 3px 0;
+          line-height: 1.55;
+        }
+        .cert-row b {
           font-weight: 700;
-          color: #1e293b;
         }
-        .time-box-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 12px;
-          margin-bottom: 20px;
-        }
-        .time-card {
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
-          padding: 10px 14px;
-          text-align: center;
-          background: #ffffff;
-        }
-        .time-card.in {
-          border-left: 4px solid #10b981;
-          background: #f0fdf4;
-        }
-        .time-card.out {
-          border-left: 4px solid #ef4444;
-          background: #fef2f2;
-        }
-        .time-card.date-card {
-          border-left: 4px solid #3b82f6;
-          background: #eff6ff;
-        }
-        .time-card .lbl {
-          font-size: 10.5px;
-          font-weight: 700;
-          color: #475569;
-          text-transform: uppercase;
-        }
-        .time-card .val {
-          font-size: 15px;
-          font-weight: 800;
-          color: #0f172a;
-          margin-top: 3px;
-        }
-        .cert-statement {
-          font-size: 13.5px;
-          line-height: 1.7;
+        .cert-text {
           text-align: justify;
-          margin-bottom: 20px;
-          color: #334155;
+          margin: 4px 0;
+          line-height: 1.55;
         }
-        .cert-statement strong {
-          color: #0f172a;
+        .cert-rest-block {
+          margin-top: 6px;
         }
-        .details-box {
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
-          padding: 14px 18px;
-          margin-bottom: 20px;
-          background: #ffffff;
+        .cert-rest {
+          margin: 0 0 2px 0;
+          line-height: 1.55;
         }
-        .details-box .detail-row {
-          margin-bottom: 10px;
+        .cert-sign {
+          margin-top: 14mm;
         }
-        .details-box .detail-row:last-child {
-          margin-bottom: 0;
+        .cert-sign .sign-space {
+          height: 20mm;
         }
-        .details-box .d-label {
-          font-size: 11px;
+        .cert-sign p {
+          margin: 0 0 2px 0;
           font-weight: 700;
-          color: #2563eb;
-          text-transform: uppercase;
-          display: block;
-          margin-bottom: 2px;
+          line-height: 1.35;
         }
-        .details-box .d-val {
-          font-size: 13px;
-          font-weight: 600;
-          color: #1e293b;
-        }
-        .doctor-box {
-          background: #f1f5f9;
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
-          padding: 12px 18px;
-          margin-bottom: 26px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-        .doc-badge {
-          display: inline-block;
-          background: #dbeafe;
-          color: #1e40af;
-          font-size: 11px;
-          font-weight: 800;
-          padding: 3px 8px;
-          border-radius: 4px;
-        }
-        .signatures-area {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          margin-top: 40px;
-          padding-top: 10px;
-        }
-        .sig-block {
-          width: 44%;
+        .toolbar {
+          position: sticky;
+          top: 0;
+          background: #0f172a;
+          padding: 10px;
           text-align: center;
+          z-index: 9999;
         }
-        .sig-line {
-          border-top: 1.5px solid #334155;
-          margin-bottom: 6px;
-        }
-        .sig-title {
-          font-size: 12px;
+        .toolbar button {
+          padding: 8px 20px;
+          border: 0;
+          border-radius: 6px;
+          background: #14b8a6;
+          color: #fff;
           font-weight: 700;
-          color: #0f172a;
-        }
-        .sig-sub {
-          font-size: 10.5px;
-          color: #64748b;
-          margin-top: 2px;
-        }
-        .cert-footer {
-          margin-top: 30px;
-          border-top: 1px dashed #cbd5e1;
-          padding-top: 12px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 10px;
-          color: #94a3b8;
+          cursor: pointer;
+          font-size: 14px;
         }
         @media print {
           body {
-            padding: 0;
-            background: transparent;
+            background: #fff;
           }
-          .cert-container:not(.on-letterhead) {
-            border: 2px solid #0e7490;
+          .cert-page {
+            margin: 0;
             box-shadow: none;
-            padding: 22px 26px;
+            width: 100%;
+            min-height: 100%;
+          }
+          .no-print {
+            display: none !important;
+          }
+        }
+        @media screen {
+          .cert-page {
+            box-shadow: 0 6px 24px rgba(0,0,0,.15);
+            margin-top: 16px;
+            margin-bottom: 16px;
           }
         }
       </style>
     </head>
     <body>
-      <div class="${useLetterhead ? 'cert-container on-letterhead' : 'cert-container'}">
-        
-        <!-- Header con Logo y Datos de la Institución -->
-        <div class="cert-header">
-          <div style="display:flex; align-items:center; gap:16px;">
-            <div style="display:flex; align-items:center; justify-content:center;">
-              ${logoHtml}
-            </div>
-            <div class="clinic-info">
-              <h1>${data.clinic.name}</h1>
-              <p>Centro Odontológico & Médico de Especialidades</p>
-              <p>${data.clinic.address} ${data.clinic.phone ? '· Tel: ' + data.clinic.phone : ''}</p>
-            </div>
-          </div>
-          <div class="cert-folio-badge">
-            <div class="folio-num">${data.folio}</div>
-            <div class="folio-date">Emisión: ${data.date}</div>
-          </div>
-        </div>
 
-        <!-- Título Principal -->
-        <div class="cert-main-title">
-          <h2>Certificado Médico de Atención y Asistencia</h2>
-          <div class="sub-title">Constancia Oficial de Asistencia a Consulta y Procedimiento Clínico</div>
-        </div>
-
-        <!-- Datos del Paciente -->
-        <div class="patient-card">
-          <div class="p-item">
-            <label>Paciente:</label>
-            <span>${data.patient.name}</span>
-          </div>
-          <div class="p-item">
-            <label>Cédula / Documento ID:</label>
-            <span>${data.patient.dni}</span>
-          </div>
-          <div class="p-item">
-            <label>Edad:</label>
-            <span>${data.patient.age}</span>
-          </div>
-          <div class="p-item">
-            <label>Cobertura / Seguro:</label>
-            <span>${data.patient.insurance}</span>
-          </div>
-        </div>
-
-        <!-- Tarjetas de Horario de Ingreso y Salida -->
-        <div class="time-box-grid">
-          <div class="time-card date-card">
-            <div class="lbl">📅 Fecha de Atención</div>
-            <div class="val">${data.date}</div>
-          </div>
-          <div class="time-card in">
-            <div class="lbl">🟢 Hora de Ingreso</div>
-            <div class="val">${data.timeIn} hs</div>
-          </div>
-          <div class="time-card out">
-            <div class="lbl">🔴 Hora de Salida</div>
-            <div class="val">${data.timeOut} hs</div>
-          </div>
-        </div>
-
-        <!-- Declaración Formal de Certificación -->
-        <div class="cert-statement">
-          Por medio del presente documento, el profesional de la salud que suscribe certifica que el/la paciente <strong>${data.patient.name}</strong>, portador/a del documento de identidad N° <strong>${data.patient.dni}</strong>, acudió a este centro de atención y recibió asistencia médica/odontológica el día <strong>${data.date}</strong>, permaneciendo en las instalaciones desde las <strong>${data.timeIn} horas</strong> hasta las <strong>${data.timeOut} horas</strong>.
-        </div>
-
-        <!-- Detalle de Tratamiento, Diagnóstico y Reposo -->
-        <div class="details-box">
-          <div class="detail-row">
-            <span class="d-label">Tratamiento / Procedimiento Efectuado:</span>
-            <span class="d-val">${data.treatment}</span>
-          </div>
-          ${data.diagnosis ? `
-            <div class="detail-row" style="margin-top:10px;">
-              <span class="d-label">Diagnóstico Clínico / Motivo de Consulta:</span>
-              <span class="d-val">${data.diagnosis}</span>
-            </div>
-          ` : ''}
-          <div class="detail-row" style="margin-top:10px;">
-            <span class="d-label">Indicación / Reposo Médico:</span>
-            <span class="d-val" style="color:#b91c1c;">${data.rest}</span>
-          </div>
-          ${data.notes ? `
-            <div class="detail-row" style="margin-top:10px;">
-              <span class="d-label">Observaciones:</span>
-              <span class="d-val" style="font-size:12px; color:#475569;">${data.notes}</span>
-            </div>
-          ` : ''}
-        </div>
-
-        <!-- Datos del Profesional Tratante -->
-        <div class="doctor-box">
-          <div>
-            <div style="font-weight:800; font-size:13.5px; color:#1e293b;">${data.doctor.name}</div>
-            <div style="font-size:11.5px; color:#64748b; margin-top:2px;">${data.doctor.specialty}</div>
-          </div>
-          <div style="text-align:right;">
-            <span class="doc-badge">Matrícula / Código MSP: ${data.doctor.code}</span>
-          </div>
-        </div>
-
-        <!-- Sección de Firmas y Sellos -->
-        <div class="signatures-area">
-          <div class="sig-block">
-            <div class="sig-line"></div>
-            <div class="sig-title">Firma y Sello del Profesional</div>
-            <div class="sig-sub">${data.doctor.name}<br>Cód. / Matrícula: ${data.doctor.code}</div>
-          </div>
-          <div class="sig-block">
-            <div class="sig-line"></div>
-            <div class="sig-title">Firma del Paciente / Receptor</div>
-            <div class="sig-sub">Cédula: ${data.patient.dni}</div>
-          </div>
-        </div>
-
-        <!-- Footer de Seguridad y Verificación -->
-        <div class="cert-footer">
-          <div>Documento emitido para fines legales, laborales o académicos a solicitud de la parte interesada.</div>
-          <div>Código de Validación: ${data.folio} · Sistema Consultorios.pro</div>
-        </div>
-
+      <div class="toolbar no-print">
+        <button type="button" onclick="window.print()"><i class="fas fa-print"></i> Imprimir / Guardar PDF</button>
       </div>
+
+      <div class="${useLetterhead ? 'cert-page on-letterhead' : 'cert-page'}" id="certificate">
+        <!-- Encabezado: logo a la izquierda, datos del consultorio a la derecha -->
+        <header class="cert-header">
+          ${logoHtml}
+          <div class="cert-clinic">
+            <div>${data.clinica.nombre}</div>
+            <div>${data.doctor.nombreConTitulo}</div>
+            <div>${data.clinica.direccion}</div>
+            <div>Teléfono: <span>${data.clinica.telefono}</span></div>
+            <div>Correo: <a href="mailto:${data.clinica.correo}">${data.clinica.correo}</a></div>
+            <div>Unicódigo: <span>${data.clinica.unicodigo}</span></div>
+          </div>
+        </header>
+
+        <h1 class="cert-title">CERTIFICADO ODONTOLÓGICO</h1>
+        <div class="cert-city-date"><span>${data.ciudadFechaLarga}</span></div>
+
+        <!-- Datos del paciente y atención -->
+        <section class="cert-body">
+          <p class="cert-row"><b>Paciente:</b> <span>${data.paciente.nombre}</span></p>
+          <p class="cert-row"><b>Cédula de identidad:</b> <span>${data.paciente.cedula}</span></p>
+          <p class="cert-row"><b>Número de historia clínica:</b> <span>${data.paciente.historiaClinica}</span></p>
+          <p class="cert-row"><b>Teléfono:</b> <span>${data.paciente.telefono}</span></p>
+          <p class="cert-row"><b>Dirección de domicilio:</b> <span>${data.paciente.direccion}</span></p>
+          <p class="cert-row"><b>Fecha de atención:</b> <span>${data.atencion.fechaTexto}</span></p>
+          <p class="cert-row"><b>Hora de atención:</b> <span>${data.atencion.hora}</span></p>
+          <p class="cert-row"><b>Diagnóstico:</b> <span>${data.diagnosticoTexto}</span></p>
+          <p class="cert-text"><b>Observación:</b> <span>${data.observacion}</span></p>
+
+          <!-- Bloque de reposo: se oculta si no hay días de reposo -->
+          ${data.reposo && data.reposo.dias > 0 ? `
+            <div class="cert-rest-block" id="reposoBlock">
+              <p class="cert-rest">Se prescribe reposo <b>absoluto</b> durante <span>${data.reposo.diasTexto}</span>.</p>
+              <p class="cert-rest">Desde <span>${data.reposo.desdeTexto}</span>.</p>
+              <p class="cert-rest">Hasta <span>${data.reposo.hastaTexto}</span>.</p>
+            </div>
+          ` : ''}
+        </section>
+
+        <!-- Firma -->
+        <footer class="cert-sign">
+          <p>Atentamente;</p>
+          <div class="sign-space"></div>
+          <p>${data.doctor.nombreMayusculas}</p>
+          <p>${data.doctor.especialidad.toUpperCase()}</p>
+          <p>CI. <span>${data.doctor.cedula}</span></p>
+          <p>Mail: <a href="mailto:${data.doctor.correo}" style="color:#0563c1; text-decoration:none;">${data.doctor.correo}</a></p>
+          <p>Reg.Senescyt: <span>${data.doctor.senescyt}</span></p>
+          <p>Teléfono: <span>${data.doctor.telefono}</span></p>
+        </footer>
+      </div>
+
     </body>
     </html>
   `;
