@@ -454,7 +454,7 @@ function applyParsedOdontogramActions(parsed, patient) {
   };
 
   parsed.pieces.forEach(pNum => {
-    if (parsed.tool === 'endodoncia' || parsed.tool === 'extraccion' || parsed.tool === 'corona' || parsed.tool === 'implante' || (parsed.tool && parsed.tool.startsWith('protesis'))) {
+    if (parsed.tool === 'endodoncia' || parsed.tool === 'extraccion' || parsed.tool === 'corona' || parsed.tool === 'implante' || parsed.tool === 'sellante' || (parsed.tool && parsed.tool.startsWith('protesis'))) {
       data.teeth[pNum] = { tool: parsed.tool, color: parsed.color };
     } else if (parsed.tool === 'sano') {
       delete data.teeth[pNum];

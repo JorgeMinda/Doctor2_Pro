@@ -8,20 +8,22 @@ let currentTool = 'caries';
 let currentColor = '#E24B4A'; // Rojo por defecto (#E24B4A / #378ADD)
 let autoSaveTimer = null;
 
-export const IMPLANTE_SVG_ICON = `<svg width="15" height="15" viewBox="0 0 24 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 4 4 4 8c0 3 1.5 4.5 2 6.5h12c.5-2 2-3.5 2-6.5 0-4-4-6-8-6z"/><line x1="6" y1="15" x2="18" y2="15"/><line x1="6.7" y1="19" x2="17.3" y2="19"/><line x1="7.4" y1="23" x2="16.6" y2="23"/><path d="M9 15 L12 28 L15 15"/></svg>`;
+export const IMPLANTE_SVG_ICON = `<svg width="16" height="16" viewBox="0 0 24 30" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 4 4 4 8c0 3 1.5 4.5 2 6.5h12c.5-2 2-3.5 2-6.5 0-4-4-6-8-6z"/><line x1="5.5" y1="15" x2="18.5" y2="15"/><line x1="6.5" y1="19" x2="17.5" y2="19"/><line x1="7.5" y1="23" x2="16.5" y2="23"/><path d="M9 15 L12 28.5 L15 15"/></svg>`;
 
 export const CORONA_SVG_ICON = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="1.5" /><rect x="8" y="8" width="8" height="8" rx="1" /></svg>`;
+
+export const PROTESIS_FIJA_SVG_ICON = `<svg width="22" height="14" viewBox="0 0 26 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="1" y="2" width="6" height="10" rx="1" /><rect x="19" y="2" width="6" height="10" rx="1" /><line x1="7" y1="7" x2="19" y2="7" stroke-width="2" stroke-dasharray="3,2" /></svg>`;
 
 export const ODONTO_TOOLS_LIST = [
   { id: 'caries', glyph: '●', label: 'Caries', scope: 'surface' },
   { id: 'obturacion', glyph: '●', label: 'Obturación', scope: 'surface' },
-  { id: 'sellante', glyph: '✱', label: 'Sellante', scope: 'surface' },
+  { id: 'sellante', glyph: '✱', label: 'Sellante', scope: 'tooth' },
   { id: 'extraccion', glyph: '✕', label: 'Extracción/Pérdida', scope: 'tooth' },
   { id: 'perdida-otra', glyph: '⊗', label: 'Pérdida (otra causa)', scope: 'tooth' },
   { id: 'endodoncia', glyph: '△', label: 'Endodoncia', scope: 'tooth' },
   { id: 'corona', glyph: CORONA_SVG_ICON, label: 'Corona', isSvg: true, scope: 'tooth' },
   { id: 'implante', glyph: IMPLANTE_SVG_ICON, label: 'Implante', isSvg: true, scope: 'tooth' },
-  { id: 'protesis-fija', glyph: '┄', label: 'Prótesis fija', scope: 'tooth' },
+  { id: 'protesis-fija', glyph: PROTESIS_FIJA_SVG_ICON, label: 'Prótesis fija', isSvg: true, scope: 'tooth' },
   { id: 'protesis-removible', glyph: '(┄)', label: 'Prótesis removible', scope: 'tooth' },
   { id: 'protesis-total', glyph: '═', label: 'Prótesis total', scope: 'tooth' }
 ];
@@ -293,8 +295,8 @@ function renderToothOverlay(tState, num, data) {
     case 'sellante':
       return `
         <g transform="translate(20, 20)" pointer-events="none">
-          <circle cx="0" cy="0" r="14" fill="rgba(255,255,255,0.95)" stroke="#ffffff" stroke-width="2" style="filter:drop-shadow(0px 1px 3px rgba(0,0,0,0.35));" />
-          <text x="0" y="9.5" text-anchor="middle" font-size="28px" font-weight="900" fill="${color}" style="user-select:none; font-family:sans-serif; line-height:1;">✱</text>
+          <circle cx="0" cy="0" r="16" fill="rgba(255,255,255,0.92)" stroke="${color}" stroke-width="2.6" style="filter:drop-shadow(0px 1px 3px rgba(0,0,0,0.3));" />
+          <text x="0" y="11" text-anchor="middle" font-size="32px" font-weight="900" fill="${color}" style="user-select:none; font-family:sans-serif; line-height:1;">✱</text>
         </g>
       `;
     case 'extraccion':
@@ -319,25 +321,25 @@ function renderToothOverlay(tState, num, data) {
       `;
     case 'implante':
       return `
-        <g transform="translate(8, 5) scale(1)" stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2C8 2 4 4 4 8c0 3 1.5 4.5 2 6.5h12c.5-2 2-3.5 2-6.5 0-4-4-6-8-6z" />
-          <line x1="6" y1="15" x2="18" y2="15" />
-          <line x1="6.7" y1="19" x2="17.3" y2="19" />
-          <line x1="7.4" y1="23" x2="16.6" y2="23" />
-          <path d="M9 15 L12 28 L15 15" />
+        <g transform="translate(5, 2) scale(1.2)" stroke="${color}" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0px 1px 3px rgba(0,0,0,0.35)); pointer-events:none;">
+          <path d="M12 2 C7.5 2 4.5 4 4.5 8 c0 3 1.5 4.5 2 6.5 h11 c.5-2 2-3.5 2-6.5 0-4-3-6-7.5-6 z" fill="rgba(255,255,255,0.92)" stroke-width="2.8" />
+          <line x1="5.5" y1="15" x2="18.5" y2="15" stroke-width="2.8" />
+          <line x1="6.5" y1="19" x2="17.5" y2="19" stroke-width="2.8" />
+          <line x1="7.5" y1="23" x2="16.5" y2="23" stroke-width="2.8" />
+          <path d="M8.5 15 L12 28.5 L15.5 15" stroke-width="2.8" fill="rgba(255,255,255,0.85)" />
         </g>
       `;
     case 'protesis-fija': {
       const { hasLeft, hasRight } = getToothRowNeighbors(num, 'protesis-fija', data);
-      const leftCap = !hasLeft ? `<line x1="3" y1="12" x2="3" y2="28" stroke="${color}" stroke-width="3" stroke-linecap="round" />` : '';
-      const rightCap = !hasRight ? `<line x1="37" y1="12" x2="37" y2="28" stroke="${color}" stroke-width="3" stroke-linecap="round" />` : '';
-      const xStart = hasLeft ? -4 : 3;
-      const xEnd = hasRight ? 44 : 37;
+      const isPillar = !hasLeft || !hasRight;
+      const pillarBox = isPillar
+        ? `<rect x="4" y="4" width="32" height="32" rx="2" fill="none" stroke="${color}" stroke-width="2.8" />`
+        : '';
+      const xStart = hasLeft ? -4 : 20;
+      const xEnd = hasRight ? 44 : 20;
       return `
-        ${leftCap}
-        <line x1="${xStart}" y1="14" x2="${xEnd}" y2="14" stroke="${color}" stroke-width="2.8" stroke-dasharray="4,3" />
-        <line x1="${xStart}" y1="26" x2="${xEnd}" y2="26" stroke="${color}" stroke-width="2.8" stroke-dasharray="4,3" />
-        ${rightCap}
+        ${pillarBox}
+        <line x1="${xStart}" y1="20" x2="${xEnd}" y2="20" stroke="${color}" stroke-width="3" stroke-dasharray="4,3" />
       `;
     }
     case 'protesis-removible': {
@@ -353,16 +355,9 @@ function renderToothOverlay(tState, num, data) {
       `;
     }
     case 'protesis-total': {
-      const { hasLeft, hasRight } = getToothRowNeighbors(num, 'protesis-total', data);
-      const leftCap = !hasLeft ? `<line x1="2" y1="13" x2="2" y2="27" stroke="${color}" stroke-width="3.2" stroke-linecap="round" />` : '';
-      const rightCap = !hasRight ? `<line x1="38" y1="13" x2="38" y2="27" stroke="${color}" stroke-width="3.2" stroke-linecap="round" />` : '';
-      const xStart = hasLeft ? -4 : 2;
-      const xEnd = hasRight ? 44 : 38;
       return `
-        ${leftCap}
-        <line x1="${xStart}" y1="15" x2="${xEnd}" y2="15" stroke="${color}" stroke-width="3" />
-        <line x1="${xStart}" y1="25" x2="${xEnd}" y2="25" stroke="${color}" stroke-width="3" />
-        ${rightCap}
+        <line x1="-4" y1="14" x2="44" y2="14" stroke="${color}" stroke-width="3.2" />
+        <line x1="-4" y1="26" x2="44" y2="26" stroke="${color}" stroke-width="3.2" />
       `;
     }
     default:
@@ -484,7 +479,7 @@ function renderCpoSummary(data) {
 
     if (toothTool === 'extraccion' || toothTool === 'perdida-otra') {
       pPerm++;
-    } else if (toothTool === 'corona' || toothTool === 'implante' || toothTool === 'endodoncia' || (toothTool && toothTool.startsWith('protesis'))) {
+    } else if (toothTool === 'corona' || toothTool === 'implante' || toothTool === 'endodoncia' || toothTool === 'sellante' || (toothTool && toothTool.startsWith('protesis'))) {
       oPerm++;
     } else {
       let hasC = false, hasO = false;

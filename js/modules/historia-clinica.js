@@ -1940,6 +1940,14 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   sesDxSyncSelect?.addEventListener('change', () => {
     if (sesDxSyncSelect.value && sesDxInput) {
       sesDxInput.value = sesDxSyncSelect.value;
+      sesDxInput.focus();
+    }
+  });
+
+  sesDxInput?.addEventListener('input', () => {
+    if (sesDxSyncSelect) {
+      const match = Array.from(sesDxSyncSelect.options).find(opt => opt.value.toLowerCase() === sesDxInput.value.trim().toLowerCase());
+      sesDxSyncSelect.value = match ? match.value : '';
     }
   });
 
@@ -1947,7 +1955,10 @@ function setupInteractiveHandlers(container, patient, notes, onSaveNote, canEdit
   sesDxPickerBtn?.addEventListener('click', () => {
     openCIE10CatalogModal((code, name) => {
       const val = `${code} - ${name}`;
-      if (sesDxInput) sesDxInput.value = val;
+      if (sesDxInput) {
+        sesDxInput.value = val;
+        sesDxInput.focus();
+      }
       if (sesDxSyncSelect) sesDxSyncSelect.value = val;
       showToast(`Diagnóstico asignado a sesión: ${code}`, 'success');
     });
