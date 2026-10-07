@@ -124,7 +124,23 @@ export function showToast(message, type = 'info') {
   }, 3500);
 }
 
+import { isSupabaseConfigured } from './supabase-config.js';
+import { handleSupabaseApiFetch } from './supabase-client.js';
+
 export async function apiFetch(url, options = {}) {
+  // Si Supabase está configurado, interceptar y enrutar las llamadas de forma directa
+  if (isSupabaseConfigured()) {
+    try {
+      return await handleSupabaseApiFetch(url, options);
+    } catch (sbErr) {
+      // Si el endpoint no está mapeado en Supabase, continuar con el fetch PHP regular
+      if (!sbErr.message || !sbErr.message.includes('no mapeado')) {
+        console.error(`Error en operación Supabase (${url}):`, sbErr);
+        throw sbErr;
+      }
+    }
+  }
+
   try {
     const res = await fetch(url, {
       ...options,

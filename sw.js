@@ -3,7 +3,7 @@
  * Soporta instalación nativa en PC/Android/iOS y caché offline de activos estáticos.
  */
 
-const CACHE_NAME = 'doctor2-pro-v2.4';
+const CACHE_NAME = 'doctor2-pro-v2.5';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -29,7 +29,10 @@ const STATIC_ASSETS = [
   './js/modules/historia-clinica.js',
   './js/modules/cie10-catalogue.js',
   './js/modules/app-odontogram.js',
-  './js/modules/app-budget.js'
+  './js/modules/app-budget.js',
+  './js/modules/supabase-config.js',
+  './js/modules/supabase-client.js',
+  './js/modules/supabase-ui.js'
 ];
 
 // Instalación: Precargar activos estáticos esenciales

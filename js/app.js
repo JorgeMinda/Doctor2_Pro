@@ -20,6 +20,7 @@ import { initAIAssistant } from './modules/app-ai-assistant.js';
 import { initTreasuryModule, loadTreasuryData } from './modules/app-treasury.js';
 import { initVoiceAssistant } from './modules/app-voice-assistant.js';
 import { initAICopilot, toggleAICopilot } from './modules/app-ai-copilot.js';
+import { initSupabaseUI } from './modules/supabase-ui.js';
 import {
   openModal,
   closeModal,
@@ -103,6 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   SuscripcionManager.init();
   initTreasuryModule();
   initVoiceAssistant();
+  initSupabaseUI();
 
   // 4. Cargar datos iniciales
   await Promise.allSettled([

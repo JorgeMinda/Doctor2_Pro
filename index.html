@@ -243,6 +243,7 @@
           <button id="navInternalChat" class="nav-btn"><i class="fas fa-comments"></i><span>Chat Interno</span></button>
           <button id="navCopilot" class="nav-btn" title="Copiloto Clínico Inteligente"><i class="fas fa-brain"></i><span>Copiloto IA</span></button>
           <button id="navAppearance" class="nav-btn"><i class="fas fa-palette"></i><span>Apariencia</span></button>
+          <button id="navDatabase" class="nav-btn" title="Configurar Base de Datos en la Nube Supabase"><i class="fas fa-cloud" style="color:#10b981;"></i><span>Base de Datos</span></button>
           <button id="navProfile" class="nav-btn"><i class="fas fa-user-cog"></i><span>Mi Perfil</span></button>
           <button id="logoutBtn" class="nav-btn logout-btn"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></button>
         </nav>
@@ -1053,6 +1054,77 @@
       </form>
     </div>
   </div>
+
+  <!-- Modal Configuración de Base de Datos (Supabase Cloud) -->
+  <div id="supabaseModal" class="modal hidden">
+    <div class="modal-body" style="max-width:580px;">
+      <div class="modal-head">
+        <div>
+          <p class="muted"><i class="fas fa-cloud" style="color:var(--primary);"></i> Persistencia & Nube</p>
+          <h3 style="margin:0;">Configuración de Base de Datos Supabase</h3>
+        </div>
+        <button id="closeSupabaseModal" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div style="margin: 14px 0 16px; padding: 12px 14px; border-radius: 10px; background: var(--bg-page); border: 1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <strong style="font-size:0.88rem; display:block;">Estado del Almacenamiento:</strong>
+          <span id="sbCurrentStatusBadge" style="font-size:0.82rem; font-weight:700; color:var(--primary); display:inline-flex; align-items:center; gap:6px; margin-top:2px;">
+            <i class="fas fa-circle" style="font-size:0.55rem;"></i> Verificando conexión...
+          </span>
+        </div>
+        <button type="button" id="sbTestBtn" class="ghost" style="font-size:0.82rem; padding:6px 12px;">
+          <i class="fas fa-vial"></i> Probar Conexión
+        </button>
+      </div>
+
+      <form id="supabaseForm" onsubmit="event.preventDefault();">
+        <div class="field">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; margin-bottom:10px;">
+            <input type="checkbox" id="sbEnabledCheckbox" checked style="width:17px; height:17px; cursor:pointer;">
+            <span>Activar Sincronización en la Nube con Supabase</span>
+          </label>
+        </div>
+
+        <div class="field">
+          <span style="display:flex; justify-content:space-between;">
+            <span>Supabase Project URL *</span>
+            <small class="muted">Ej: https://abcdefghijkl.supabase.co</small>
+          </span>
+          <input id="sbProjectUrl" type="url" placeholder="https://tu-proyecto.supabase.co" autocomplete="off" style="font-family:monospace; font-size:0.85rem;">
+        </div>
+
+        <div class="field">
+          <span style="display:flex; justify-content:space-between;">
+            <span>Supabase Anon Public API Key *</span>
+            <small class="muted">anon public key</small>
+          </span>
+          <textarea id="sbAnonKey" rows="2" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." style="font-family:monospace; font-size:0.8rem; resize:vertical;"></textarea>
+        </div>
+
+        <!-- Instrucciones Rápidas y Script SQL -->
+        <div style="margin-top:14px; padding:12px; border-radius:10px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.2);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <strong style="font-size:0.83rem; color:var(--primary);"><i class="fas fa-magic"></i> ¿Cómo conectar tu base de datos?</strong>
+            <button type="button" id="sbDownloadSqlBtn" class="ghost" style="font-size:0.75rem; padding:4px 8px; color:var(--primary); font-weight:700;" title="Copiar script SQL para crear las tablas en Supabase">
+              <i class="fas fa-copy"></i> Copiar Script SQL
+            </button>
+          </div>
+          <ol style="margin:0; padding-left:18px; font-size:0.8rem; color:var(--text); line-height:1.45;">
+            <li>Crea un proyecto gratuito en <a href="https://supabase.com" target="_blank" style="color:var(--primary); font-weight:700; text-decoration:underline;">supabase.com</a>.</li>
+            <li>En tu panel de Supabase, ve a <strong>SQL Editor</strong>, pega el script de creación y haz clic en <strong>Run</strong>.</li>
+            <li>En <strong>Project Settings &rarr; API</strong>, copia la <strong>URL</strong> y la <strong>anon public key</strong> y pégalas arriba.</li>
+          </ol>
+        </div>
+
+        <div class="modal-actions" style="margin-top:18px; display:flex; justify-content:flex-end; gap:8px;">
+          <button id="closeSbBtn" type="button" class="ghost">Cancelar</button>
+          <button id="saveSbBtn" type="button" class="primary"><i class="fas fa-check"></i> Guardar y Conectar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 
   <!-- Modal Feriados y Bloqueos -->
   <div id="blockedDaysModal" class="modal hidden">
