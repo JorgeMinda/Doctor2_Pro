@@ -4,10 +4,10 @@
 
 const STORAGE_KEY = 'doctor2_supabase_config';
 
-// Configuración por defecto vinculada a tu proyecto Supabase
+// Configuración por defecto vinculada a tu proyecto Supabase en la nube
 export const defaultSupabaseConfig = {
   url: 'https://aihecmyzzchwfobquhky.supabase.co',
-  anonKey: '',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFpaGVjbXl6emNod2ZvYnF1aGt5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzMjc1NjUsImV4cCI6MjEwNjkwMzU2NX0.s8gX6VGCrGLDPSsibP_bcxerqX2-Cz6km92WT8t6JCw',
   enabled: true
 };
 
