@@ -4,11 +4,11 @@
 
 const STORAGE_KEY = 'doctor2_supabase_config';
 
-// Configuración por defecto (puedes ingresar tus credenciales de Supabase aquí o mediante la UI)
+// Configuración por defecto vinculada a tu proyecto Supabase
 export const defaultSupabaseConfig = {
-  url: '',
+  url: 'https://aihecmyzzchwfobquhky.supabase.co',
   anonKey: '',
-  enabled: false
+  enabled: true
 };
 
 export function getSupabaseConfig() {
