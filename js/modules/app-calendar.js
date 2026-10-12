@@ -4,6 +4,7 @@
 import { state, api } from './app-state.js';
 import { el, formatDate, formatReadableDate, apiFetch, showToast } from './app-utils.js';
 import { openModal } from './app-modal.js';
+import { updateRemindersCountBadge } from './app-reminders.js';
 
 export async function loadMonth(opts = {}) {
   const y = state.monthDate.getFullYear();
@@ -25,6 +26,7 @@ export async function loadMonth(opts = {}) {
     state.appointments = aptData.appointments || [];
     state.blockedDays = blockData.blocked_days || [];
 
+    updateRemindersCountBadge();
     scheduleAgendaRender();
   } catch (err) {
     console.warn('No se pudieron cargar los turnos del mes', err);

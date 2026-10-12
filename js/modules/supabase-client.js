@@ -414,9 +414,37 @@ export async function handleSupabaseApiFetch(url, options = {}) {
 
   // 2. PROFESIONALES (api/professionals.php)
   if (pathname.includes('professionals.php')) {
+    const sb = await getSupabase();
+    if (!sb) throw new Error('Supabase no está configurado');
+
     if (method === 'GET') {
       const profs = await sbGetProfessionals();
       return { success: true, professionals: profs };
+    }
+
+    if (method === 'POST') {
+      const body = getBody();
+      const row = { ...body, id: body.id || `prof-${Math.random().toString(36).substring(2, 12)}` };
+      const { data, error } = await sb.from('professionals').insert(row).select().single();
+      if (error) throw error;
+      return { success: true, professional: data };
+    }
+
+    if (method === 'PATCH' || method === 'PUT') {
+      const body = getBody();
+      const targetId = body.id || searchParams.get('id');
+      const updates = { ...body };
+      delete updates.id;
+      const { data, error } = await sb.from('professionals').update(updates).eq('id', targetId).select().single();
+      if (error) throw error;
+      return { success: true, professional: data };
+    }
+
+    if (method === 'DELETE') {
+      const targetId = searchParams.get('id') || getBody().id;
+      const { error } = await sb.from('professionals').delete().eq('id', targetId);
+      if (error) throw error;
+      return { success: true };
     }
   }
 
@@ -439,6 +467,72 @@ export async function handleSupabaseApiFetch(url, options = {}) {
     if (method === 'DELETE') {
       const aptId = searchParams.get('id') || getBody().id;
       if (aptId) await sbDeleteAppointment(aptId);
+      return { success: true };
+    }
+  }
+
+  // 4. DÍAS BLOQUEADOS Y FERIADOS (api/blocked-days.php)
+  if (pathname.includes('blocked-days.php')) {
+    const sb = await getSupabase();
+    if (!sb) throw new Error('Supabase no está configurado');
+
+    if (method === 'GET') {
+      const { data, error } = await sb.from('blocked_days').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return { success: true, blocked_days: data || [] };
+    }
+
+    if (method === 'POST') {
+      const body = getBody();
+      const row = { ...body, id: body.id || `blk-${Math.random().toString(36).substring(2, 12)}` };
+      const { data, error } = await sb.from('blocked_days').insert(row).select().single();
+      if (error) throw error;
+      return { success: true, blocked_day: data };
+    }
+
+    if (method === 'DELETE') {
+      const blkId = searchParams.get('id') || getBody().id;
+      const { error } = await sb.from('blocked_days').delete().eq('id', blkId);
+      if (error) throw error;
+      return { success: true };
+    }
+  }
+
+  // 5. INVENTARIO (api/inventory.php)
+  if (pathname.includes('inventory.php')) {
+    const sb = await getSupabase();
+    if (!sb) throw new Error('Supabase no está configurado');
+
+    if (method === 'GET') {
+      const { data, error } = await sb.from('inventory').select('*').order('name');
+      if (error) throw error;
+      const items = data || [];
+      const categories = [...new Set(items.map(i => i.category).filter(Boolean))];
+      return { success: true, items, categories };
+    }
+
+    if (method === 'POST') {
+      const body = getBody();
+      const row = { ...body, id: body.id || `inv-${Math.random().toString(36).substring(2, 12)}` };
+      const { data, error } = await sb.from('inventory').insert(row).select().single();
+      if (error) throw error;
+      return { success: true, item: data };
+    }
+
+    if (method === 'PATCH' || method === 'PUT') {
+      const body = getBody();
+      const targetId = body.id || searchParams.get('id');
+      const updates = { ...body };
+      delete updates.id;
+      const { data, error } = await sb.from('inventory').update(updates).eq('id', targetId).select().single();
+      if (error) throw error;
+      return { success: true, item: data };
+    }
+
+    if (method === 'DELETE') {
+      const targetId = searchParams.get('id') || getBody().id;
+      const { error } = await sb.from('inventory').delete().eq('id', targetId);
+      if (error) throw error;
       return { success: true };
     }
   }

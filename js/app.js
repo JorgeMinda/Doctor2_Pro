@@ -21,6 +21,7 @@ import { initTreasuryModule, loadTreasuryData } from './modules/app-treasury.js'
 import { initVoiceAssistant } from './modules/app-voice-assistant.js';
 import { initAICopilot, toggleAICopilot } from './modules/app-ai-copilot.js';
 import { initSupabaseUI } from './modules/supabase-ui.js';
+import { openRemindersModal } from './modules/app-reminders.js';
 import {
   openModal,
   closeModal,
@@ -140,6 +141,9 @@ el('navInternalChat')?.addEventListener('click', () => { setNav('internalChat');
 el('navCopilot')?.addEventListener('click', () => toggleAICopilot());
 el('navAppearance')?.addEventListener('click', openAppearanceModal);
 el('navProfile')?.addEventListener('click', openProfile);
+
+// Botón de Recordatorios 24h WhatsApp en Agenda
+el('reminders24hBtn')?.addEventListener('click', openRemindersModal);
 
 // Modales de Perfil y Apariencia
 el('closeProfile')?.addEventListener('click', closeProfile);

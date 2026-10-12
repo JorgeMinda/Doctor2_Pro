@@ -2354,11 +2354,9 @@ function parseJsonSafe(text) {
 
 async function loadAttachments(patientId, container, canEdit) {
   try {
-    const res = await fetch(`api/patients.php?action=get_attachments&patientId=${patientId}`);
-    const text = await res.text();
-    const data = parseJsonSafe(text);
+    const data = await apiFetch(`api/patients.php?action=get_attachments&patientId=${patientId}`);
     
-    if (data.success) {
+    if (data && data.success) {
       const count = data.attachments?.length || 0;
       const btn = container.querySelector('#hcShowAttachments');
       if (!btn) return;

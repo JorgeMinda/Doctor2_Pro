@@ -172,15 +172,16 @@ export function createWhatsAppManager(onStatusChange) {
 
       if (res.ok) {
         const data = await res.json();
-        renderPairCode(data.pairingCode || generateSimulatedPairCode());
+        if (data.pairingCode) {
+          renderPairCode(data.pairingCode);
+        } else {
+          showToast('No se pudo obtener el código del servidor de WhatsApp', 'warning');
+        }
       } else {
         throw new Error('Servidor no disponible');
       }
     } catch (e) {
-      // Si el microservicio aún no está levantado, generar el código y mostrar las instrucciones
-      const simCode = generateSimulatedPairCode();
-      renderPairCode(simCode);
-      showToast('Código de vinculación generado', 'info');
+      showToast('Microservicio local (wa-server.js) desconectado. Te recomendamos usar el Modo Directo para enviar vía WhatsApp Web / App sin servidores.', 'info');
     } finally {
       btnGenCode.disabled = false;
       btnGenCode.innerHTML = '<i class="fas fa-key"></i> Generar Código';
