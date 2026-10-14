@@ -139,6 +139,121 @@ export function mapPatientToSupabase(patient) {
   return row;
 }
 
+export function mapAppointmentFromSupabase(row) {
+  if (!row) return null;
+
+  let meta = {};
+  let cleanNotes = row.notes || '';
+  if (typeof cleanNotes === 'string' && cleanNotes.includes('<!--META:')) {
+    try {
+      const match = cleanNotes.match(/<!--META:([\s\S]*?)-->/);
+      if (match && match[1]) {
+        meta = JSON.parse(match[1]);
+        cleanNotes = cleanNotes.replace(/<!--META:[\s\S]*?-->/g, '').trim();
+      }
+    } catch (e) {
+      console.warn('Error al parsear metadatos de cita:', e);
+    }
+  }
+
+  const cost = (row.cost !== undefined && row.cost !== null) ? Number(row.cost) : (meta.cost !== undefined && meta.cost !== null ? Number(meta.cost) : 0);
+  const observation = row.observation || meta.observation || cleanNotes || '';
+  const patientEmail = row.patient_email || meta.patient_email || '';
+  const payments = Array.isArray(row.payments) ? row.payments : (Array.isArray(meta.payments) ? meta.payments : []);
+  const time = row.start_time || row.time || '08:00';
+
+  return {
+    id: row.id,
+    patient_id: row.patient_id || null,
+    patientId: row.patient_id || null,
+    patient_name: row.patient_name || '',
+    patientName: row.patient_name || '',
+    patient_phone: row.patient_phone || '',
+    patientPhone: row.patient_phone || '',
+    patient_email: patientEmail,
+    patientEmail: patientEmail,
+    professional_id: row.professional_id || null,
+    professionalId: row.professional_id || null,
+    professional_name: row.professional_name || '',
+    professionalName: row.professional_name || '',
+    date: row.date,
+    time: time,
+    start_time: row.start_time || time,
+    end_time: row.end_time || '',
+    duration: row.duration || 30,
+    reason: row.reason || row.treatment || '',
+    treatment: row.treatment || row.reason || '',
+    status: row.status || 'scheduled',
+    cost: cost,
+    observation: observation,
+    notes: cleanNotes,
+    payments: payments,
+    created_at: row.created_at,
+    updated_at: row.updated_at
+  };
+}
+
+export function mapAppointmentToSupabase(apt) {
+  if (!apt) return null;
+
+  const startTime = apt.start_time || apt.time || '08:00';
+  const duration = parseInt(apt.duration, 10) || 30;
+
+  let endTime = apt.end_time;
+  if (!endTime) {
+    const parts = (startTime || '08:00').split(':').map(Number);
+    const h = parts[0] || 0;
+    const m = parts[1] || 0;
+    const endMinutes = h * 60 + m + duration;
+    const endH = String(Math.floor(endMinutes / 60) % 24).padStart(2, '0');
+    const endM = String(endMinutes % 60).padStart(2, '0');
+    endTime = `${endH}:${endM}`;
+  }
+
+  const cost = apt.cost !== undefined && apt.cost !== null ? parseFloat(apt.cost) || 0 : 0;
+  const observation = (apt.observation !== undefined && apt.observation !== null ? apt.observation : (apt.notes || '')).toString();
+  const patientEmail = (apt.patient_email || apt.patientEmail || '').toString().trim();
+  const payments = Array.isArray(apt.payments) ? apt.payments : [];
+
+  const meta = {
+    cost,
+    observation,
+    patient_email: patientEmail,
+    payments
+  };
+
+  const cleanObs = observation.replace(/<!--META:[\s\S]*?-->/g, '').trim();
+  const notesWithMeta = cleanObs ? `${cleanObs}\n<!--META:${JSON.stringify(meta)}-->` : `<!--META:${JSON.stringify(meta)}-->`;
+
+  let profId = apt.professional_id || apt.professionalId || null;
+  let profName = apt.professional_name || apt.professionalName || '';
+  if (typeof profId === 'string' && profId.trim() === '') profId = null;
+
+  let patientId = apt.patient_id || apt.patientId || null;
+  if (typeof patientId === 'string' && patientId.trim() === '') patientId = null;
+
+  const row = {
+    patient_name: (apt.patient_name || apt.patientName || 'Paciente').trim(),
+    patient_phone: (apt.patient_phone || apt.patientPhone || '').trim(),
+    date: apt.date,
+    start_time: startTime,
+    end_time: endTime,
+    duration: duration,
+    treatment: (apt.treatment || apt.reason || '').trim(),
+    reason: (apt.reason || apt.treatment || 'Consulta').trim(),
+    status: apt.status || 'scheduled',
+    notes: notesWithMeta,
+    updated_at: new Date().toISOString()
+  };
+
+  if (apt.id) row.id = apt.id;
+  if (patientId) row.patient_id = patientId;
+  if (profId) row.professional_id = profId;
+  if (profName) row.professional_name = profName;
+
+  return row;
+}
+
 // ==============================================================================
 // OPERACIONES CRUD DE PACIENTES
 // ==============================================================================
@@ -163,7 +278,16 @@ export async function sbGetPatientById(id) {
 
   const { data, error } = await sb.from('patients').select('*').eq('id', id).single();
   if (error) throw error;
-  return mapPatientFromSupabase(data);
+  const patient = mapPatientFromSupabase(data);
+  if (patient) {
+    try {
+      const apts = await sbGetAppointments({ patientId: id });
+      patient.appointments = apts || [];
+    } catch (e) {
+      patient.appointments = [];
+    }
+  }
+  return patient;
 }
 
 export async function sbInsertPatient(patientData) {
@@ -298,13 +422,23 @@ export async function sbGetAppointments(filters = {}) {
   if (!sb) throw new Error('Supabase no está configurado');
 
   let query = sb.from('appointments').select('*').order('date').order('start_time');
-  if (filters.date) query = query.eq('date', filters.date);
-  if (filters.patientId) query = query.eq('patient_id', filters.patientId);
-  if (filters.professionalId && filters.professionalId !== 'all') query = query.eq('professional_id', filters.professionalId);
+  if (filters.date) {
+    query = query.eq('date', filters.date);
+  }
+  if (filters.month) {
+    query = query.gte('date', `${filters.month}-01`).lte('date', `${filters.month}-31`);
+  }
+  if (filters.patientId) {
+    query = query.eq('patient_id', filters.patientId);
+  }
+  const prof = filters.professionalId || filters.professional;
+  if (prof && prof !== 'all') {
+    query = query.or(`professional_id.eq.${prof},professional_name.eq.${prof}`);
+  }
 
   const { data, error } = await query;
   if (error) throw error;
-  return data || [];
+  return (data || []).map(mapAppointmentFromSupabase);
 }
 
 export async function sbSaveAppointment(appointmentData) {
@@ -312,17 +446,23 @@ export async function sbSaveAppointment(appointmentData) {
   if (!sb) throw new Error('Supabase no está configurado');
 
   if (appointmentData.id) {
-    const { data, error } = await sb.from('appointments').update(appointmentData).eq('id', appointmentData.id).select().single();
+    // Si es actualización, fusionamos con el turno existente para soportar PATCH parcial
+    const { data: existing } = await sb.from('appointments').select('*').eq('id', appointmentData.id).maybeSingle();
+    const existingMapped = existing ? mapAppointmentFromSupabase(existing) : {};
+    const merged = { ...existingMapped, ...appointmentData };
+
+    const row = mapAppointmentToSupabase(merged);
+    delete row.id; // No modificar clave primaria
+
+    const { data, error } = await sb.from('appointments').update(row).eq('id', appointmentData.id).select().single();
     if (error) throw error;
-    return data;
+    return mapAppointmentFromSupabase(data);
   } else {
-    const row = {
-      ...appointmentData,
-      id: `apt-${Math.random().toString(36).substring(2, 12)}`
-    };
+    const row = mapAppointmentToSupabase(appointmentData);
+    row.id = `apt-${Math.random().toString(36).substring(2, 12)}`;
     const { data, error } = await sb.from('appointments').insert(row).select().single();
     if (error) throw error;
-    return data;
+    return mapAppointmentFromSupabase(data);
   }
 }
 
@@ -462,17 +602,18 @@ export async function handleSupabaseApiFetch(url, options = {}) {
     }
   }
 
-  // 3. TURNOS Y CITAS (api/appointments.php)
-  if (pathname.includes('appointments.php')) {
+  // 3. TURNOS Y CITAS (api/appointments.php o api/agenda.php)
+  if (pathname.includes('appointments.php') || pathname.includes('agenda.php')) {
     if (method === 'GET') {
+      const month = searchParams.get('month');
       const date = searchParams.get('date');
-      const patientId = searchParams.get('patientId');
-      const professionalId = searchParams.get('professionalId');
-      const apts = await sbGetAppointments({ date, patientId, professionalId });
+      const patientId = searchParams.get('patientId') || searchParams.get('patient_id');
+      const professionalId = searchParams.get('professionalId') || searchParams.get('professional') || searchParams.get('professional_id');
+      const apts = await sbGetAppointments({ month, date, patientId, professionalId });
       return { success: true, appointments: apts };
     }
 
-    if (method === 'POST') {
+    if (method === 'POST' || method === 'PATCH' || method === 'PUT') {
       const body = getBody();
       const saved = await sbSaveAppointment(body);
       return { success: true, appointment: saved };

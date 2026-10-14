@@ -73,7 +73,11 @@ export function openModal(opts = {}) {
 }
 
 export function closeModal() {
-  el('modal')?.classList.add('hidden');
+  const modal = el('modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    delete modal.dataset.patientId;
+  }
   editingAppointmentId = null;
   el('patientAutocompleteDropdown')?.classList.add('hidden');
 }
@@ -260,9 +264,30 @@ export async function saveAppointment() {
     }
   }
 
+  // Resolver patientId si coincide con un paciente registrado
+  let patientId = el('modal')?.dataset?.patientId || null;
+  if (patientId && Array.isArray(state.patients)) {
+    const matched = state.patients.find(p => p.id === patientId);
+    if (!matched || matched.name.trim().toLowerCase() !== patientName.toLowerCase()) {
+      const nameMatch = state.patients.find(p => p.name.trim().toLowerCase() === patientName.toLowerCase());
+      patientId = nameMatch ? nameMatch.id : null;
+    }
+  } else if (!patientId && Array.isArray(state.patients)) {
+    const nameMatch = state.patients.find(p => p.name.trim().toLowerCase() === patientName.toLowerCase());
+    if (nameMatch) patientId = nameMatch.id;
+  }
+
+  // Resolver profesional existente
+  let prof = null;
+  if (Array.isArray(state.professionals) && state.professionals.length > 0) {
+    prof = state.professionals.find(p => p.id === profId) || state.professionals[0];
+  }
+
   const payload = {
     id: editingAppointmentId,
-    professional_id: profId || state.professionals[0]?.id || 'prof-1',
+    patient_id: patientId,
+    professional_id: prof ? prof.id : (profId || null),
+    professional_name: prof ? prof.name : '',
     date,
     time,
     duration,

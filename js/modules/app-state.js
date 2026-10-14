@@ -24,6 +24,7 @@ export const api = {
   auth: 'api/auth.php',
   profile: 'api/auth.php?action=profile',
   appointments: 'api/appointments.php',
+  agenda: 'api/appointments.php',
   patients: 'api/patients.php',
   professionals: 'api/professionals.php',
   inventory: 'api/inventory.php',

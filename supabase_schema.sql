@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS appointments (
     patient_id TEXT REFERENCES patients(id) ON DELETE SET NULL,
     patient_name TEXT NOT NULL,
     patient_phone TEXT DEFAULT '',
+    patient_email TEXT DEFAULT '',
     professional_id TEXT REFERENCES professionals(id) ON DELETE SET NULL,
     professional_name TEXT DEFAULT '',
     date DATE NOT NULL,
@@ -84,10 +85,19 @@ CREATE TABLE IF NOT EXISTS appointments (
     treatment TEXT DEFAULT '',
     reason TEXT DEFAULT '',
     status TEXT DEFAULT 'scheduled', -- scheduled, confirmed, in_progress, completed, cancelled, no_show
+    cost NUMERIC(10,2) DEFAULT 0,
+    observation TEXT DEFAULT '',
+    payments JSONB DEFAULT '[]'::jsonb,
     notes TEXT DEFAULT '',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migraciones seguras para proyectos existentes:
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS patient_email TEXT DEFAULT '';
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS cost NUMERIC(10,2) DEFAULT 0;
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS observation TEXT DEFAULT '';
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS payments JSONB DEFAULT '[]'::jsonb;
 
 CREATE INDEX IF NOT EXISTS idx_apts_date ON appointments (date);
 CREATE INDEX IF NOT EXISTS idx_apts_patient ON appointments (patient_id);

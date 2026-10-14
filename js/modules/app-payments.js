@@ -1,4 +1,4 @@
-﻿/**
+/**
  * app-payments.js - Módulo de Gestión de Pagos, Cobros de Turnos y Cuenta Corriente del Paciente
  */
 import { state, api } from './app-state.js';
@@ -239,7 +239,7 @@ async function addPayment() {
   currentAppointment.payments = payments;
   
   try {
-    await apiFetch(api.agenda, {
+    await apiFetch(api.appointments || 'api/appointments.php', {
       method: 'PATCH',
       body: JSON.stringify({
         id: currentAppointment.id,
