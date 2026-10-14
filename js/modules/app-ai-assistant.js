@@ -4,6 +4,7 @@
  */
 import { state, api } from './app-state.js';
 import { el, apiFetch, showToast, formatReadableDate } from './app-utils.js';
+import { loadMonth } from './app-calendar.js';
 
 const PROMPT_STORAGE_KEY = 'doctor2_ai_system_prompt';
 
@@ -217,6 +218,7 @@ export function openAISimulatorModal() {
       <div style="padding:6px 12px; background:#f0f2f5; border-top:1px solid #ddd; display:flex; gap:6px; overflow-x:auto;">
         <span class="sim-quick-btn" data-txt="¿Qué doctores atienden en la clínica?" style="font-size:0.75rem; background:#fff; border:1px solid #ccc; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">👨‍⚕️ Doctores</span>
         <span class="sim-quick-btn" data-txt="Quiero agendar un turno para mañana a las 10:00" style="font-size:0.75rem; background:#fff; border:1px solid #ccc; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">📅 Turno mañana</span>
+        <span class="sim-quick-btn" data-txt="Sí, confirmo el turno para mañana a las 10:00" style="font-size:0.75rem; background:#e8f5e9; border:1px solid #81c784; color:#2e7d32; font-weight:700; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">✅ Confirmar turno</span>
         <span class="sim-quick-btn" data-txt="¿Cuánto cuesta una limpieza dental?" style="font-size:0.75rem; background:#fff; border:1px solid #ccc; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">💰 Precios</span>
         <span class="sim-quick-btn" data-txt="Me duele mucho una muela, ¿qué tomo?" style="font-size:0.75rem; background:#fff; border:1px solid #ccc; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">⚠️ Emergencia</span>
       </div>
@@ -261,15 +263,15 @@ export function openAISimulatorModal() {
     messagesArea.appendChild(typingBubble);
     messagesArea.scrollTop = messagesArea.scrollHeight;
 
-    setTimeout(() => {
+    setTimeout(async () => {
       typingBubble.remove();
-      const replyText = generateSimulatedBrainReply(question, currentPrompt, profNames);
+      const replyText = await generateSimulatedBrainReply(question, currentPrompt, profNames);
       const botBubble = document.createElement('div');
       botBubble.style.cssText = 'align-self:flex-start; max-width:80%; background:#fff; padding:10px 14px; border-radius:0 12px 12px 12px; font-size:0.88rem; box-shadow:0 1px 2px rgba(0,0,0,0.1); line-height:1.45; color:#111;';
       botBubble.innerHTML = `${replyText}<div style="font-size:0.7rem; color:#888; text-align:right; margin-top:4px;">${timeStr}</div>`;
       messagesArea.appendChild(botBubble);
       messagesArea.scrollTop = messagesArea.scrollHeight;
-    }, 900);
+    }, 850);
   };
 
   sendBtn?.addEventListener('click', () => executeSimReply(userInput.value.trim()));
@@ -287,21 +289,79 @@ export function openAISimulatorModal() {
   });
 }
 
-function generateSimulatedBrainReply(text, prompt, doctors) {
+async function generateSimulatedBrainReply(text, prompt, doctors) {
   const q = text.toLowerCase();
 
+  // 1. Confirmar agendamiento de cita
+  if (q.includes('confirmo') || q.includes('confirmar') || q.includes('agendalo') || q.includes('sí') || q.includes('si, a las 10') || q.includes('si me queda') || q.includes('10:00')) {
+    const isBookingEnabled = localStorage.getItem('doctor2_ai_booking_enabled') !== 'false';
+    const doctorName = doctors.split(',')[0].trim() || 'Dr. Juan Carlos Gómez';
+
+    // Fecha de mañana
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateStr = tomorrow.toISOString().slice(0, 10);
+    const optDate = { weekday: 'long', day: 'numeric', month: 'long' };
+    const dateFormatted = tomorrow.toLocaleDateString('es-ES', optDate);
+
+    if (isBookingEnabled) {
+      try {
+        const prof = (state.professionals || []).find(p => p.name.includes(doctorName)) || state.professionals?.[0];
+        await apiFetch(api.appointments, {
+          method: 'POST',
+          body: JSON.stringify({
+            patient_name: 'Paciente WhatsApp (Simulación)',
+            patient_phone: '+593 99 123 4567',
+            professional_id: prof?.id || null,
+            professional_name: prof?.name || doctorName,
+            date: dateStr,
+            time: '10:00',
+            duration: 30,
+            reason: 'Consulta Odontológica General',
+            status: 'Confirmado',
+            cost: 0,
+            observation: 'Cita agendada automáticamente por el Asistente IA de WhatsApp'
+          })
+        });
+
+        if (typeof loadMonth === 'function') {
+          loadMonth();
+        }
+
+        return `🎉 <strong>¡Tu turno ha sido agendado con éxito!</strong> 🦷✨<br><br>
+        📅 <strong>Fecha:</strong> ${dateFormatted} (${dateStr})<br>
+        ⏰ <strong>Hora:</strong> 10:00 hs<br>
+        👨‍⚕️ <strong>Especialista:</strong> ${doctorName}<br>
+        📍 <strong>Lugar:</strong> Nani Dent · Consultorio Principal<br><br>
+        <span style="display:inline-block; padding:4px 10px; background:#dcfce7; color:#15803d; border-radius:6px; font-weight:700; font-size:0.78rem;">
+          <i class="fas fa-check-circle"></i> Sincronizado en Supabase y visible en tu Agenda
+        </span><br><br>
+        <small style="color:#555;">Te recordamos presentarte 10 minutos antes. Si necesitas reprogramar, sólo avísanos por este chat.</small>`;
+      } catch (err) {
+        console.warn('Error al guardar turno desde simulador:', err);
+      }
+    }
+
+    return `🎉 <strong>¡Excelente decisión!</strong> 🦷✨<br><br>Te confirmamos para <strong>mañana a las 10:00 hs</strong> con el <strong>${doctorName}</strong> en <strong>Nani Dent</strong>.<br><br>Te recordamos llegar 10 minutos antes con tu documento de identidad. ¡Te esperamos!`;
+  }
+
+  // 2. Doctores
   if (q.includes('doctor') || q.includes('especialista') || q.includes('quién atiende') || q.includes('medico')) {
     return `En <strong>Nani Dent</strong> contamos con un equipo de primer nivel 👨‍⚕️✨:<br>• <strong>${doctors}</strong><br><br>Atendemos de Lunes a Viernes de 08:00 a 20:00 hs. ¿Te gustaría consultar la disponibilidad de algún horario en particular?`;
   }
 
+  // 3. Consulta de horarios / citas
   if (q.includes('mañana') || q.includes('turno') || q.includes('cita') || q.includes('agendar') || q.includes('hora')) {
-    return `¡Por supuesto! 📅 Para mañana tenemos horarios disponibles a las <strong>10:00 hs</strong> y a las <strong>16:00 hs</strong> con el <strong>${doctors.split(',')[0]}</strong>.<br><br>¿Cuál de estos dos horarios te queda más cómodo para registrar tu cita? 😊`;
+    const doctorName = doctors.split(',')[0].trim() || 'Dr. Juan Carlos Gómez';
+    return `¡Por supuesto! 📅 Para mañana tenemos horarios disponibles a las <strong>10:00 hs</strong> y a las <strong>16:00 hs</strong> con el <strong>${doctorName}</strong>.<br><br>¿Te gustaría que te reserve a las 10:00 hs? Responde <strong>"Sí, confirmo"</strong> o pulsa en <em>"✅ Confirmar turno"</em>. 😊`;
   }
 
+  // 4. Precios / Limpieza
   if (q.includes('precio') || q.includes('cuánto sale') || q.includes('costo') || q.includes('limpieza') || q.includes('tarifa')) {
     return `¡Con gusto te informamos! 🦷 Una profilaxis dental (limpieza) o consulta inicial tiene valores muy accesibles y se realiza con instrumental ultrasónico de última generación.<br><br>Para darte un presupuesto exacto según tu caso, te invitamos a una valoración previa. ¿Deseas agendarla esta semana?`;
   }
 
+  // 5. Emergencia / Dolor
   if (q.includes('duele') || q.includes('tomo') || q.includes('ibuprofeno') || q.includes('medicamento') || q.includes('muela') || q.includes('pastilla')) {
     return `⚠️ <strong>Importante:</strong> Como asistente virtual no puedo prescribirte medicamentos ni darte diagnósticos médicos por bioseguridad.<br><br>Si presentas un dolor dental agudo, te recomendamos <strong>acudir de urgencia a nuestro consultorio</strong> para que el doctor pueda examinarte y darte la medicación apropiada. ¿Deseas que te reservemos un espacio prioritario hoy?`;
   }
