@@ -8,9 +8,11 @@ import { getSupabaseConfig, isSupabaseConfigured } from './supabase-config.js';
 
 let supabaseClient = null;
 let currentClientConfigKey = '';
+let supabaseInitPromise = null;
 
 /**
- * Obtiene o inicializa la instancia del cliente Supabase
+ * Obtiene o inicializa la instancia única del cliente Supabase (Singleton Promise Lock)
+ * Evita la inicialización concurrente de múltiples GoTrueClients en el mismo contexto.
  */
 export async function getSupabase() {
   if (!isSupabaseConfigured()) return null;
@@ -18,34 +20,46 @@ export async function getSupabase() {
   const cfg = getSupabaseConfig();
   const configKey = `${cfg.url}::${cfg.anonKey}`;
 
+  // Si ya está listo con la misma configuración, devolverlo directamente
   if (supabaseClient && currentClientConfigKey === configKey) {
     return supabaseClient;
   }
 
-  try {
-    // Carga dinámica de la librería oficial de Supabase
-    let createClient;
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-      createClient = window.supabase.createClient;
-    } else {
-      const module = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-      createClient = module.createClient;
-    }
-
-    if (createClient) {
-      supabaseClient = createClient(cfg.url, cfg.anonKey, {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true
-        }
-      });
-      currentClientConfigKey = configKey;
-      return supabaseClient;
-    }
-  } catch (err) {
-    console.error('Error al inicializar cliente Supabase:', err);
+  // Si hay una inicialización en curso para la misma configuración, reutilizar la misma promesa
+  if (supabaseInitPromise && currentClientConfigKey === configKey) {
+    return supabaseInitPromise;
   }
-  return null;
+
+  currentClientConfigKey = configKey;
+  supabaseInitPromise = (async () => {
+    try {
+      // Carga dinámica de la librería oficial de Supabase
+      let createClient;
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        createClient = window.supabase.createClient;
+      } else {
+        const module = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+        createClient = module.createClient;
+      }
+
+      if (createClient) {
+        supabaseClient = createClient(cfg.url, cfg.anonKey, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true
+          }
+        });
+        return supabaseClient;
+      }
+    } catch (err) {
+      console.error('Error al inicializar cliente Supabase:', err);
+    } finally {
+      supabaseInitPromise = null;
+    }
+    return null;
+  })();
+
+  return supabaseInitPromise;
 }
 
 // ==============================================================================

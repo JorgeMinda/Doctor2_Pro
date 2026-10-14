@@ -8,15 +8,15 @@ let currentMouthState = 'idle';
 
 export async function checkSession() {
   try {
-    const data = await apiFetch(`${api.auth}?action=session`);
-    if (data.user) {
+    const data = await apiFetch(`${api.auth}?action=session`, { silent: true });
+    if (data && data.user) {
       state.user = data.user;
       applyUserSession(data.user);
     } else {
       showLogin();
     }
   } catch (e) {
-    // Si falla o es offline, mostrar login
+    // Si no hay sesión previa activa o es offline, mostrar pantalla de login
     showLogin();
   }
 }

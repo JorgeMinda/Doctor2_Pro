@@ -3,11 +3,12 @@
  * Soporta instalación nativa en PC/Android/iOS y caché offline de activos estáticos.
  */
 
-const CACHE_NAME = 'doctor2-pro-v2.7';
+const CACHE_NAME = 'doctor2-pro-v2.8';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './favicon.ico',
   './css/styles.css',
   './css/patient-components.css',
   './css/components/login.css',

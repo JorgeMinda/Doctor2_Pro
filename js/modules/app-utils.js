@@ -156,7 +156,9 @@ export async function apiFetch(url, options = {}) {
     }
     return data;
   } catch (err) {
-    console.error(`Error al conectar con ${url}:`, err);
+    if (!options.silent) {
+      console.error(`Error al conectar con ${url}:`, err);
+    }
     throw err;
   }
 }
