@@ -3,7 +3,7 @@
  * Soporta instalación nativa en PC/Android/iOS y caché offline de activos estáticos.
  */
 
-const CACHE_NAME = 'doctor2-pro-v2.9';
+const CACHE_NAME = 'doctor2-pro-v3.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,13 @@ const STATIC_ASSETS = [
   './css/components/login.css',
   './css/components/print.css',
   './css/components/analytics.css',
+  './css/components/agenda.css',
+  './css/components/patients.css',
+  './css/components/inventory.css',
+  './css/components/chat.css',
+  './css/components/copilot.css',
+  './css/themes.css',
+  './css/liquid-glass.css',
   './js/app.js',
   './js/modules/app-state.js',
   './js/modules/app-utils.js',
@@ -22,19 +29,30 @@ const STATIC_ASSETS = [
   './js/modules/app-patients.js',
   './js/modules/app-professionals.js',
   './js/modules/app-calendar.js',
+  './js/modules/app-modal.js',
+  './js/modules/app-payments.js',
   './js/modules/app-treasury.js',
   './js/modules/app-inventory.js',
   './js/modules/app-notifications.js',
   './js/modules/app-voice-assistant.js',
+  './js/modules/app-ai-assistant.js',
+  './js/modules/app-ai-copilot.js',
+  './js/modules/app-blocked-days.js',
+  './js/modules/app-subscription.js',
+  './js/modules/app-agenda-print.js',
+  './js/modules/app-chat.js',
+  './js/modules/app-internal-chat.js',
   './js/modules/drug-interactions.js',
   './js/modules/historia-clinica.js',
   './js/modules/cie10-catalogue.js',
+  './js/modules/cie11-catalogue.js',
   './js/modules/app-odontogram.js',
   './js/modules/app-budget.js',
   './js/modules/supabase-config.js',
   './js/modules/supabase-client.js',
   './js/modules/supabase-ui.js',
-  './js/modules/app-reminders.js'
+  './js/modules/app-reminders.js',
+  './js/modules/whatsapp-manager.js'
 ];
 
 // Instalación: Precargar activos estáticos esenciales
@@ -84,11 +102,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Activos estáticos (Stale-While-Revalidate: responder rápido de caché y actualizar en background)
+  // 2. Archivos JS y HTML: Network First (prioridad siempre al código nuevo; si offline, usar caché)
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // 3. Otros activos estáticos (CSS, fuentes, imágenes): Stale-While-Revalidate
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // En background actualizar la caché
         fetch(event.request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
