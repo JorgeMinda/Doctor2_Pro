@@ -431,7 +431,7 @@ export function generateOdontogramHTML(patient, notes = [], prof = {}, clinicNam
     caries: '#ef4444',
     obturacion: '#3b82f6',
     endodoncia: '#8b5cf6',
-    corona: '#f59e0b',
+    corona: '#2563eb',
     extraccion: '#dc2626',
     sellante: '#06b6d4',
     protesis: '#10b981',
@@ -555,7 +555,7 @@ body { font-family: Arial, sans-serif; margin: 20px; color: #1e293b; font-size: 
   <span><span class="dot" style="background:#ef4444;"></span> Caries</span>
   <span><span class="dot" style="background:#3b82f6;"></span> Obturación</span>
   <span><span class="dot" style="background:#8b5cf6;"></span> Endodoncia</span>
-  <span><span class="dot" style="background:#f59e0b;"></span> Corona</span>
+  <span><span class="dot" style="background:#2563eb;"></span> Corona</span>
   <span><span class="dot" style="background:#dc2626;"></span> Extracción</span>
   <span><span class="dot" style="background:#06b6d4;"></span> Sellante</span>
   <span><span class="dot" style="background:#10b981;"></span> Prótesis</span>

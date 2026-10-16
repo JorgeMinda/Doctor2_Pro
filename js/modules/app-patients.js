@@ -444,6 +444,7 @@ export function savePatientDraft() {
     emergencyName: el('newPatEmergencyName')?.value || '',
     emergencyPhone: el('newPatEmergencyPhone')?.value || '',
     representative: el('newPatRepresentative')?.value || '',
+    representativeDni: el('newPatRepresentativeDni')?.value || '',
     allergies: el('newPatAllergies')?.value || '',
     notes: el('newPatNotes')?.value || '',
     openHC: el('newPatOpenHC')?.checked ?? true,
@@ -493,6 +494,7 @@ export function restorePatientDraft() {
     if (el('newPatEmergencyName')) el('newPatEmergencyName').value = draft.emergencyName || '';
     if (el('newPatEmergencyPhone')) el('newPatEmergencyPhone').value = draft.emergencyPhone || '';
     if (el('newPatRepresentative')) el('newPatRepresentative').value = draft.representative || '';
+    if (el('newPatRepresentativeDni')) el('newPatRepresentativeDni').value = draft.representativeDni || '';
     if (el('newPatAllergies')) el('newPatAllergies').value = draft.allergies || '';
     if (el('newPatNotes')) el('newPatNotes').value = draft.notes || '';
     if (el('newPatOpenHC') && draft.openHC !== undefined) el('newPatOpenHC').checked = draft.openHC;
@@ -569,6 +571,7 @@ export async function saveNewPatient() {
   const emergencyName = el('newPatEmergencyName')?.value.trim();
   const emergencyPhone = el('newPatEmergencyPhone')?.value.trim();
   const representativeName = el('newPatRepresentative')?.value.trim();
+  const representativeDni = el('newPatRepresentativeDni')?.value.trim();
   const allergies = el('newPatAllergies')?.value.trim();
   const notes = el('newPatNotes')?.value.trim();
   const openHC = el('newPatOpenHC')?.checked;
@@ -595,6 +598,9 @@ export async function saveNewPatient() {
         emergencyPhone,
         emergencyContact: (emergencyName && emergencyPhone) ? `${emergencyName} (${emergencyPhone})` : (emergencyName || emergencyPhone || ''),
         representativeName,
+        representativeDni,
+        representative_name: representativeName,
+        representative_dni: representativeDni,
         allergies,
         notes
       })
@@ -632,6 +638,9 @@ export async function saveNewPatient() {
       emergencyPhone,
       emergencyContact: (emergencyName && emergencyPhone) ? `${emergencyName} (${emergencyPhone})` : (emergencyName || emergencyPhone || ''),
       representativeName,
+      representative_name: representativeName,
+      representativeDni,
+      representative_dni: representativeDni,
       allergies,
       notes,
       clinicalHistory: {},

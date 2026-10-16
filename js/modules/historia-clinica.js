@@ -121,9 +121,15 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
         </div>
         <div class="hc-accordion-body">
           <div class="grid-3" style="gap:14px;">
-            <label class="field"><span>HISTORIA CLÍNICA Nro:</span><input type="text" value="${getPatientHcNumber(patient)}" readonly class="field-readonly" style="font-weight:700; color:var(--primary);"></label>
-            <label class="field"><span>Nombre Completo</span><input type="text" value="${patient.name || ''}" readonly class="field-readonly"></label>
-            <label class="field"><span>Cédula / Identificación</span><input type="text" value="${patient.dni || ''}" readonly class="field-readonly"></label>
+            <label class="field" style="grid-column:1/-1;"><span>HISTORIA CLÍNICA Nro:</span><input type="text" value="${getPatientHcNumber(patient)}" readonly class="field-readonly" style="font-weight:700; color:var(--primary);"></label>
+            
+            <!-- 1. Apellidos y Nombres -->
+            <label class="field"><span>Apellidos y Nombres</span><input type="text" value="${patient.name || ''}" readonly class="field-readonly" style="font-weight:600;"></label>
+            
+            <!-- 2. Género -->
+            <label class="field"><span>Género</span><input type="text" value="${patient.sex || ''}" readonly class="field-readonly"></label>
+            
+            <!-- 3. Fecha de Nacimiento / Edad -->
             <div class="field" style="display:flex; flex-direction:column; gap:4px;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:0.8rem; font-weight:600; color:var(--muted);">Fecha de Nacimiento / Edad</span>
@@ -136,14 +142,37 @@ export function createHistoriaClinica(patient, notes = [], plans = [], canEdit =
                 <input type="text" id="hcFiliacionAgeText" value="${calcAge !== 'Sin edad' ? calcAge : ''}" placeholder="Edad" class="field-input" style="width:95px; padding:6px 8px; font-size:0.88rem; text-align:center; font-weight:700; color:var(--text);" title="Edad del paciente">
               </div>
             </div>
-            <label class="field"><span>Género</span><input type="text" value="${patient.sex || ''}" readonly class="field-readonly"></label>
-            <label class="field"><span>Estado Civil</span><input type="text" value="${patient.civil_status || patient.civilStatus || 'Soltero/a'}" readonly class="field-readonly"></label>
-            <label class="field"><span>Ocupación</span><input type="text" value="${patient.occupation || 'No especificada'}" readonly class="field-readonly"></label>
+            
+            <!-- 4. Cédula / Identificación -->
+            <label class="field"><span>Cédula / Identificación</span><input type="text" value="${patient.dni || ''}" readonly class="field-readonly" style="font-weight:600;"></label>
+            
+            <!-- 5. Teléfono / WhatsApp -->
             <label class="field"><span>Teléfono / WhatsApp</span><input type="text" value="${patient.phone || ''}" readonly class="field-readonly"></label>
-            <label class="field"><span>Email</span><input type="text" value="${patient.email || ''}" readonly class="field-readonly"></label>
+            
+            <!-- 6. Dirección de Residencia -->
+            <label class="field"><span>Dirección de Residencia</span><input type="text" value="${patient.address || 'No registrada'}" readonly class="field-readonly"></label>
+            
+            <!-- 7. Correo / Email -->
+            <label class="field"><span>Correo / Email</span><input type="text" value="${patient.email || ''}" readonly class="field-readonly"></label>
+            
+            <!-- 8. Ocupación -->
+            <label class="field"><span>Ocupación</span><input type="text" value="${patient.occupation || 'No especificada'}" readonly class="field-readonly"></label>
+            
+            <!-- 9. Representante Legal (si es menor o dependiente) -->
+            <label class="field"><span>Representante Legal (si es menor o dependiente)</span><input type="text" value="${patient.representativeName || patient.representative_name || patient.representative || 'No especificado'}" readonly class="field-readonly"></label>
+            
+            <!-- 10. Cédula Representante -->
+            <label class="field"><span>Cédula Representante</span><input type="text" value="${patient.representativeDni || patient.representative_dni || ''}" placeholder="No registrada" readonly class="field-readonly"></label>
+            
+            <!-- 11. Nombre Contacto de Emergencia -->
+            <label class="field"><span>Nombre Contacto de Emergencia</span><input type="text" value="${patient.emergencyName || patient.emergency_name || patient.emergencyContact || 'No especificado'}" readonly class="field-readonly"></label>
+            
+            <!-- 12. Teléfono Contacto de Emergencia -->
+            <label class="field"><span>Teléfono Contacto de Emergencia</span><input type="text" value="${patient.emergencyPhone || patient.emergency_phone || 'No especificado'}" readonly class="field-readonly"></label>
+            
+            <!-- Complementarios -->
+            <label class="field"><span>Estado Civil</span><input type="text" value="${patient.civil_status || patient.civilStatus || 'Soltero/a'}" readonly class="field-readonly"></label>
             <label class="field"><span>Cobertura / Seguro Dental</span><input type="text" value="${patient.health_insurance || patient.insurance || 'Particular'}" readonly class="field-readonly"></label>
-            <label class="field" style="grid-column:1/-1;"><span>Dirección de Residencia</span><input type="text" value="${patient.address || 'No registrada'}" readonly class="field-readonly"></label>
-            <label class="field" style="grid-column:1/-1;"><span>Contacto de Emergencia</span><input type="text" value="${esc(patient.emergencyPhone ? `${patient.emergencyName ? patient.emergencyName + ' (' + patient.emergencyPhone + ')' : patient.emergencyPhone}` : (patient.emergencyName || patient.emergencyContact || patient.emergency_contact || 'No especificado'))}" readonly class="field-readonly"></label>
           </div>
         </div>
       </div>

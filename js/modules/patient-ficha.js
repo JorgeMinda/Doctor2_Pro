@@ -147,7 +147,11 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
         </label>
         <label class="field">
           <span>Representante Legal (si es menor)</span>
-          <input type="text" id="fichaRepresentative" value="${escapeHtml(patient.representativeName || '')}" class="field-input" placeholder="Nombre y Cédula tutor">
+          <input type="text" id="fichaRepresentative" value="${escapeHtml(patient.representativeName || '')}" class="field-input" placeholder="Nombre completo tutor">
+        </label>
+        <label class="field">
+          <span>Cédula Representante</span>
+          <input type="text" id="fichaRepresentativeDni" value="${escapeHtml(patient.representativeDni || '')}" class="field-input" placeholder="Cédula o ID del tutor">
         </label>
         <label class="field">
           <span>Profesional asignado</span>
@@ -231,7 +235,10 @@ export function createPatientFicha(patient, professionals = [], canEdit = true, 
           emergencyContact: (container.querySelector('#fichaEmergencyName').value.trim() && container.querySelector('#fichaEmergencyPhone').value.trim()) 
             ? `${container.querySelector('#fichaEmergencyName').value.trim()} (${container.querySelector('#fichaEmergencyPhone').value.trim()})`
             : (container.querySelector('#fichaEmergencyName').value.trim() || container.querySelector('#fichaEmergencyPhone').value.trim() || ''),
-          representativeName: container.querySelector('#fichaRepresentative').value.trim(),
+          representativeName: container.querySelector('#fichaRepresentative')?.value.trim() || '',
+          representativeDni: container.querySelector('#fichaRepresentativeDni')?.value.trim() || '',
+          representative_name: container.querySelector('#fichaRepresentative')?.value.trim() || '',
+          representative_dni: container.querySelector('#fichaRepresentativeDni')?.value.trim() || '',
           address: container.querySelector('#fichaAddress').value.trim(),
           allergies: container.querySelector('#fichaAllergies').value.trim(),
           assignedProfessionalId: container.querySelector('#fichaProfessional').value || null,

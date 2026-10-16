@@ -273,9 +273,12 @@ function renderSurfaceOverlays(surfaces, topKey, rightKey, btmKey, leftKey) {
 function renderToothOverlay(tState, num, data) {
   if (!tState) return '';
   const tool = typeof tState === 'object' ? tState.tool : tState;
-  const color = typeof tState === 'object' ? (tState.color || '#E24B4A') : (
-    tool === 'extraccion' ? '#E24B4A' : (tool === 'corona' || tool === 'implante') ? '#f59e0b' : tool === 'endodoncia' ? '#E24B4A' : '#E24B4A'
+  let color = typeof tState === 'object' ? (tState.color || '#378ADD') : (
+    tool === 'extraccion' ? '#E24B4A' : (tool === 'corona' || tool === 'implante') ? '#378ADD' : tool === 'endodoncia' ? '#E24B4A' : '#E24B4A'
   );
+  if (color === '#f59e0b') {
+    color = '#378ADD';
+  }
 
   switch (tool) {
     case 'caries':
@@ -629,7 +632,9 @@ function attachOdontogramEvents(container, patient, data) {
       } else if (currentTool === 'sellante') {
         currentColor = '#378ADD'; // Azul: sellante
       } else if (currentTool === 'corona' || currentTool === 'implante') {
-        currentColor = '#f59e0b';
+        if (currentColor !== '#E24B4A' && currentColor !== '#378ADD') {
+          currentColor = '#378ADD';
+        }
       } else if (currentTool === 'extraccion' || currentTool === 'perdida-otra') {
         currentColor = '#E24B4A';
       } else if (currentTool === 'endodoncia') {

@@ -408,10 +408,10 @@ function parseOdontogramDictation(text) {
     color = '#E24B4A';
   } else if (norm.includes('corona') || norm.includes('funda')) {
     tool = 'corona';
-    color = '#f59e0b';
+    color = norm.includes('rojo') || norm.includes('requiere') || norm.includes('cambio') ? '#E24B4A' : '#378ADD';
   } else if (norm.includes('implante')) {
     tool = 'implante';
-    color = '#f59e0b';
+    color = norm.includes('rojo') || norm.includes('requiere') || norm.includes('cambio') ? '#E24B4A' : '#378ADD';
   } else if (norm.includes('sano') || norm.includes('borrar') || norm.includes('limpiar')) {
     tool = 'sano';
   }

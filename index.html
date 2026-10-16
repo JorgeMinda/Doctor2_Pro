@@ -646,8 +646,10 @@
         <button id="closeNewPatient" class="ghost"><i class="fas fa-times"></i></button>
       </div>
       <div class="grid-2">
-        <label class="field"><span>Nombre y Apellido *</span><input id="newPatName" type="text" placeholder="Ej: María Gómez" required></label>
-        <label class="field"><span>Cédula / Identificación</span><input id="newPatDni" type="text" placeholder="Número de cédula o ID"></label>
+        <!-- 1. Apellidos y Nombres -->
+        <label class="field"><span>Apellidos y Nombres *</span><input id="newPatName" type="text" placeholder="Ej: Gómez Andrade María José" required></label>
+        
+        <!-- 2. Género -->
         <label class="field"><span>Género</span>
           <select id="newPatSex" class="field-input">
             <option value="Femenino">Femenino</option>
@@ -655,14 +657,37 @@
             <option value="Otro">Otro / No especificado</option>
           </select>
         </label>
-        <label class="field"><span>Fecha de Nacimiento <span id="newPatAgePreview" style="font-size:0.8rem; font-weight:700; color:var(--primary); margin-left:6px;"></span></span><input id="newPatBirthdate" type="date"></label>
+        
+        <!-- 3. Fecha de Nacimiento / Edad -->
+        <label class="field"><span>Fecha de Nacimiento / Edad <span id="newPatAgePreview" style="font-size:0.8rem; font-weight:700; color:var(--primary); margin-left:6px;"></span></span><input id="newPatBirthdate" type="date"></label>
+        
+        <!-- 4. Cédula / Identificación -->
+        <label class="field"><span>Cédula / Identificación</span><input id="newPatDni" type="text" placeholder="Número de cédula o ID"></label>
+        
+        <!-- 5. Teléfono / WhatsApp -->
         <label class="field"><span>Teléfono / WhatsApp</span><input id="newPatPhone" type="tel" placeholder="+593 9..."></label>
-        <label class="field"><span>Email</span><input id="newPatEmail" type="email" placeholder="correo@gmail.com"></label>
+        
+        <!-- 6. Dirección de Residencia -->
+        <label class="field"><span>Dirección de Residencia</span><input id="newPatAddress" type="text" placeholder="Calle, número, barrio, ciudad..."></label>
+        
+        <!-- 7. Correo / Email -->
+        <label class="field"><span>Correo / Email</span><input id="newPatEmail" type="email" placeholder="correo@gmail.com"></label>
+        
+        <!-- 8. Ocupación -->
         <label class="field"><span>Ocupación</span><input id="newPatOccupation" type="text" placeholder="Ej: Docente, Estudiante"></label>
+        
+        <!-- 9. Representante Legal (si es menor o dependiente) -->
+        <label class="field"><span>Representante Legal (si es menor o dependiente)</span><input id="newPatRepresentative" type="text" placeholder="Nombre completo del padre, madre o tutor"></label>
+        
+        <!-- 10. Cédula Representante -->
+        <label class="field"><span>Cédula Representante</span><input id="newPatRepresentativeDni" type="text" placeholder="Cédula o ID del representante"></label>
+        
+        <!-- 11. Nombre Contacto de Emergencia -->
         <label class="field"><span>Nombre Contacto de Emergencia</span><input id="newPatEmergencyName" type="text" placeholder="Ej: Juan Pérez (Familiar)"></label>
+        
+        <!-- 12. Teléfono Contacto de Emergencia -->
         <label class="field"><span>Teléfono Contacto de Emergencia</span><input id="newPatEmergencyPhone" type="tel" placeholder="+593 9... o número telefónico"></label>
-        <label class="field" style="grid-column:1 / -1;"><span>Dirección de Residencia</span><input id="newPatAddress" type="text" placeholder="Calle, número, barrio, ciudad..."></label>
-        <label class="field" style="grid-column:1 / -1;"><span>Representante Legal (si es menor o dependiente)</span><input id="newPatRepresentative" type="text" placeholder="Nombre y CI del padre, madre o tutor"></label>
+        
         <label class="field" style="grid-column:1 / -1;"><span>Alergias / Advertencias Clínicas Especiales</span><input id="newPatAllergies" type="text" placeholder="Ej: Penicilina, Látex, Bifosfonatos, Hipertenso" style="border-color: rgba(239, 68, 68, 0.4);"></label>
         <label class="field" style="grid-column:1 / -1;"><span>Motivo de Consulta Inicial / Observaciones</span><textarea id="newPatNotes" rows="2" placeholder="Motivo inicial de consulta o notas clínicas de ingreso"></textarea></label>
         <div style="grid-column:1 / -1; background: var(--bg-page); padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border);">
