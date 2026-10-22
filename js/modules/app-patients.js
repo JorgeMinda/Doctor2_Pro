@@ -405,7 +405,7 @@ window.switchPatientTab = (tab) => {
             </thead>
             <tbody>
               ${apts.map(a => `
-                <tr>
+                <tr style="cursor:pointer;" onclick="window.editApt && window.editApt('${a.id}')" title="Hacé clic para ver, cancelar o editar este turno">
                   <td><strong>${a.date} · ${a.time}</strong></td>
                   <td>${a.reason || 'Consulta'}</td>
                   <td>${a.professional_name || 'Dr. Asignado'}</td>
@@ -422,8 +422,14 @@ window.switchPatientTab = (tab) => {
 };
 
 window.quickNewAptForPatient = (id, name, phone) => {
+  const pat = (state.patients || []).find(p => p.id === id);
   import('./app-modal.js').then(m => {
-    m.openModal({ patientId: id, patientName: name, patientPhone: phone });
+    m.openModal({
+      patientId: id,
+      patientName: name || pat?.name || '',
+      patientPhone: phone || pat?.phone || '',
+      patientEmail: pat?.email || ''
+    });
   });
 };
 

@@ -570,37 +570,66 @@
 
   <!-- Modal Nuevo Turno -->
   <div id="modal" class="modal hidden">
-    <div class="modal-body">
+    <div class="modal-body" style="max-width: 660px;">
       <div class="modal-head">
         <div>
-          <p class="muted">Gestión de Citas</p>
+          <p class="muted">Gestión de Citas Médicas</p>
           <h3 id="modalTitle">Nuevo Turno</h3>
         </div>
         <button id="closeModal" class="ghost"><i class="fas fa-times"></i></button>
       </div>
       <div class="grid-2">
         <label class="field">
-          <span>Profesional</span>
+          <span>Profesional Médico</span>
           <select id="formProfessional"></select>
         </label>
         <label class="field">
-          <span>Fecha</span>
+          <span>Fecha de la Cita</span>
           <input type="date" id="formDate">
         </label>
-        <label class="field">
-          <span>Horario</span>
-          <select id="formTime"></select>
-        </label>
-        <label class="field">
-          <span>Duración</span>
+        <label class="field" style="grid-column: 1 / -1;">
+          <span>Duración Estimada</span>
           <select id="formDuration">
             <option value="15">15 minutos</option>
             <option value="30" selected>30 minutos (1 turno)</option>
             <option value="45">45 minutos</option>
             <option value="60">1 hora (2 turnos)</option>
-            <option value="90">1:30 hs</option>
+            <option value="90">1:30 hs (3 turnos)</option>
           </select>
         </label>
+
+        <!-- Selector Visual Interactivo de Horarios (Estilo Radix UI / Tailwind) -->
+        <div class="field" style="grid-column: 1 / -1;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 6px;">
+            <label style="font-size:0.88rem; font-weight:600; color:var(--text); display:flex; align-items:center; gap:6px;">
+              <i class="fas fa-clock" style="color:var(--primary);"></i> Horarios del día
+              <span id="selectedTimeBadge" class="badge primary" style="font-size:0.75rem; font-weight:700; margin-left:6px; display:none;"></span>
+            </label>
+            <span id="slotsFreeCount" style="font-size:0.75rem; font-weight:600; color:var(--muted);">Calculando horarios...</span>
+          </div>
+
+          <!-- Leyenda de Estados -->
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:14px; font-size:0.74rem; font-family:ui-monospace,monospace; margin-bottom:8px; padding:0 2px;">
+            <span style="display:inline-flex; align-items:center; gap:5px; color:#10b981; font-weight:600;">
+              <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span> Disponible
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:5px; color:#ef4444; font-weight:600;">
+              <span style="width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block;"></span> Ocupado
+            </span>
+            <span style="display:inline-flex; align-items:center; gap:5px; color:var(--muted); font-weight:600;">
+              <span style="width:8px; height:8px; border-radius:50%; background:var(--muted); display:inline-block; opacity:0.6;"></span> Pasado
+            </span>
+          </div>
+
+          <!-- Cuadrícula Dinámica de Horarios -->
+          <div id="slotsGridContainer" class="slots-grid-container">
+            <!-- Rellenado dinámico por app-modal.js -->
+          </div>
+
+          <!-- Select nativo oculto para sincronización -->
+          <select id="formTime" style="display:none;"></select>
+        </div>
+
         <div class="field" style="position:relative;">
           <span>Paciente</span>
           <input type="text" id="formPatient" placeholder="Buscar paciente existente o escribir..." autocomplete="off">
@@ -627,9 +656,19 @@
           <input type="text" id="formObservation" placeholder="Nota privada para el consultorio">
         </label>
       </div>
-      <div class="modal-actions">
-        <button id="saveApt" class="primary"><i class="fas fa-save"></i> Guardar Turno</button>
-        <button id="cancelModal" class="ghost">Cancelar</button>
+      <div class="modal-actions" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div id="aptActionGroupLeft" style="display:flex; gap:8px; align-items:center;">
+          <button type="button" id="deleteAptBtn" class="ghost" style="color:var(--danger); border:1px solid rgba(239,68,68,0.35); font-weight:600; display:none;" title="Eliminar cita permanentemente">
+            <i class="fas fa-trash-alt"></i> Eliminar Cita
+          </button>
+          <button type="button" id="cancelAptBtn" class="ghost" style="color:#d97706; border:1px solid rgba(217,119,6,0.35); font-weight:600; display:none;" title="Marcar cita como cancelada">
+            <i class="fas fa-ban"></i> Cancelar Cita
+          </button>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; margin-left:auto;">
+          <button type="button" id="cancelModal" class="ghost">Cerrar</button>
+          <button type="button" id="saveApt" class="primary"><i class="fas fa-save"></i> Guardar Turno</button>
+        </div>
       </div>
     </div>
   </div>
