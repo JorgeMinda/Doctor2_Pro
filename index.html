@@ -570,108 +570,126 @@
 
   <!-- Modal Nuevo Turno -->
   <div id="modal" class="modal hidden">
-    <div class="modal-body" style="max-width: 660px;">
-      <div class="modal-head">
-        <div>
-          <p class="muted">Gestión de Citas Médicas</p>
+    <div class="modal-body apt-modal-body">
+      <!-- Header minimalista -->
+      <div class="apt-modal-header">
+        <div class="apt-modal-title-row">
+          <i class="fas fa-calendar-check apt-modal-icon"></i>
           <h3 id="modalTitle">Nuevo Turno</h3>
         </div>
-        <button id="closeModal" class="ghost"><i class="fas fa-times"></i></button>
+        <button id="closeModal" class="apt-modal-close" title="Cerrar"><i class="fas fa-times"></i></button>
       </div>
-      <div class="grid-2">
-        <label class="field">
-          <span>Profesional Médico</span>
-          <select id="formProfessional"></select>
-        </label>
-        <label class="field">
-          <span>Fecha de la Cita</span>
-          <input type="date" id="formDate">
-        </label>
-        <label class="field" style="grid-column: 1 / -1;">
-          <span>Duración Estimada</span>
-          <select id="formDuration">
-            <option value="15">15 minutos</option>
-            <option value="30" selected>30 minutos (1 turno)</option>
-            <option value="45">45 minutos</option>
-            <option value="60">1 hora (2 turnos)</option>
-            <option value="90">1:30 hs (3 turnos)</option>
+
+      <!-- Cuerpo del formulario -->
+      <div class="apt-modal-form">
+
+        <!-- Fila 1: Paciente (full width) -->
+        <div class="apt-form-group apt-full">
+          <label class="apt-label">Paciente</label>
+          <div style="position:relative;">
+            <input type="text" id="formPatient" class="apt-input" placeholder="Buscar paciente o escribir nombre..." autocomplete="off">
+            <div id="patientAutocompleteDropdown" class="patient-autocomplete-dropdown hidden"></div>
+          </div>
+        </div>
+
+        <!-- Fila 2: Profesional + Duración -->
+        <div class="apt-form-group">
+          <label class="apt-label">Profesional</label>
+          <select id="formProfessional" class="apt-input"></select>
+        </div>
+        <div class="apt-form-group">
+          <label class="apt-label">Duración</label>
+          <select id="formDuration" class="apt-input">
+            <option value="15">15 min</option>
+            <option value="30" selected>30 min (1 turno)</option>
+            <option value="45">45 min</option>
+            <option value="60">1 hora</option>
+            <option value="90">1:30 hs</option>
           </select>
-        </label>
+        </div>
 
-        <!-- Selector Visual Interactivo de Horarios (Estilo Radix UI / Tailwind) -->
-        <div class="field" style="grid-column: 1 / -1;">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 6px;">
-            <label style="font-size:0.88rem; font-weight:600; color:var(--text); display:flex; align-items:center; gap:6px;">
-              <i class="fas fa-clock" style="color:var(--primary);"></i> Horarios del día
-              <span id="selectedTimeBadge" class="badge primary" style="font-size:0.75rem; font-weight:700; margin-left:6px; display:none;"></span>
-            </label>
-            <span id="slotsFreeCount" style="font-size:0.75rem; font-weight:600; color:var(--muted);">Calculando horarios...</span>
+        <!-- Fila 3: Fecha (full width) -->
+        <div class="apt-form-group apt-full">
+          <label class="apt-label">Fecha de la cita</label>
+          <input type="date" id="formDate" class="apt-input apt-date-input">
+        </div>
+
+        <!-- Selector de Horarios -->
+        <div class="apt-form-group apt-full">
+          <div class="apt-slots-header">
+            <label class="apt-label" style="margin:0;">Horarios del día</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="selectedTimeBadge" class="badge primary" style="font-size:0.75rem; font-weight:700; display:none;"></span>
+              <span id="slotsFreeCount" style="font-size:0.74rem; font-weight:600; color:var(--muted);">Calculando...</span>
+            </div>
           </div>
-
-          <!-- Leyenda de Estados -->
-          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:14px; font-size:0.74rem; font-family:ui-monospace,monospace; margin-bottom:8px; padding:0 2px;">
-            <span style="display:inline-flex; align-items:center; gap:5px; color:#10b981; font-weight:600;">
-              <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span> Disponible
-            </span>
-            <span style="display:inline-flex; align-items:center; gap:5px; color:#ef4444; font-weight:600;">
-              <span style="width:8px; height:8px; border-radius:50%; background:#ef4444; display:inline-block;"></span> Ocupado
-            </span>
-            <span style="display:inline-flex; align-items:center; gap:5px; color:var(--muted); font-weight:600;">
-              <span style="width:8px; height:8px; border-radius:50%; background:var(--muted); display:inline-block; opacity:0.6;"></span> Pasado
-            </span>
+          <!-- Leyenda compacta -->
+          <div class="apt-slots-legend">
+            <span style="color:#059669;"><span class="apt-dot" style="background:#10b981;"></span>Disponible</span>
+            <span style="color:#dc2626;"><span class="apt-dot" style="background:#ef4444;"></span>Ocupado</span>
+            <span style="color:var(--muted);"><span class="apt-dot" style="background:var(--muted); opacity:0.5;"></span>Pasado</span>
           </div>
-
-          <!-- Cuadrícula Dinámica de Horarios -->
-          <div id="slotsGridContainer" class="slots-grid-container">
-            <!-- Rellenado dinámico por app-modal.js -->
-          </div>
-
-          <!-- Select nativo oculto para sincronización -->
+          <!-- Grid de horarios -->
+          <div id="slotsGridContainer" class="slots-grid-container"></div>
           <select id="formTime" style="display:none;"></select>
         </div>
 
-        <div class="field" style="position:relative;">
-          <span>Paciente</span>
-          <input type="text" id="formPatient" placeholder="Buscar paciente existente o escribir..." autocomplete="off">
-          <div id="patientAutocompleteDropdown" class="patient-autocomplete-dropdown hidden"></div>
+        <!-- Fila: Teléfono + Email -->
+        <div class="apt-form-group">
+          <label class="apt-label">Teléfono / WhatsApp</label>
+          <input type="tel" id="formPhone" class="apt-input" placeholder="+593 9...">
         </div>
-        <label class="field">
-          <span>Teléfono / WhatsApp</span>
-          <input type="tel" id="formPhone" placeholder="Ej: +593 9...">
-        </label>
-        <label class="field">
-          <span>Email</span>
-          <input type="email" id="formEmail" placeholder="paciente@correo.com">
-        </label>
-        <label class="field">
-          <span>Costo / Saldo ($)</span>
-          <input type="number" id="formCost" placeholder="0.00">
-        </label>
-        <label class="field" style="grid-column: 1 / -1;">
-          <span>Motivo de Consulta</span>
-          <input type="text" id="formReason" placeholder="Control, extracción, consulta general...">
-        </label>
-        <label class="field" style="grid-column: 1 / -1;">
-          <span>Observación Interna</span>
-          <input type="text" id="formObservation" placeholder="Nota privada para el consultorio">
-        </label>
+        <div class="apt-form-group">
+          <label class="apt-label">Email</label>
+          <input type="email" id="formEmail" class="apt-input" placeholder="correo@ejemplo.com">
+        </div>
+
+        <!-- Fila: Estado + Costo -->
+        <div class="apt-form-group">
+          <label class="apt-label">Estado de la Cita</label>
+          <select id="formStatus" class="apt-input">
+            <option value="Reservado">🔵 Reservado</option>
+            <option value="Confirmado">🟢 Confirmado</option>
+            <option value="Atendido">🟣 Atendido</option>
+            <option value="Cancelado">🔴 Cancelado</option>
+          </select>
+        </div>
+        <div class="apt-form-group">
+          <label class="apt-label">Costo ($)</label>
+          <input type="number" id="formCost" class="apt-input" placeholder="0.00" step="0.01">
+        </div>
+
+        <!-- Fila: Motivo (full width) -->
+        <div class="apt-form-group apt-full">
+          <label class="apt-label">Motivo de la cita (opcional)</label>
+          <input type="text" id="formReason" class="apt-input" placeholder="Ej: Control de rutina, revisión de exámenes, seguimiento…">
+        </div>
+
+        <!-- Observación -->
+        <div class="apt-form-group apt-full">
+          <label class="apt-label">Observación interna</label>
+          <input type="text" id="formObservation" class="apt-input" placeholder="Nota privada del consultorio">
+        </div>
       </div>
-      <div class="modal-actions" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-        <div id="aptActionGroupLeft" style="display:flex; gap:8px; align-items:center;">
-          <button type="button" id="deleteAptBtn" class="ghost" style="color:var(--danger); border:1px solid rgba(239,68,68,0.35); font-weight:600; display:none;" title="Eliminar cita permanentemente">
-            <i class="fas fa-trash-alt"></i> Eliminar Cita
+
+      <!-- Pie de modal -->
+      <div class="apt-modal-footer">
+        <div class="apt-footer-left">
+          <button type="button" id="deleteAptBtn" class="apt-btn-danger" style="display:none;" title="Eliminar cita">
+            <i class="fas fa-trash-alt"></i> Eliminar
           </button>
-          <button type="button" id="cancelAptBtn" class="ghost" style="color:#d97706; border:1px solid rgba(217,119,6,0.35); font-weight:600; display:none;" title="Marcar cita como cancelada">
+          <button type="button" id="cancelAptBtn" class="apt-btn-warn" style="display:none;" title="Cancelar cita">
             <i class="fas fa-ban"></i> Cancelar Cita
           </button>
         </div>
-        <div style="display:flex; gap:8px; align-items:center; margin-left:auto;">
-          <button type="button" id="cancelModal" class="ghost">Cerrar</button>
+        <div class="apt-footer-right">
+          <button type="button" id="cancelModal" class="apt-btn-ghost">Cerrar</button>
           <button type="button" id="saveApt" class="primary"><i class="fas fa-save"></i> Guardar Turno</button>
         </div>
       </div>
     </div>
   </div>
+
 
   <!-- Modal Nuevo Paciente -->
   <div id="patientModal" class="modal hidden">

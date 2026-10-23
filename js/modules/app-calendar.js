@@ -164,93 +164,117 @@ export function renderWeekView() {
   const grid = el('calendarGrid');
   if (!grid) return;
 
-  grid.className = 'calendar-grid week-view';
+  // Contenedor: ahora usamos un diseño de tarjetas por columna (sin grid de horas)
+  grid.className = 'calendar-grid week-cards-view';
+  grid.style.gridTemplateColumns = '';
   grid.innerHTML = '';
 
   const startOfWeek = getStartOfWeek(state.selectedDate);
   const days = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 7; i++) {
     const d = new Date(startOfWeek);
     d.setDate(d.getDate() + i);
     days.push(d);
   }
 
-  grid.style.gridTemplateColumns = `60px repeat(5, 1fr)`;
-
-  // Esquina
-  const corner = document.createElement('div');
-  corner.className = 'week-corner';
-  grid.appendChild(corner);
-
   const now = new Date();
   const selectedDateStr = formatDate(state.selectedDate);
   const todayStr = formatDate(now);
-  const currentMin = now.getHours() * 60 + now.getMinutes();
 
-  // Encabezados de días
+  // Mapa de colores por estado (concordante con la leyenda)
+  const statusColors = {
+    'Reservado':    { bg: 'rgba(59,130,246,0.12)',  color: '#2563eb',  border: '#3b82f6'  },
+    'Confirmado':   { bg: 'rgba(16,185,129,0.12)',  color: '#059669',  border: '#10b981'  },
+    'Cancelado':    { bg: 'rgba(239,68,68,0.12)',   color: '#dc2626',  border: '#ef4444'  },
+    'Atendido':     { bg: 'rgba(99,102,241,0.12)',  color: '#4f46e5',  border: '#6366f1'  },
+    'Reprogramado': { bg: 'rgba(245,158,11,0.12)',  color: '#d97706',  border: '#f59e0b'  },
+    'Ausente':      { bg: 'rgba(100,116,139,0.12)', color: '#475569',  border: '#64748b'  },
+  };
+
   days.forEach(d => {
     const dStr = formatDate(d);
-    const head = document.createElement('div');
-    head.className = 'week-day-header';
-    if (dStr === selectedDateStr) head.classList.add('selected');
-    if (dStr === todayStr) head.classList.add('today');
+    const isToday = dStr === todayStr;
+    const isSelected = dStr === selectedDateStr;
+    const isPastDay = dStr < todayStr;
 
+    const dayCard = document.createElement('div');
+    dayCard.className = `week-day-card${isToday ? ' week-day-card--today' : ''}${isSelected && !isToday ? ' week-day-card--selected' : ''}${isPastDay ? ' week-day-card--past' : ''}`;
+
+    // Encabezado del día
     const dayName = d.toLocaleDateString('es-ES', { weekday: 'short' });
-    head.innerHTML = `<span>${dayName}</span> <strong>${d.getDate()}</strong>`;
-    head.addEventListener('click', () => {
+    const dayNum = d.getDate();
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'week-card-header';
+    headerDiv.innerHTML = `
+      <p class="week-card-dayname">${dayName.toUpperCase()}</p>
+      <p class="week-card-daynum${isToday ? ' week-card-daynum--today' : ''}">${dayNum}</p>
+    `;
+    headerDiv.style.cursor = 'pointer';
+    headerDiv.addEventListener('click', () => {
       state.selectedDate = d;
       scheduleAgendaRender();
     });
-    grid.appendChild(head);
-  });
+    dayCard.appendChild(headerDiv);
 
-  // Horas (08:00 a 20:00)
-  for (let h = 8; h <= 20; h++) {
-    const hourStr = `${String(h).padStart(2, '0')}:00`;
+    // Contenedor de citas
+    const aptsDiv = document.createElement('div');
+    aptsDiv.className = 'week-card-apts';
 
-    const hourCell = document.createElement('div');
-    hourCell.className = 'week-hour-cell';
-    hourCell.textContent = hourStr;
-    grid.appendChild(hourCell);
+    const dayApts = (state.appointments || [])
+      .filter(a => a.date === dStr)
+      .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
-    days.forEach(d => {
-      const dStr = formatDate(d);
-      const isPastCell = dStr < todayStr || (dStr === todayStr && (h * 60) < currentMin);
-      const timeCell = document.createElement('div');
-      timeCell.className = `week-time-cell${isPastCell ? ' past' : ''}`;
-      timeCell.dataset.date = dStr;
-      timeCell.dataset.time = hourStr;
-      if (isPastCell) {
-        timeCell.title = `Horario transcurrido (${dStr} ${hourStr} hs)`;
+    dayApts.forEach(apt => {
+      const sc = statusColors[apt.status] || statusColors['Reservado'];
+      const isCancelled = apt.status === 'Cancelado';
+      const aptEl = document.createElement('div');
+      aptEl.className = 'week-card-apt-block';
+      aptEl.style.background = sc.bg;
+      aptEl.style.borderLeft = `3.5px solid ${sc.border}`;
+      if (isCancelled) {
+        aptEl.style.opacity = '0.75';
       }
-
-      // Buscar turnos en esta hora
-      const apts = state.appointments.filter(a => a.date === dStr && a.time.startsWith(String(h).padStart(2, '0')));
-      apts.forEach(apt => {
-        const aptEl = document.createElement('div');
-        aptEl.className = 'week-apt-block';
-        aptEl.textContent = `${apt.time} ${apt.patient_name}`;
-        aptEl.title = `${apt.patient_name} (${apt.reason || 'Consulta'})`;
-        aptEl.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openModal({ appointment: apt });
-        });
-        timeCell.appendChild(aptEl);
+      aptEl.title = `${apt.patient_name} (${apt.time} hs) · ${apt.reason || 'Consulta'} · Estado: ${apt.status}`;
+      aptEl.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:4px;">
+          <span class="week-card-apt-time" style="color:var(--text);">${apt.time} hs</span>
+          <span class="week-card-apt-status" style="background:${sc.border}; color:#ffffff; padding:1px 6px; border-radius:4px; font-size:0.65rem; font-weight:700;">${apt.status}</span>
+        </div>
+        <span class="week-card-apt-name" style="color:var(--text); ${isCancelled ? 'text-decoration:line-through; opacity:0.8;' : ''}">${apt.patient_name}</span>
+        ${apt.reason ? `<span style="font-size:0.7rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${apt.reason}</span>` : ''}
+      `;
+      aptEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openModal({ appointment: apt });
       });
-
-      timeCell.addEventListener('click', () => {
-        if (isPastCell) {
-          showToast('⚠️ No es posible agendar turnos en fechas u horarios que ya han transcurrido.', 'warning');
-          return;
-        }
-        state.selectedDate = d;
-        openModal({ date: dStr, time: hourStr });
-      });
-
-      grid.appendChild(timeCell);
+      aptsDiv.appendChild(aptEl);
     });
-  }
+
+    if (dayApts.length === 0) {
+      aptsDiv.innerHTML = `<div class="week-card-empty">Sin turnos</div>`;
+    }
+
+    dayCard.appendChild(aptsDiv);
+
+    // Botón + Cita al fondo
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'week-card-add-btn';
+    addBtn.innerHTML = `<i class="fas fa-plus" style="font-size:0.7rem;"></i> Cita`;
+    addBtn.addEventListener('click', () => {
+      if (isPastDay) {
+        showToast('⚠️ No es posible agendar turnos en fechas que ya han transcurrido.', 'warning');
+        return;
+      }
+      state.selectedDate = d;
+      openModal({ date: dStr });
+    });
+    dayCard.appendChild(addBtn);
+
+    grid.appendChild(dayCard);
+  });
 }
+
 
 export function renderDayTimeline() {
   const timeline = el('dayTimeline');

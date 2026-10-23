@@ -23,6 +23,7 @@ export function openModal(opts = {}) {
   const formEmail = el('formEmail');
   const formCost = el('formCost');
   const formObs = el('formObservation');
+  const formStatus = el('formStatus');
   const modalTitle = el('modalTitle');
   const saveBtn = el('saveApt') || el('saveAppointment');
   const deleteBtn = el('deleteAptBtn');
@@ -32,7 +33,7 @@ export function openModal(opts = {}) {
   const todayStr = formatDate(now);
 
   if (modalTitle) {
-    modalTitle.textContent = editingAppointmentId ? 'Editar / Detalle de Cita' : 'Nuevo Turno';
+    modalTitle.textContent = editingAppointmentId ? 'Editar / Detalle de Cita' : 'Nueva Cita Médica';
   }
 
   if (opts.appointment) {
@@ -50,6 +51,7 @@ export function openModal(opts = {}) {
     if (formPhone) formPhone.value = a.patient_phone || '';
     if (formCost) formCost.value = a.cost || '';
     if (formObs) formObs.value = a.observation || '';
+    if (formStatus) formStatus.value = a.status || 'Reservado';
 
     // Autocompletar email: primero el de la cita, o buscar en la ficha del paciente
     if (formEmail) {
@@ -101,6 +103,7 @@ export function openModal(opts = {}) {
     if (formReason) formReason.value = '';
     if (formCost) formCost.value = '';
     if (formObs) formObs.value = '';
+    if (formStatus) formStatus.value = 'Reservado';
 
     // Ocultar botones de eliminar/cancelar para citas nuevas
     if (deleteBtn) deleteBtn.style.display = 'none';
@@ -676,6 +679,9 @@ export async function saveAppointment() {
     prof = state.professionals.find(p => p.id === profId) || state.professionals[0];
   }
 
+  const formStatus = el('formStatus');
+  const status = formStatus ? formStatus.value : 'Reservado';
+
   const payload = {
     id: editingAppointmentId,
     patient_id: patientId,
@@ -689,7 +695,8 @@ export async function saveAppointment() {
     patient_phone: patientPhone,
     patient_email: patientEmail,
     cost,
-    observation
+    observation,
+    status
   };
 
   try {
