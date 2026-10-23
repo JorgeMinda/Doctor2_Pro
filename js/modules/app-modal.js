@@ -410,40 +410,32 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     container.innerHTML = slotDataList.map(s => {
       if (s.status === 'occupied') {
         return `
-          <button type="button" disabled title="Horario ocupado (${s.occupantName})" class="time-slot-btn occupied">
-            <span class="slot-top">
-              <span style="width:5px; height:5px; border-radius:50%; background:currentColor; display:inline-block; margin-right:2px;"></span>${s.time}
-            </span>
-            <span class="slot-sub">Ocupado</span>
+          <button type="button" disabled title="Horario ocupado (${s.occupantName})" class="time-slot-btn badge occupied">
+            <span style="width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block;"></span>
+            <span>${s.time} hs</span>
           </button>
         `;
       }
       if (s.status === 'past') {
         return `
-          <button type="button" disabled title="Horario ya transcurrido en el día de hoy" class="time-slot-btn past">
-            <span class="slot-top">
-              <span style="width:5px; height:5px; border-radius:50%; background:currentColor; opacity:0.6; display:inline-block; margin-right:2px;"></span>${s.time}
-            </span>
-            <span class="slot-sub">Pasado</span>
+          <button type="button" disabled title="Horario ya transcurrido en el día de hoy" class="time-slot-btn badge past">
+            <span style="width:6px; height:6px; border-radius:50%; background:currentColor; opacity:0.6; display:inline-block;"></span>
+            <span>${s.time} hs</span>
           </button>
         `;
       }
       if (s.status === 'selected' || s.isSelected) {
         return `
-          <button type="button" title="Horario seleccionado (${s.time} hs)" class="time-slot-btn selected" data-time="${s.time}">
-            <span class="slot-top">
-              <i class="fas fa-check-circle" style="font-size:0.75rem;"></i>${s.time}
-            </span>
-            <span class="slot-sub">Elegido</span>
+          <button type="button" title="Horario seleccionado (${s.time} hs)" class="time-slot-btn badge primary selected" data-time="${s.time}">
+            <i class="fas fa-check-circle" style="font-size:0.75rem;"></i>
+            <span>${s.time} hs</span>
           </button>
         `;
       }
       return `
-        <button type="button" title="Disponible para agendar (${s.time} hs)" class="time-slot-btn available" data-time="${s.time}">
-          <span class="slot-top">
-            <i class="far fa-clock" style="font-size:0.68rem; opacity:0.85;"></i>${s.time}
-          </span>
-          <span class="slot-sub">Libre</span>
+        <button type="button" title="Disponible para agendar (${s.time} hs)" class="time-slot-btn badge available" data-time="${s.time}">
+          <i class="far fa-clock" style="font-size:0.68rem; opacity:0.85;"></i>
+          <span>${s.time} hs</span>
         </button>
       `;
     }).join('');

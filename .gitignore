@@ -32,3 +32,6 @@ desktop.ini
 *.db-journal
 *.lock
 *.tmp
+supabase/.temp/
+.temp/
+
