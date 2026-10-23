@@ -33,7 +33,8 @@ export function openModal(opts = {}) {
   const todayStr = formatDate(now);
 
   if (modalTitle) {
-    modalTitle.textContent = editingAppointmentId ? 'Editar / Detalle de Cita' : 'Nueva Cita Médica';
+    const titleText = editingAppointmentId ? 'Editar cita médica' : 'Nueva cita médica';
+    modalTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-check text-primary"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg> <span>${titleText}</span>`;
   }
 
   if (opts.appointment) {
@@ -84,7 +85,7 @@ export function openModal(opts = {}) {
     }
 
     if (saveBtn) {
-      saveBtn.innerHTML = '<i class="fas fa-save"></i> Actualizar Turno';
+      saveBtn.innerHTML = 'Actualizar cita';
     }
 
     loadSlots(a.date, a.time);
@@ -108,7 +109,7 @@ export function openModal(opts = {}) {
     // Ocultar botones de eliminar/cancelar para citas nuevas
     if (deleteBtn) deleteBtn.style.display = 'none';
     if (cancelBtn) cancelBtn.style.display = 'none';
-    if (saveBtn) saveBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Turno';
+    if (saveBtn) saveBtn.innerHTML = 'Crear cita';
 
     // Resolver paciente si viene por ID o nombre
     let foundPatient = null;
