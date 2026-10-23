@@ -6,7 +6,6 @@ import { el, formatDate, apiFetch, showToast } from './app-utils.js';
 import { loadMonth } from './app-calendar.js';
 
 let editingAppointmentId = null;
-let autocompleteInitialized = false;
 
 export function openModal(opts = {}) {
   const modal = el('modal');
@@ -123,10 +122,10 @@ export function openModal(opts = {}) {
       if (formProf && foundPatient.assignedProfessionalId) formProf.value = foundPatient.assignedProfessionalId;
       if (modal) modal.dataset.patientId = foundPatient.id;
     } else {
-      if (opts.patientName && formPatient) formPatient.value = opts.patientName;
-      if (opts.patientPhone && formPhone) formPhone.value = opts.patientPhone;
-      if (opts.patientEmail && formEmail) formEmail.value = opts.patientEmail;
-      else if (formEmail) formEmail.value = '';
+      // Sin paciente preseleccionado: limpiar campos del paciente
+      if (formPatient) formPatient.value = opts.patientName || '';
+      if (formPhone) formPhone.value = opts.patientPhone || '';
+      if (formEmail) formEmail.value = opts.patientEmail || '';
       if (opts.patientId && modal) modal.dataset.patientId = opts.patientId;
     }
 
@@ -200,15 +199,22 @@ export function closeModal() {
 }
 
 /**
- * Autocompletado inteligente de pacientes en el formulario de turnos
+ * Autocompletado inteligente de pacientes en el formulario de turnos.
+ * Usa un atributo data en el input como guardia para no duplicar listeners,
+ * pero re-oculta el dropdown y limpia el estado cada vez que se abre el modal.
  */
 function setupPatientAutocomplete() {
   const input = el('formPatient');
   const dropdown = el('patientAutocompleteDropdown');
   if (!input || !dropdown) return;
 
-  if (autocompleteInitialized) return;
-  autocompleteInitialized = true;
+  // Siempre cerrar el dropdown al (re)abrir el modal
+  dropdown.classList.add('hidden');
+  dropdown.innerHTML = '';
+
+  // Si ya tiene listeners configurados, no duplicar - solo reset UI
+  if (input.dataset.autocomplete === 'true') return;
+  input.dataset.autocomplete = 'true';
 
   function renderDropdown(filterText = '') {
     const q = filterText.toLowerCase().trim();
@@ -242,16 +248,6 @@ function setupPatientAutocomplete() {
         <span class="pat-badge">Seleccionar</span>
       </div>
     `).join('');
-
-    dropdown.querySelectorAll('.patient-autocomplete-item[data-id]').forEach(item => {
-      item.addEventListener('click', () => {
-        const patId = item.dataset.id;
-        const patient = state.patients.find(p => p.id === patId);
-        if (patient) {
-          selectPatient(patient);
-        }
-      });
-    });
 
     dropdown.classList.remove('hidden');
   }
@@ -292,6 +288,15 @@ function setupPatientAutocomplete() {
     }, 200);
   });
 
+  // Delegación de eventos en el contenedor del dropdown (evita duplicar listeners por ítem)
+  dropdown.addEventListener('click', (e) => {
+    const item = e.target.closest('.patient-autocomplete-item[data-id]');
+    if (!item) return;
+    const patId = item.dataset.id;
+    const patient = (state.patients || []).find(p => p.id === patId);
+    if (patient) selectPatient(patient);
+  });
+
   // Cerrar al hacer clic afuera
   document.addEventListener('click', (e) => {
     if (!input.contains(e.target) && !dropdown.contains(e.target)) {
@@ -299,6 +304,7 @@ function setupPatientAutocomplete() {
     }
   });
 }
+
 
 /**
  * Carga y renderiza la cuadrícula interactiva de horarios del día (Estilo Radix / Tailwind)
