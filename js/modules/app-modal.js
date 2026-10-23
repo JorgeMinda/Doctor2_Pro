@@ -29,6 +29,9 @@ export function openModal(opts = {}) {
   const deleteBtn = el('deleteAptBtn');
   const cancelBtn = el('cancelAptBtn');
 
+  const now = new Date();
+  const todayStr = formatDate(now);
+
   if (modalTitle) {
     modalTitle.textContent = editingAppointmentId ? 'Editar / Detalle de Cita' : 'Nuevo Turno';
   }
@@ -36,7 +39,12 @@ export function openModal(opts = {}) {
   if (opts.appointment) {
     const a = opts.appointment;
     if (formProf) formProf.value = a.professional_id || '';
-    if (formDate) formDate.value = a.date || '';
+    if (formDate) {
+      formDate.value = a.date || '';
+      // Si la cita histórica es del pasado, permitimos ver su fecha pero establecemos min al menor entre a.date y todayStr
+      formDate.min = (a.date && a.date < todayStr) ? a.date : todayStr;
+      formDate.style.borderColor = '';
+    }
     if (formDuration) formDuration.value = String(a.duration || 30);
     if (formReason) formReason.value = a.reason || '';
     if (formPatient) formPatient.value = a.patient_name || '';
@@ -81,8 +89,15 @@ export function openModal(opts = {}) {
     loadSlots(a.date, a.time);
   } else {
     // Modo Nuevo Turno
-    const targetDate = opts.date || formatDate(state.selectedDate);
-    if (formDate) formDate.value = targetDate;
+    let targetDate = opts.date || formatDate(state.selectedDate);
+    if (targetDate < todayStr) {
+      targetDate = todayStr;
+    }
+    if (formDate) {
+      formDate.value = targetDate;
+      formDate.min = todayStr;
+      formDate.style.borderColor = '';
+    }
     if (formDuration) formDuration.value = '30';
     if (formReason) formReason.value = '';
     if (formCost) formCost.value = '';
@@ -121,7 +136,33 @@ export function openModal(opts = {}) {
   // Escuchadores de eventos para actualizar horarios reactivamente
   if (formDate && !formDate.dataset.hasSlotListener) {
     formDate.dataset.hasSlotListener = 'true';
-    formDate.addEventListener('change', () => loadSlots(formDate.value, formTime ? formTime.value : null));
+    const onDateChange = () => {
+      const nowNow = new Date();
+      const currentToday = formatDate(nowNow);
+      const val = formDate.value;
+
+      if (!editingAppointmentId) {
+        if (val && val < currentToday) {
+          showToast('⚠️ No es posible seleccionar fechas pasadas. Seleccioná hoy o una fecha posterior.', 'warning');
+          formDate.value = currentToday;
+          formDate.style.borderColor = 'var(--danger)';
+          setTimeout(() => { if (formDate) formDate.style.borderColor = ''; }, 2500);
+        }
+      } else {
+        const origApt = state.appointments?.find(a => a.id === editingAppointmentId);
+        const origDate = origApt?.date || currentToday;
+        if (val && val < currentToday && val !== origDate) {
+          showToast('⚠️ No es posible reprogramar un turno a una fecha pasada.', 'warning');
+          formDate.value = origDate >= currentToday ? origDate : currentToday;
+          formDate.style.borderColor = 'var(--danger)';
+          setTimeout(() => { if (formDate) formDate.style.borderColor = ''; }, 2500);
+        }
+      }
+      loadSlots(formDate.value, formTime ? formTime.value : null);
+    };
+
+    formDate.addEventListener('change', onDateChange);
+    formDate.addEventListener('input', onDateChange);
   }
   if (formProf && !formProf.dataset.hasSlotListener) {
     formProf.dataset.hasSlotListener = 'true';
@@ -272,12 +313,52 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
   const selectedBadge = el('selectedTimeBadge');
   const saveBtn = el('saveApt') || el('saveAppointment');
 
-  const targetDate = selectedDate || dateInput?.value || formatDate(state.selectedDate);
+  const now = new Date();
+  const todayStr = formatDate(now);
+  const targetDate = selectedDate || dateInput?.value || todayStr;
+  const isPastDate = targetDate < todayStr;
+  const isToday = targetDate === todayStr;
+  const currentMinutesNow = now.getHours() * 60 + now.getMinutes();
   const profId = profSelect?.value || '';
 
   if (!container && !select) return;
 
   let currentTime = explicitTime || select?.value || '';
+
+  // VALIDACIÓN ESTRICTA: Fecha pasada en nuevo agendamiento
+  if (!editingAppointmentId && isPastDate) {
+    if (container) {
+      container.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 20px 14px; text-align: center; color: #dc2626; font-size: 0.88rem; background: rgba(239,68,68,0.06); border-radius: 10px; border: 1.5px dashed rgba(239,68,68,0.35);">
+          <i class="fas fa-calendar-times" style="font-size: 1.6rem; margin-bottom: 6px; display: block; color: #dc2626;"></i>
+          <strong>Fecha no disponible:</strong> La fecha seleccionada (${targetDate}) ya ha transcurrido.
+          <div style="margin-top: 4px; font-size: 0.8rem; color: var(--muted);">Por favor elegí la fecha de hoy o una fecha posterior para agendar turnos.</div>
+          <button type="button" class="btn primary" style="margin-top: 10px; font-size: 0.78rem; padding: 5px 14px; cursor: pointer;" id="btnGoToday">
+            <i class="fas fa-calendar-day"></i> Ir a Fecha de Hoy
+          </button>
+        </div>
+      `;
+      const btnGoToday = container.querySelector('#btnGoToday');
+      if (btnGoToday) {
+        btnGoToday.addEventListener('click', () => {
+          if (dateInput) {
+            dateInput.value = todayStr;
+            dateInput.dispatchEvent(new Event('change'));
+          } else {
+            loadSlots(todayStr);
+          }
+        });
+      }
+    }
+    if (select) {
+      select.innerHTML = '<option value="">(Fecha Pasada - No disponible)</option>';
+      select.value = '';
+    }
+    if (freeCountEl) freeCountEl.textContent = '0 horarios disponibles (Fecha pasada)';
+    if (selectedBadge) selectedBadge.style.display = 'none';
+    if (saveBtn) saveBtn.disabled = true;
+    return;
+  }
 
   // 1. Verificar si la fecha está bloqueada por emergencia o feriado
   const dayBlocks = (state.blockedDays || []).filter(b => {
@@ -324,11 +405,6 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     times.push(`${hh}:30`);
   }
 
-  const now = new Date();
-  const todayStr = formatDate(now);
-  const isToday = targetDate === todayStr;
-  const currentMinutesNow = now.getHours() * 60 + now.getMinutes();
-
   let freeSlotsCount = 0;
   const slotDataList = [];
 
@@ -348,8 +424,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
       return (slotMin >= aStart && slotMin < aEnd);
     });
 
-    const isPast = isToday && (slotMin < currentMinutesNow);
-    const isSelected = (currentTime === t);
+    const isPast = isPastDate || (isToday && (slotMin < currentMinutesNow));
 
     let status = 'available';
     let occupantName = '';
@@ -360,36 +435,52 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     } else if (occupyingApt) {
       status = 'occupied';
       occupantName = `Cita: ${occupyingApt.patient_name || 'Paciente'}`;
-    } else if (isPast && !isSelected) {
-      status = 'past';
+    } else if (isPast) {
+      if (editingAppointmentId && currentTime === t) {
+        status = 'selected';
+      } else {
+        status = 'past';
+      }
+    } else if (currentTime === t) {
+      status = 'selected';
+      freeSlotsCount++;
     } else {
-      status = isSelected ? 'selected' : 'available';
+      status = 'available';
       freeSlotsCount++;
     }
 
-    slotDataList.push({ time: t, status, occupantName, isSelected });
+    slotDataList.push({ time: t, status, occupantName, isSelected: status === 'selected' });
   }
 
-  // Si no hay horario actual seleccionado o el seleccionado está ocupado (en cita nueva), autoseleccionar el primer disponible
-  if (!currentTime || (!editingAppointmentId && slotDataList.find(s => s.time === currentTime && s.status === 'occupied'))) {
+  // Si no hay horario actual seleccionado o el seleccionado ya no es válido (ocupado o pasado en cita nueva):
+  const currentSlotObj = slotDataList.find(s => s.time === currentTime);
+  const isCurrentInvalid = !currentSlotObj || currentSlotObj.status === 'occupied' || (!editingAppointmentId && currentSlotObj.status === 'past');
+
+  if (!currentTime || isCurrentInvalid) {
     const firstFree = slotDataList.find(s => s.status === 'available');
     if (firstFree) {
       currentTime = firstFree.time;
       firstFree.status = 'selected';
       firstFree.isSelected = true;
+    } else {
+      currentTime = '';
     }
   }
 
   // Actualizar contador superior
   if (freeCountEl) {
-    freeCountEl.textContent = `${freeSlotsCount} horario${freeSlotsCount === 1 ? '' : 's'} libre${freeSlotsCount === 1 ? '' : 's'}`;
+    if (freeSlotsCount === 0) {
+      freeCountEl.textContent = isToday ? '0 horarios libres (Todos transcurridos u ocupados)' : '0 horarios disponibles';
+    } else {
+      freeCountEl.textContent = `${freeSlotsCount} horario${freeSlotsCount === 1 ? '' : 's'} libre${freeSlotsCount === 1 ? '' : 's'}`;
+    }
   }
 
   // Sincronizar select nativo oculto
   if (select) {
     select.innerHTML = times.map(t => {
       const slot = slotDataList.find(s => s.time === t);
-      const disabledAttr = (slot && slot.status === 'occupied') ? 'disabled' : '';
+      const disabledAttr = (slot && (slot.status === 'occupied' || (!editingAppointmentId && slot.status === 'past'))) ? 'disabled' : '';
       return `<option value="${t}" ${disabledAttr} ${t === currentTime ? 'selected' : ''}>${t} hs</option>`;
     }).join('');
     select.value = currentTime;
@@ -403,6 +494,11 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     } else {
       selectedBadge.style.display = 'none';
     }
+  }
+
+  // Si es cita nueva y no quedan turnos disponibles en el día, deshabilitar botón de guardar
+  if (!editingAppointmentId && freeSlotsCount === 0 && !currentTime) {
+    if (saveBtn) saveBtn.disabled = true;
   }
 
   // Renderizar los chips interactivos en el contenedor
@@ -522,17 +618,36 @@ export async function saveAppointment() {
     return;
   }
 
-  // 3. Validación de fecha y hora que ya transcurrió
+  // 3. VALIDACIÓN ESTRICTA: Fecha y Horario en el Pasado
   const now = new Date();
-  const appointmentDateTime = new Date(`${date}T${time}:00`);
+  const todayStr = formatDate(now);
+  const currentMinutesNow = now.getHours() * 60 + now.getMinutes();
 
-  if (!editingAppointmentId && appointmentDateTime < now) {
-    const confirmPast = confirm(
-      `⚠️ Atención de Horario:\n\nLa fecha y hora seleccionadas (${date} a las ${time} hs) ya han transcurrido respecto al momento actual.\n\n¿Deseas registrar este turno como histórico / atención previa?`
-    );
-    if (!confirmPast) {
-      showToast('Operación cancelada. Por favor seleccioná un horario futuro.', 'warning');
+  if (!editingAppointmentId) {
+    if (date < todayStr) {
+      showToast('⚠️ No es posible agendar una cita en una fecha pasada.', 'error');
       return;
+    }
+    if (date === todayStr && newStartMin < currentMinutesNow) {
+      showToast('⚠️ No es posible agendar en un horario que ya transcurrió el día de hoy.', 'error');
+      return;
+    }
+  } else {
+    // Si se está editando una cita existente y se reprograma la fecha u hora
+    const originalApt = (state.appointments || []).find(a => a.id === editingAppointmentId);
+    if (originalApt) {
+      const isDateChanged = originalApt.date !== date;
+      const isTimeChanged = originalApt.time !== time;
+      if (isDateChanged || isTimeChanged) {
+        if (date < todayStr) {
+          showToast('⚠️ No es posible reagendar una cita a una fecha pasada.', 'error');
+          return;
+        }
+        if (date === todayStr && newStartMin < currentMinutesNow) {
+          showToast('⚠️ No es posible reagendar una cita a un horario que ya transcurrió hoy.', 'error');
+          return;
+        }
+      }
     }
   }
 

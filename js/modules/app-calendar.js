@@ -182,8 +182,10 @@ export function renderWeekView() {
   corner.className = 'week-corner';
   grid.appendChild(corner);
 
+  const now = new Date();
   const selectedDateStr = formatDate(state.selectedDate);
-  const todayStr = formatDate(new Date());
+  const todayStr = formatDate(now);
+  const currentMin = now.getHours() * 60 + now.getMinutes();
 
   // Encabezados de días
   days.forEach(d => {
@@ -213,10 +215,14 @@ export function renderWeekView() {
 
     days.forEach(d => {
       const dStr = formatDate(d);
+      const isPastCell = dStr < todayStr || (dStr === todayStr && (h * 60) < currentMin);
       const timeCell = document.createElement('div');
-      timeCell.className = 'week-time-cell';
+      timeCell.className = `week-time-cell${isPastCell ? ' past' : ''}`;
       timeCell.dataset.date = dStr;
       timeCell.dataset.time = hourStr;
+      if (isPastCell) {
+        timeCell.title = `Horario transcurrido (${dStr} ${hourStr} hs)`;
+      }
 
       // Buscar turnos en esta hora
       const apts = state.appointments.filter(a => a.date === dStr && a.time.startsWith(String(h).padStart(2, '0')));
@@ -233,6 +239,10 @@ export function renderWeekView() {
       });
 
       timeCell.addEventListener('click', () => {
+        if (isPastCell) {
+          showToast('⚠️ No es posible agendar turnos en fechas u horarios que ya han transcurrido.', 'warning');
+          return;
+        }
         state.selectedDate = d;
         openModal({ date: dStr, time: hourStr });
       });

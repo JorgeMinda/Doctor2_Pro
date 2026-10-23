@@ -321,6 +321,15 @@
   background: var(--bg-page);
 }
 
+.week-time-cell.past {
+  background: rgba(148, 163, 184, 0.05);
+  cursor: not-allowed;
+}
+
+.week-time-cell.past:hover {
+  background: rgba(148, 163, 184, 0.12);
+}
+
 .week-apt-block {
   background: var(--primary);
   color: white;
