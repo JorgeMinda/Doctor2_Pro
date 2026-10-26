@@ -139,6 +139,18 @@ export function mapPatientToSupabase(patient) {
   return row;
 }
 
+function normalizeAppointmentStatus(status) {
+  if (!status) return 'Reservado';
+  const s = String(status).toLowerCase();
+  if (s === 'scheduled' || s === 'reservado') return 'Reservado';
+  if (s === 'confirmed' || s === 'confirmado') return 'Confirmado';
+  if (s === 'cancelled' || s === 'cancelado') return 'Cancelado';
+  if (s === 'completed' || s === 'atendido' || s === 'done') return 'Atendido';
+  if (s === 'rescheduled' || s === 'reprogramado') return 'Reprogramado';
+  if (s === 'absent' || s === 'ausente') return 'Ausente';
+  return status;
+}
+
 export function mapAppointmentFromSupabase(row) {
   if (!row) return null;
 
@@ -178,12 +190,12 @@ export function mapAppointmentFromSupabase(row) {
     professionalName: row.professional_name || '',
     date: row.date,
     time: time,
-    start_time: row.start_time || time,
+    start_time: time,
     end_time: row.end_time || '',
     duration: row.duration || 30,
     reason: row.reason || row.treatment || '',
     treatment: row.treatment || row.reason || '',
-    status: row.status || 'scheduled',
+    status: normalizeAppointmentStatus(row.status),
     cost: cost,
     observation: observation,
     notes: cleanNotes,
@@ -196,19 +208,16 @@ export function mapAppointmentFromSupabase(row) {
 export function mapAppointmentToSupabase(apt) {
   if (!apt) return null;
 
-  const startTime = apt.start_time || apt.time || '08:00';
+  const startTime = apt.time || apt.start_time || '08:00';
   const duration = parseInt(apt.duration, 10) || 30;
 
-  let endTime = apt.end_time;
-  if (!endTime) {
-    const parts = (startTime || '08:00').split(':').map(Number);
-    const h = parts[0] || 0;
-    const m = parts[1] || 0;
-    const endMinutes = h * 60 + m + duration;
-    const endH = String(Math.floor(endMinutes / 60) % 24).padStart(2, '0');
-    const endM = String(endMinutes % 60).padStart(2, '0');
-    endTime = `${endH}:${endM}`;
-  }
+  const parts = (startTime || '08:00').split(':').map(Number);
+  const h = parts[0] || 0;
+  const m = parts[1] || 0;
+  const endMinutes = h * 60 + m + duration;
+  const endH = String(Math.floor(endMinutes / 60) % 24).padStart(2, '0');
+  const endM = String(endMinutes % 60).padStart(2, '0');
+  const endTime = `${endH}:${endM}`;
 
   const cost = apt.cost !== undefined && apt.cost !== null ? parseFloat(apt.cost) || 0 : 0;
   const observation = (apt.observation !== undefined && apt.observation !== null ? apt.observation : (apt.notes || '')).toString();
@@ -241,7 +250,7 @@ export function mapAppointmentToSupabase(apt) {
     duration: duration,
     treatment: (apt.treatment || apt.reason || '').trim(),
     reason: (apt.reason || apt.treatment || 'Consulta').trim(),
-    status: apt.status || 'scheduled',
+    status: apt.status || 'Reservado',
     notes: notesWithMeta,
     updated_at: new Date().toISOString()
   };
@@ -449,6 +458,14 @@ export async function sbSaveAppointment(appointmentData) {
     // Si es actualización, fusionamos con el turno existente para soportar PATCH parcial
     const { data: existing } = await sb.from('appointments').select('*').eq('id', appointmentData.id).maybeSingle();
     const existingMapped = existing ? mapAppointmentFromSupabase(existing) : {};
+
+    // Si se envía un nuevo horario, fecha o duración, limpiar los campos de tiempo viejos para que se recalculen
+    if (appointmentData.time || appointmentData.start_time || appointmentData.date || appointmentData.duration) {
+      delete existingMapped.start_time;
+      delete existingMapped.end_time;
+      delete existingMapped.time;
+    }
+
     const merged = { ...existingMapped, ...appointmentData };
 
     const row = mapAppointmentToSupabase(merged);

@@ -4,6 +4,104 @@
 import { state, api } from './app-state.js';
 import { el, apiFetch, showToast } from './app-utils.js';
 
+const BLOCKED_HOURS_LIST = [];
+for (let h = 7; h <= 21; h++) {
+  const hh = String(h).padStart(2, '0');
+  BLOCKED_HOURS_LIST.push(`${hh}:00`);
+  if (h < 21) {
+    BLOCKED_HOURS_LIST.push(`${hh}:30`);
+  }
+}
+
+export function renderBlockedHoursSlots() {
+  const inputFrom = el('newBlockedTimeFrom');
+  const inputTo = el('newBlockedTimeTo');
+  const containerFrom = el('blockedTimeFromSlots');
+  const containerTo = el('blockedTimeToSlots');
+  const badgeFrom = el('blockedTimeFromBadge');
+  const badgeTo = el('blockedTimeToBadge');
+
+  const selectedFrom = inputFrom?.value || '08:00';
+  const selectedTo = inputTo?.value || '13:00';
+
+  if (badgeFrom) badgeFrom.textContent = `${selectedFrom} hs`;
+  if (badgeTo) badgeTo.textContent = `${selectedTo} hs`;
+
+  if (containerFrom) {
+    containerFrom.innerHTML = BLOCKED_HOURS_LIST.map(time => {
+      const isSel = time === selectedFrom;
+      if (isSel) {
+        return `
+          <button type="button" title="Hora desde seleccionada (${time} hs)" class="time-slot-btn badge primary selected" data-time="${time}">
+            <i class="fas fa-check-circle" style="font-size:0.75rem;"></i>
+            <span>${time} hs</span>
+          </button>
+        `;
+      }
+      return `
+        <button type="button" title="Seleccionar hora desde (${time} hs)" class="time-slot-btn badge available" data-time="${time}">
+          <i class="far fa-clock" style="font-size:0.68rem; opacity:0.85;"></i>
+          <span>${time} hs</span>
+        </button>
+      `;
+    }).join('');
+
+    containerFrom.querySelectorAll('.time-slot-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const t = btn.dataset.time;
+        if (!t) return;
+        if (inputFrom) inputFrom.value = t;
+        // Si hora hasta queda igual o menor que hora desde, mover hasta al siguiente slot
+        if (inputTo && inputTo.value <= t) {
+          const fromIdx = BLOCKED_HOURS_LIST.indexOf(t);
+          if (fromIdx !== -1 && fromIdx + 1 < BLOCKED_HOURS_LIST.length) {
+            inputTo.value = BLOCKED_HOURS_LIST[fromIdx + 1];
+          }
+        }
+        renderBlockedHoursSlots();
+      });
+    });
+  }
+
+  if (containerTo) {
+    containerTo.innerHTML = BLOCKED_HOURS_LIST.map(time => {
+      const isSel = time === selectedTo;
+      if (isSel) {
+        return `
+          <button type="button" title="Hora hasta seleccionada (${time} hs)" class="time-slot-btn badge primary selected" data-time="${time}">
+            <i class="fas fa-check-circle" style="font-size:0.75rem;"></i>
+            <span>${time} hs</span>
+          </button>
+        `;
+      }
+      return `
+        <button type="button" title="Seleccionar hora hasta (${time} hs)" class="time-slot-btn badge available" data-time="${time}">
+          <i class="far fa-clock" style="font-size:0.68rem; opacity:0.85;"></i>
+          <span>${time} hs</span>
+        </button>
+      `;
+    }).join('');
+
+    containerTo.querySelectorAll('.time-slot-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const t = btn.dataset.time;
+        if (!t) return;
+        if (inputTo) inputTo.value = t;
+        // Si hora desde queda igual o mayor que hora hasta, mover desde al slot anterior
+        if (inputFrom && inputFrom.value >= t) {
+          const toIdx = BLOCKED_HOURS_LIST.indexOf(t);
+          if (toIdx > 0) {
+            inputFrom.value = BLOCKED_HOURS_LIST[toIdx - 1];
+          }
+        }
+        renderBlockedHoursSlots();
+      });
+    });
+  }
+}
+
 export function initBlockedDays() {
   const btn = el('blockedDaysBtn');
   if (btn) {
@@ -18,7 +116,10 @@ export function initBlockedDays() {
   el('newBlockedAllDay')?.addEventListener('change', (e) => {
     const hoursContainer = el('newBlockedHoursContainer');
     if (hoursContainer) {
-      hoursContainer.style.display = e.target.checked ? 'none' : 'grid';
+      hoursContainer.style.display = e.target.checked ? 'none' : 'flex';
+      if (!e.target.checked) {
+        renderBlockedHoursSlots();
+      }
     }
   });
 }
@@ -41,6 +142,7 @@ export function openBlockedDaysModal() {
   if (el('newBlockedTimeFrom')) el('newBlockedTimeFrom').value = '08:00';
   if (el('newBlockedTimeTo')) el('newBlockedTimeTo').value = '13:00';
 
+  renderBlockedHoursSlots();
   renderBlockedDaysList();
 }
 

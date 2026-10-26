@@ -1234,14 +1234,31 @@
             <span class="text-xs text-muted-foreground font-medium px-2 py-0.5 rounded bg-muted/50 border border-border/40" style="font-size:0.75rem;">Todo el día</span>
           </label>
           
-          <div id="newBlockedHoursContainer" style="display:none; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-subtle, #e2e8f0);">
+          <div id="newBlockedHoursContainer" style="display:none; flex-direction:column; gap:12px; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-subtle, #e2e8f0);">
+            <!-- Inputs ocultos para conservar los valores seleccionados sin romper la lógica del formulario -->
+            <input type="hidden" id="newBlockedTimeFrom" value="08:00">
+            <input type="hidden" id="newBlockedTimeTo" value="13:00">
+
+            <!-- Sección: Hora Desde -->
             <div class="radix-form-field">
-              <label data-slot="label" class="radix-label" for="newBlockedTimeFrom" style="font-size:0.78rem;">Hora Desde</label>
-              <input id="newBlockedTimeFrom" type="time" value="08:00" class="radix-input font-mono" style="padding:6px 10px; height:36px;">
+              <div class="flex-between" style="margin-bottom:6px;">
+                <label data-slot="label" class="radix-label" style="margin:0;">Hora Desde</label>
+                <span id="blockedTimeFromBadge" class="badge primary" style="font-size:0.75rem; font-weight:700;">08:00 hs</span>
+              </div>
+              <div id="blockedTimeFromSlots" class="slots-grid-container" style="max-height:120px;">
+                <!-- Rellenado dinámicamente -->
+              </div>
             </div>
+
+            <!-- Sección: Hora Hasta -->
             <div class="radix-form-field">
-              <label data-slot="label" class="radix-label" for="newBlockedTimeTo" style="font-size:0.78rem;">Hora Hasta</label>
-              <input id="newBlockedTimeTo" type="time" value="13:00" class="radix-input font-mono" style="padding:6px 10px; height:36px;">
+              <div class="flex-between" style="margin-bottom:6px;">
+                <label data-slot="label" class="radix-label" style="margin:0;">Hora Hasta</label>
+                <span id="blockedTimeToBadge" class="badge primary" style="font-size:0.75rem; font-weight:700;">13:00 hs</span>
+              </div>
+              <div id="blockedTimeToSlots" class="slots-grid-container" style="max-height:120px;">
+                <!-- Rellenado dinámicamente -->
+              </div>
             </div>
           </div>
         </div>
@@ -1276,6 +1293,6 @@
   </div>
 
   <!-- Scripts Modulares -->
-  <script type="module" src="js/app.js?v=3.9"></script>
+  <script type="module" src="js/app.js?v=4.0"></script>
 </body>
 </html>

@@ -71,7 +71,8 @@ export function openModal(opts = {}) {
     }
     if (cancelBtn) {
       cancelBtn.style.display = 'inline-flex';
-      if (a.status === 'Cancelado') {
+      const isCancelled = a.status === 'Cancelado' || a.status === 'cancelled' || String(a.status || '').toLowerCase().includes('cancel');
+      if (isCancelled) {
         cancelBtn.innerHTML = '<i class="fas fa-redo"></i> Reactivar Cita';
         cancelBtn.style.color = 'var(--primary)';
         cancelBtn.style.borderColor = 'rgba(99,102,241,0.35)';
@@ -400,8 +401,8 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
 
   // 2. Obtener citas existentes para esta fecha y profesional (excluyendo canceladas y la cita en edición)
   const existingApts = (state.appointments || []).filter(a => {
-    if (a.date !== targetDate) return false;
-    if (a.status === 'Cancelado') return false; // Citas canceladas dejan el horario libre
+    const isAptCancelled = a.status === 'Cancelado' || a.status === 'cancelled' || String(a.status || '').toLowerCase().includes('cancel');
+    if (isAptCancelled) return false; // Citas canceladas dejan el horario libre
     if (editingAppointmentId && a.id === editingAppointmentId) return false; // La cita propia no se auto-bloquea
     if (profId && a.professional_id && a.professional_id !== profId) return false; // Es de otro profesional
     return true;
@@ -607,7 +608,8 @@ export async function saveAppointment() {
 
   const collision = (state.appointments || []).find(a => {
     if (editingAppointmentId && a.id === editingAppointmentId) return false;
-    if (a.status === 'Cancelado') return false;
+    const isCancelledApt = a.status === 'Cancelado' || a.status === 'cancelled' || String(a.status || '').toLowerCase().includes('cancel');
+    if (isCancelledApt) return false;
     if (a.date !== date) return false;
 
     // Validar profesional coincidente
@@ -681,9 +683,14 @@ export async function saveAppointment() {
   }
 
   const origApt = editingAppointmentId ? (state.appointments || []).find(a => a.id === editingAppointmentId) : null;
-  const wasCancelled = origApt && origApt.status === 'Cancelado';
+  const wasCancelled = origApt && (
+    origApt.status === 'Cancelado' ||
+    origApt.status === 'cancelled' ||
+    String(origApt.status || '').toLowerCase().includes('cancel')
+  );
 
   const formStatus = el('formStatus');
+  // Al actualizar o reactivar la cita, el estado pasa a ser 'Reservado'
   const status = formStatus ? formStatus.value : 'Reservado';
 
   const payload = {
@@ -693,6 +700,7 @@ export async function saveAppointment() {
     professional_name: prof ? prof.name : '',
     date,
     time,
+    start_time: time,
     duration,
     reason,
     patient_name: patientName,
@@ -710,11 +718,28 @@ export async function saveAppointment() {
       body: JSON.stringify(payload)
     });
 
+    if (editingAppointmentId && Array.isArray(state.appointments)) {
+      const idx = state.appointments.findIndex(a => a.id === editingAppointmentId);
+      if (idx !== -1) {
+        state.appointments[idx] = {
+          ...state.appointments[idx],
+          ...payload,
+          status
+        };
+      }
+    }
+
     const toastMsg = wasCancelled
       ? 'Cita reactivada y actualizada con éxito'
       : (editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito');
     showToast(toastMsg, 'success');
     closeModal();
+
+    const targetDateObj = new Date(date + 'T00:00:00');
+    if (!isNaN(targetDateObj.getTime())) {
+      state.selectedDate = targetDateObj;
+      state.monthDate = new Date(targetDateObj.getFullYear(), targetDateObj.getMonth(), 1);
+    }
     loadMonth();
   } catch (err) {
     showToast(err.message || 'Error al guardar el turno', 'error');
@@ -729,7 +754,7 @@ export async function toggleCancelAppointment() {
   const apt = (state.appointments || []).find(a => a.id === editingAppointmentId);
   if (!apt) return;
 
-  const isCurrentlyCancelled = apt.status === 'Cancelado';
+  const isCurrentlyCancelled = apt.status === 'Cancelado' || apt.status === 'cancelled' || String(apt.status || '').toLowerCase().includes('cancel');
   const targetStatus = isCurrentlyCancelled ? 'Reservado' : 'Cancelado';
 
   const formDate = el('formDate');
