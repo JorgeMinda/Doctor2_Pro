@@ -680,6 +680,9 @@ export async function saveAppointment() {
     prof = state.professionals.find(p => p.id === profId) || state.professionals[0];
   }
 
+  const origApt = editingAppointmentId ? (state.appointments || []).find(a => a.id === editingAppointmentId) : null;
+  const wasCancelled = origApt && origApt.status === 'Cancelado';
+
   const formStatus = el('formStatus');
   const status = formStatus ? formStatus.value : 'Reservado';
 
@@ -707,7 +710,10 @@ export async function saveAppointment() {
       body: JSON.stringify(payload)
     });
 
-    showToast(editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito', 'success');
+    const toastMsg = wasCancelled
+      ? 'Cita reactivada y actualizada con éxito'
+      : (editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito');
+    showToast(toastMsg, 'success');
     closeModal();
     loadMonth();
   } catch (err) {
@@ -716,7 +722,7 @@ export async function saveAppointment() {
 }
 
 /**
- * Cancela o reactiva la cita actualmente abierta en edición
+ * Cancela o reactiva la cita actualmente abierta en edición, permitiendo reprogramar fecha y hora
  */
 export async function toggleCancelAppointment() {
   if (!editingAppointmentId) return;
@@ -726,20 +732,99 @@ export async function toggleCancelAppointment() {
   const isCurrentlyCancelled = apt.status === 'Cancelado';
   const targetStatus = isCurrentlyCancelled ? 'Reservado' : 'Cancelado';
 
+  const formDate = el('formDate');
+  const formTime = el('formTime');
+  const formProf = el('formProfessional');
+  const formDuration = el('formDuration');
+
+  const newDate = formDate?.value || apt.date;
+  const newTime = formTime?.value || apt.time;
+  const newProf = formProf?.value || apt.professional_id;
+  const newDuration = parseInt(formDuration?.value) || parseInt(apt.duration) || 30;
+
+  if (isCurrentlyCancelled) {
+    const now = new Date();
+    const todayStr = formatDate(now);
+    const currentMinutesNow = now.getHours() * 60 + now.getMinutes();
+    const [nH, nM] = (newTime || '00:00').split(':').map(Number);
+    const newStartMin = nH * 60 + nM;
+    const newEndMin = newStartMin + newDuration;
+
+    if (newDate < todayStr) {
+      showToast('⚠️ No es posible reactivar una cita en una fecha pasada. Por favor seleccioná una fecha actual o posterior.', 'error');
+      return;
+    }
+    if (newDate === todayStr && newStartMin < currentMinutesNow) {
+      showToast('⚠️ No es posible reactivar en un horario que ya transcurrió hoy.', 'error');
+      return;
+    }
+
+    // Validar colisión de turnos
+    const collision = (state.appointments || []).find(a => {
+      if (a.id === editingAppointmentId) return false;
+      if (a.status === 'Cancelado') return false;
+      if (a.date !== newDate) return false;
+      const matchProf = !newProf || !a.professional_id || a.professional_id === newProf;
+      if (!matchProf) return false;
+      const aDur = parseInt(a.duration) || 30;
+      const [aH, aM] = (a.time || '00:00').split(':').map(Number);
+      const aStartMin = aH * 60 + aM;
+      const aEndMin = aStartMin + aDur;
+      return (newStartMin < aEndMin && newEndMin > aStartMin);
+    });
+
+    if (collision) {
+      showToast(`⚠️ Horario ocupado: ya existe una cita para "${collision.patient_name || 'otro paciente'}" a las ${collision.time} hs. Por favor seleccioná otro horario libre.`, 'error');
+      loadSlots(newDate, newTime);
+      return;
+    }
+  }
+
+  const isRescheduled = isCurrentlyCancelled && (newDate !== apt.date || newTime !== apt.time);
   const confirmMsg = isCurrentlyCancelled
-    ? `¿Deseas reactivar la cita de "${apt.patient_name}" para el ${apt.date} a las ${apt.time} hs?`
+    ? (isRescheduled
+        ? `¿Deseas reactivar y reprogramar la cita de "${apt.patient_name}" para el ${newDate} a las ${newTime} hs?`
+        : `¿Deseas reactivar la cita de "${apt.patient_name}" para el ${newDate} a las ${newTime} hs?`)
     : `¿Estás seguro de que deseas cancelar la cita de "${apt.patient_name}" (${apt.date} a las ${apt.time} hs)?\n\nEl horario se liberará en la agenda para que otros pacientes puedan agendarse.`;
 
   if (!confirm(confirmMsg)) return;
 
   try {
+    const patchBody = { id: editingAppointmentId, status: targetStatus };
+    if (isCurrentlyCancelled) {
+      patchBody.date = newDate;
+      patchBody.time = newTime;
+      patchBody.duration = newDuration;
+      if (newProf) {
+        patchBody.professional_id = newProf;
+        const profObj = (state.professionals || []).find(p => p.id === newProf);
+        if (profObj) patchBody.professional_name = profObj.name;
+      }
+    }
+
     await apiFetch(api.appointments, {
       method: 'PATCH',
-      body: JSON.stringify({ id: editingAppointmentId, status: targetStatus })
+      body: JSON.stringify(patchBody)
     });
 
     apt.status = targetStatus;
-    showToast(isCurrentlyCancelled ? 'Cita reactivada con éxito' : 'Cita marcada como Cancelada (Horario liberado)', 'success');
+    if (isCurrentlyCancelled) {
+      apt.date = newDate;
+      apt.time = newTime;
+      apt.duration = newDuration;
+      if (newProf) {
+        apt.professional_id = newProf;
+        const profObj = (state.professionals || []).find(p => p.id === newProf);
+        if (profObj) apt.professional_name = profObj.name;
+      }
+    }
+
+    showToast(
+      isCurrentlyCancelled
+        ? (isRescheduled ? 'Cita reactivada y reprogramada con éxito' : 'Cita reactivada con éxito')
+        : 'Cita marcada como Cancelada (Horario liberado)',
+      'success'
+    );
     closeModal();
     loadMonth();
   } catch (err) {

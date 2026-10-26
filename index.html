@@ -1192,57 +1192,90 @@
 
   <!-- Modal Feriados y Bloqueos -->
   <div id="blockedDaysModal" class="modal hidden">
-    <div class="modal-body" style="max-width:540px;">
-      <div class="modal-head">
-        <div>
-          <p class="muted">Agenda & Horarios</p>
-          <h3>Días Bloqueados y Feriados</h3>
-        </div>
-        <button id="closeBlockedModal" class="ghost"><i class="fas fa-times"></i></button>
-      </div>
-      
-      <div class="field">
-        <span>Profesional Afectado</span>
-        <select id="newBlockedProfessional">
-          <option value="all">Todos los Profesionales (Feriado / Cierre General)</option>
-        </select>
-      </div>
-
-      <div class="grid-2">
-        <label class="field"><span>Fecha Desde</span><input id="newBlockedDateFrom" type="date"></label>
-        <label class="field"><span>Fecha Hasta</span><input id="newBlockedDateTo" type="date"></label>
-      </div>
-
-      <!-- Bloqueo por Horas -->
-      <div style="margin: 4px 0 12px; padding: 10px 12px; background: var(--bg-page); border: 1px solid var(--border); border-radius: 8px;">
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:600; font-size:0.85rem; margin-bottom:0;">
-          <input type="checkbox" id="newBlockedAllDay" checked style="width:16px; height:16px; cursor:pointer;">
-          <span>Bloquear el día completo (Todo el día)</span>
-        </label>
-        <div id="newBlockedHoursContainer" class="grid-2" style="display:none; gap:10px; margin-top:10px;">
-          <label class="field" style="margin:0;">
-            <span style="font-size:0.78rem;">Hora Desde</span>
-            <input id="newBlockedTimeFrom" type="time" value="08:00">
-          </label>
-          <label class="field" style="margin:0;">
-            <span style="font-size:0.78rem;">Hora Hasta</span>
-            <input id="newBlockedTimeTo" type="time" value="13:00">
-          </label>
+    <div role="dialog" class="radix-dialog-content" style="max-width: 520px; width: 100%; margin: auto; padding: 22px;">
+      <div data-slot="dialog-header" class="radix-dialog-header" style="margin-bottom: 16px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+          <h2 data-slot="dialog-title" class="radix-dialog-title" style="display:flex; align-items:center; gap:8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-x text-primary"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m14 14-4 4"/><path d="m10 14 4 4"/></svg>
+            <span>Días Bloqueados y Feriados</span>
+          </h2>
+          <button type="button" id="closeBlockedModal" class="ghost" style="padding:4px 8px; font-size:0.9rem; color:var(--muted);"><i class="fas fa-times"></i></button>
         </div>
       </div>
       
-      <div class="field"><span>Motivo del Bloqueo / Emergencia</span><input id="newBlockedReason" type="text" placeholder="Ej: Feriado Nacional, Emergencia médica, Congreso..."></div>
-      <button id="saveBlockedBtn" class="primary" style="margin-bottom:16px;"><i class="fas fa-lock"></i> Bloquear y Cancelar Turnos Afectados</button>
+      <div class="radix-dialog-grid" style="gap: 12px;">
+        <!-- Profesional afectado -->
+        <div class="radix-form-field">
+          <label data-slot="label" class="radix-label" for="newBlockedProfessional">Profesional afectado</label>
+          <select id="newBlockedProfessional" class="radix-input">
+            <option value="all">Todos los Profesionales (Feriado / Cierre General)</option>
+          </select>
+        </div>
 
-      <h4 style="margin-bottom:8px; font-size:0.92rem;"><i class="fas fa-list"></i> Bloqueos y Feriados Registrados</h4>
-      <div id="blockedDaysList" class="timeline" style="max-height:170px; overflow-y:auto;"></div>
-      <div class="modal-actions" style="margin-top:12px;">
-        <button id="cancelBlockedModal" class="ghost">Cerrar</button>
+        <!-- Rango de Fechas -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="radix-form-field">
+            <label data-slot="label" class="radix-label" for="newBlockedDateFrom">Fecha Desde</label>
+            <input id="newBlockedDateFrom" type="date" class="radix-input font-mono">
+          </div>
+          <div class="radix-form-field">
+            <label data-slot="label" class="radix-label" for="newBlockedDateTo">Fecha Hasta</label>
+            <input id="newBlockedDateTo" type="date" class="radix-input font-mono">
+          </div>
+        </div>
+
+        <!-- Bloqueo por Horas (Card Toggle Estilo Radix) -->
+        <div style="background: var(--surface, #f8fafc); border: 1px solid var(--border-subtle, #e2e8f0); border-radius: 10px; padding: 12px 14px;">
+          <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; margin-bottom:0;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" id="newBlockedAllDay" checked style="width:16px; height:16px; accent-color:var(--primary); cursor:pointer;">
+              <span style="font-weight:600; font-size:0.85rem; color:var(--foreground, #0f172a);">Bloquear el día completo</span>
+            </div>
+            <span class="text-xs text-muted-foreground font-medium px-2 py-0.5 rounded bg-muted/50 border border-border/40" style="font-size:0.75rem;">Todo el día</span>
+          </label>
+          
+          <div id="newBlockedHoursContainer" style="display:none; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; padding-top:10px; border-top:1px dashed var(--border-subtle, #e2e8f0);">
+            <div class="radix-form-field">
+              <label data-slot="label" class="radix-label" for="newBlockedTimeFrom" style="font-size:0.78rem;">Hora Desde</label>
+              <input id="newBlockedTimeFrom" type="time" value="08:00" class="radix-input font-mono" style="padding:6px 10px; height:36px;">
+            </div>
+            <div class="radix-form-field">
+              <label data-slot="label" class="radix-label" for="newBlockedTimeTo" style="font-size:0.78rem;">Hora Hasta</label>
+              <input id="newBlockedTimeTo" type="time" value="13:00" class="radix-input font-mono" style="padding:6px 10px; height:36px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Motivo -->
+        <div class="radix-form-field">
+          <label data-slot="label" class="radix-label" for="newBlockedReason">Motivo del Bloqueo / Emergencia</label>
+          <input id="newBlockedReason" type="text" class="radix-input" placeholder="Ej: Feriado Nacional, Emergencia médica, Congreso...">
+        </div>
+
+        <!-- Botón Guardar Bloqueo -->
+        <button type="button" id="saveBlockedBtn" class="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center gap-2 rounded-lg text-sm font-semibold h-10 px-4 py-2 shadow-sm transition-all active:scale-[0.98] w-full" style="margin-top:4px;">
+          <i class="fas fa-lock"></i> Bloquear y Cancelar Turnos Afectados
+        </button>
+
+        <!-- Lista de Bloqueos -->
+        <div style="margin-top:12px; border-top:1px solid var(--border-subtle, #e2e8f0); padding-top:12px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <h4 style="font-size:0.85rem; font-weight:600; color:var(--text, #0f172a); display:flex; align-items:center; gap:6px; margin:0;">
+              <i class="fas fa-list text-primary" style="font-size:0.8rem;"></i> Bloqueos y Feriados Registrados
+            </h4>
+          </div>
+          <div id="blockedDaysList" class="timeline" style="max-height:160px; overflow-y:auto; padding-right:2px;"></div>
+        </div>
+
+        <!-- Footer Acciones -->
+        <div class="radix-dialog-footer" style="margin-top:8px; justify-content:flex-end;">
+          <button type="button" id="cancelBlockedModal" class="border border-outline-variant bg-surface text-foreground hover:bg-surface-high inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium h-9 px-4 py-2 shadow-sm transition-all active:scale-[0.98]">Cerrar</button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Scripts Modulares -->
-  <script type="module" src="js/app.js?v=3.0"></script>
+  <script type="module" src="js/app.js?v=3.9"></script>
 </body>
 </html>

@@ -71,22 +71,25 @@ export async function renderBlockedDaysList() {
       return;
     }
 
-    container.innerHTML = state.blockedDays.map(b => {
+      container.innerHTML = state.blockedDays.map(b => {
       const isAllDay = b.all_day !== false && (!b.time_from || !b.time_to);
       const timeBadge = isAllDay 
         ? '<span style="font-size:0.75rem; color:var(--muted); margin-left:4px;">(Día completo)</span>' 
         : `<span style="font-size:0.75rem; color:var(--primary); font-weight:600; margin-left:4px;"><i class="far fa-clock"></i> ${b.time_from} a ${b.time_to} hs</span>`;
+
+      const isHoliday = !b.professional_id || b.professional_id === 'all';
+      const typeLabel = isHoliday ? 'Feriado / Cierre' : 'Ausencia médica';
 
       return `
         <div class="slot" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
           <div>
             <strong style="font-size:0.85rem;"><i class="fas fa-calendar-times" style="color:var(--danger);"></i> ${b.date_from === b.date_to ? b.date_from : `${b.date_from} al ${b.date_to}`}</strong>
             ${timeBadge}
-            <span style="font-size:0.75rem; color:var(--text); margin-left:6px; font-weight:600;">[${b.professional_name || 'Todos'}]</span>
+            <span style="font-size:0.75rem; color:var(--text); margin-left:6px; font-weight:600;">[${b.professional_name || (isHoliday ? 'Todos' : 'Profesional')}]</span>
             <br><small style="color:var(--muted); font-size:0.75rem;">${b.reason || 'Bloqueado'}</small>
           </div>
           <div style="display:flex; gap:6px; align-items:center;">
-            <span class="badge Cancelado" style="font-size:0.7rem;">${b.type === 'emergency' ? 'Emergencia' : 'Bloqueado'}</span>
+            <span class="badge Cancelado" style="font-size:0.7rem;">${typeLabel}</span>
             <button class="ghost" onclick="window.removeBlockedDay('${b.id}')" title="Eliminar bloqueo" style="color:var(--danger); padding:4px 8px; font-size:0.75rem;">
               <i class="fas fa-trash-alt"></i>
             </button>
@@ -108,7 +111,7 @@ window.removeBlockedDay = async (blockId) => {
     renderBlockedDaysList();
     if (window.loadAgenda) window.loadAgenda();
   } catch (err) {
-    showToast('Error al eliminar bloqueo', 'error');
+    showToast(err.message || 'Error al eliminar bloqueo', 'error');
   }
 };
 
@@ -141,8 +144,7 @@ export async function saveBlockedDay() {
         all_day: allDay,
         time_from: allDay ? '' : timeFrom,
         time_to: allDay ? '' : timeTo,
-        reason: reason,
-        type: profId === 'all' ? 'holiday' : 'emergency'
+        reason: reason
       })
     });
 

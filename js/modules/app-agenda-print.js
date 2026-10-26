@@ -37,7 +37,7 @@ function getPrintRange(type) {
     weekStart.setDate(base.getDate() + diff);
     from = formatDate(weekStart);
     const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 4); // Lunes a Viernes
+    weekEnd.setDate(weekStart.getDate() + 6); // Lunes a Domingo (7 días)
     to = formatDate(weekEnd);
   } else {
     const y = state.monthDate.getFullYear();
@@ -51,8 +51,21 @@ function getPrintRange(type) {
 
 async function loadAppointmentsForPrint(from, to) {
   try {
-    const data = await apiFetch(`${api.appointments}?month=${from.substring(0, 7)}`);
-    return Array.isArray(data.appointments) ? data.appointments : [];
+    const m1 = from.substring(0, 7);
+    const m2 = to.substring(0, 7);
+    const promises = [apiFetch(`${api.appointments}?month=${m1}`)];
+    if (m1 !== m2) {
+      promises.push(apiFetch(`${api.appointments}?month=${m2}`));
+    }
+    const results = await Promise.all(promises);
+    let all = [];
+    results.forEach(data => {
+      if (Array.isArray(data?.appointments)) {
+        all = all.concat(data.appointments);
+      }
+    });
+    const unique = Array.from(new Map(all.map(a => [a.id, a])).values());
+    return unique.length > 0 ? unique : (state.appointments || []);
   } catch (e) {
     return state.appointments || [];
   }

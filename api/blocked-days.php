@@ -47,7 +47,7 @@ if ($method === 'POST') {
     $timeFrom = trim($input['time_from'] ?? '');
     $timeTo = trim($input['time_to'] ?? '');
     $reason = trim($input['reason'] ?? 'Emergencia médica');
-    $type = trim($input['type'] ?? 'emergency');
+    $type = trim($input['type'] ?? ($profId === 'all' ? 'holiday' : 'emergency'));
 
     if (empty($dateFrom)) {
         http_response_code(400);
