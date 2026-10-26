@@ -135,6 +135,18 @@ export function openModal(opts = {}) {
     }
 
     loadSlots(targetDate, opts.time || null);
+
+    const targetMonth = (targetDate || '').substring(0, 7);
+    if (targetMonth && !(state.appointments || []).some(a => (a.date || '').startsWith(targetMonth))) {
+      apiFetch(`${api.appointments}?month=${targetMonth}`).then(data => {
+        if (Array.isArray(data?.appointments) && data.appointments.length > 0) {
+          const map = new Map((state.appointments || []).map(a => [a.id, a]));
+          data.appointments.forEach(a => map.set(a.id, a));
+          state.appointments = Array.from(map.values());
+          loadSlots(targetDate, opts.time || null);
+        }
+      }).catch(() => {});
+    }
   }
 
   // Escuchadores de eventos para actualizar horarios reactivamente
@@ -163,6 +175,19 @@ export function openModal(opts = {}) {
         }
       }
       loadSlots(formDate.value, formTime ? formTime.value : null);
+
+      // Si la fecha pertenece a un mes no cargado en memoria, traerlo en segundo plano y refrescar slots
+      const targetMonth = (val || '').substring(0, 7);
+      if (targetMonth && !(state.appointments || []).some(a => (a.date || '').startsWith(targetMonth))) {
+        apiFetch(`${api.appointments}?month=${targetMonth}`).then(data => {
+          if (Array.isArray(data?.appointments) && data.appointments.length > 0) {
+            const map = new Map((state.appointments || []).map(a => [a.id, a]));
+            data.appointments.forEach(a => map.set(a.id, a));
+            state.appointments = Array.from(map.values());
+            loadSlots(formDate.value, formTime ? formTime.value : null);
+          }
+        }).catch(() => {});
+      }
     };
 
     formDate.addEventListener('change', onDateChange);
@@ -401,6 +426,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
 
   // 2. Obtener citas existentes para esta fecha y profesional (excluyendo canceladas y la cita en edición)
   const existingApts = (state.appointments || []).filter(a => {
+    if (a.date !== targetDate) return false;
     const isAptCancelled = a.status === 'Cancelado' || a.status === 'cancelled' || String(a.status || '').toLowerCase().includes('cancel');
     if (isAptCancelled) return false; // Citas canceladas dejan el horario libre
     if (editingAppointmentId && a.id === editingAppointmentId) return false; // La cita propia no se auto-bloquea

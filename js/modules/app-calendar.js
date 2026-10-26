@@ -18,12 +18,41 @@ export async function loadMonth(opts = {}) {
     if (state.selectedProfessional) {
       url += `&professional=${encodeURIComponent(state.selectedProfessional)}`;
     }
-    const [aptData, blockData] = await Promise.all([
-      apiFetch(url),
+
+    const startOfWeek = getStartOfWeek(state.selectedDate || state.monthDate);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 6);
+    const m1 = formatDate(startOfWeek).substring(0, 7);
+    const m2 = formatDate(endOfWeek).substring(0, 7);
+
+    const aptPromises = [apiFetch(url)];
+    if (state.calendarView === 'week' && m1 !== m2) {
+      const otherMonth = (monthStr === m1) ? m2 : m1;
+      let otherUrl = `${api.appointments}?month=${otherMonth}`;
+      if (state.selectedProfessional) {
+        otherUrl += `&professional=${encodeURIComponent(state.selectedProfessional)}`;
+      }
+      aptPromises.push(apiFetch(otherUrl).catch(() => ({ appointments: [] })));
+    }
+
+    const [aptResults, blockData] = await Promise.all([
+      Promise.all(aptPromises),
       apiFetch(api.blockedDays).catch(() => ({ blocked_days: [] }))
     ]);
 
-    state.appointments = aptData.appointments || [];
+    let combinedApts = [];
+    aptResults.forEach(res => {
+      if (Array.isArray(res?.appointments)) {
+        combinedApts = combinedApts.concat(res.appointments);
+      }
+    });
+
+    const aptMap = new Map();
+    combinedApts.forEach(a => {
+      if (a && a.id) aptMap.set(a.id, a);
+    });
+
+    state.appointments = Array.from(aptMap.values());
     state.blockedDays = blockData.blocked_days || [];
 
     updateRemindersCountBadge();

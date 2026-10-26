@@ -435,7 +435,12 @@ export async function sbGetAppointments(filters = {}) {
     query = query.eq('date', filters.date);
   }
   if (filters.month) {
-    query = query.gte('date', `${filters.month}-01`).lte('date', `${filters.month}-31`);
+    const parts = String(filters.month).split('-');
+    const yNum = parseInt(parts[0], 10) || new Date().getFullYear();
+    const mNum = parseInt(parts[1], 10) || 1;
+    const lastDay = new Date(yNum, mNum, 0).getDate();
+    const lastDayStr = String(lastDay).padStart(2, '0');
+    query = query.gte('date', `${filters.month}-01`).lte('date', `${filters.month}-${lastDayStr}`);
   }
   if (filters.patientId) {
     query = query.eq('patient_id', filters.patientId);

@@ -186,8 +186,7 @@ export async function saveDoctorEmergencyBlock() {
         all_day: allDay,
         time_from: allDay ? '' : timeFrom,
         time_to: allDay ? '' : timeTo,
-        reason: reason,
-        type: 'emergency'
+        reason: reason
       })
     });
 
