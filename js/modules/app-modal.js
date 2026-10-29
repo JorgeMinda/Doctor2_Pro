@@ -553,11 +553,11 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
       return `${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}`;
     };
 
-    // 1. Botón "Próximo disponible" arriba de la grilla
+    // 1. Botón "Próximo disponible" arriba de la grilla (vidrio oscuro + neón indigo)
     const firstAvailable = slotDataList.find(s => s.status === 'available');
     const nextAvailableHtml = firstAvailable ? `
       <button type="button" title="Seleccionar próximo disponible (${firstAvailable.time})" 
-        class="rounded-full border border-indigo-400/40 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300 hover:bg-indigo-500/25 cursor-pointer"
+        class="rounded-full border border-indigo-400/40 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300 transition-all duration-200 hover:bg-indigo-500/20 hover:-translate-y-0.5 hover:shadow-[0_0_12px_rgba(99,102,241,0.4)] active:scale-95 cursor-pointer"
         data-time="${firstAvailable.time}">
         <i class="fas fa-clock" style="font-size:0.7rem; margin-right:4px;"></i>
         Próximo disponible: ${firstAvailable.time}
@@ -592,7 +592,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
 
             if (s.status === 'occupied') {
               return `
-                <button type="button" disabled title="${s.occupantName}" class="${base} border-rose-500/30 bg-rose-500/10 text-rose-400 line-through cursor-not-allowed opacity-70 select-none">
+                <button type="button" disabled title="${s.occupantName}" class="${base} border-rose-500/40 bg-rose-500/10 text-rose-400 line-through cursor-not-allowed opacity-70 select-none">
                   <span class="flex items-center gap-1"><span class="size-1.5 rounded-full bg-rose-400"></span>${s.time}</span>
                   <span class="text-[9px] font-sans tracking-tight mt-0.5">Ocupado</span>
                 </button>
@@ -609,7 +609,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
             }
             if (s.status === 'selected' || s.isSelected) {
               return `
-                <button type="button" title="Horario seleccionado (${s.time} hs)" class="${base} border-transparent bg-gradient-to-br from-indigo-500 to-violet-600 text-white scale-105 shadow-[0_0_18px_rgba(99,102,241,0.55)] cursor-pointer" data-time="${s.time}" aria-pressed="true">
+                <button type="button" title="Horario seleccionado (${s.time} hs)" class="${base} border-transparent bg-gradient-to-br from-indigo-500 to-violet-600 text-white scale-105 shadow-[0_0_18px_rgba(99,102,241,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(99,102,241,0.65)] active:scale-95 cursor-pointer" data-time="${s.time}" aria-pressed="true">
                   <span class="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle size-3" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>${s.time}
                   </span>
@@ -618,7 +618,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
             }
             // available
             return `
-              <button type="button" title="Disponible para agendar (${s.time} hs)" class="${base} border-emerald-500/40 bg-emerald-500/10 text-emerald-300 cursor-pointer hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-500/20 hover:shadow-[0_6px_16px_rgba(52,211,153,0.2)] active:translate-y-0" data-time="${s.time}">
+              <button type="button" title="Disponible para agendar (${s.time} hs)" class="${base} border-emerald-500/40 bg-emerald-500/10 text-emerald-300 cursor-pointer hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-500/20 hover:shadow-[0_6px_16px_rgba(52,211,153,0.25)] active:translate-y-0 active:scale-95" data-time="${s.time}">
                 <span class="flex items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>${s.time}
                 </span>
