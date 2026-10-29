@@ -434,9 +434,9 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     return true;
   });
 
-  // Generar lista de horarios desde 07:00 hasta 20:30 (cada 30 min)
+  // Generar lista de horarios desde 07:00 hasta 23:30 (cada 30 min) - extendido 24h para pruebas
   const times = [];
-  for (let h = 7; h <= 20; h++) {
+  for (let h = 7; h <= 23; h++) {
     const hh = String(h).padStart(2, '0');
     times.push(`${hh}:00`);
     times.push(`${hh}:30`);
@@ -538,37 +538,41 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     if (saveBtn) saveBtn.disabled = true;
   }
 
-  // Renderizar los chips interactivos en el contenedor
+  // Renderizar los chips interactivos en el contenedor (diseño estilo Radix/Tailwind con lucide clock)
   if (container) {
     container.innerHTML = slotDataList.map(s => {
       if (s.status === 'occupied') {
         return `
-          <button type="button" disabled title="Horario ocupado (${s.occupantName})" class="time-slot-btn badge occupied">
-            <span style="width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block;"></span>
-            <span>${s.time} hs</span>
+          <button type="button" disabled title="Horario ocupado (${s.occupantName})" class="flex flex-col items-center justify-center rounded-lg border py-2 px-1 text-xs font-mono font-medium transition-all border-destructive/50 bg-destructive/10 text-destructive hover:border-destructive/40 hover:bg-destructive/25 hover:shadow-[0_0_10px_rgba(239,68,68,0.25)] cursor-not-allowed opacity-60">
+            <span class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>${s.time}
+            </span>
           </button>
         `;
       }
       if (s.status === 'past') {
         return `
-          <button type="button" disabled title="Horario ya transcurrido en el día de hoy" class="time-slot-btn badge past">
-            <span style="width:6px; height:6px; border-radius:50%; background:currentColor; opacity:0.6; display:inline-block;"></span>
-            <span>${s.time} hs</span>
+          <button type="button" disabled title="Horario ya transcurrido en el día de hoy" class="flex flex-col items-center justify-center rounded-lg border py-2 px-1 text-xs font-mono font-medium transition-all border-muted/30 bg-muted/10 text-muted hover:border-muted/40 hover:bg-muted/20 cursor-not-allowed opacity-50">
+            <span class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>${s.time}
+            </span>
           </button>
         `;
       }
       if (s.status === 'selected' || s.isSelected) {
         return `
-          <button type="button" title="Horario seleccionado (${s.time} hs)" class="time-slot-btn badge primary selected" data-time="${s.time}">
-            <i class="fas fa-check-circle" style="font-size:0.75rem;"></i>
-            <span>${s.time} hs</span>
+          <button type="button" title="Horario seleccionado (${s.time} hs)" class="flex flex-col items-center justify-center rounded-lg border-2 py-2 px-1 text-xs font-mono font-medium transition-all border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(99,102,241,0.35)] cursor-pointer" data-time="${s.time}">
+            <span class="flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle size-3" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>${s.time}
+            </span>
           </button>
         `;
       }
       return `
-        <button type="button" title="Disponible para agendar (${s.time} hs)" class="time-slot-btn badge available" data-time="${s.time}">
-          <i class="far fa-clock" style="font-size:0.68rem; opacity:0.85;"></i>
-          <span>${s.time} hs</span>
+        <button type="button" title="Disponible para agendar (${s.time} hs)" class="flex flex-col items-center justify-center rounded-lg border py-2 px-1 text-xs font-mono font-medium transition-all border-emerald-500/50 bg-emerald-500/10 text-emerald-300 hover:border-emerald-400 hover:bg-emerald-500/25 hover:shadow-[0_0_10px_rgba(52,211,153,0.25)] cursor-pointer" data-time="${s.time}">
+          <span class="flex items-center gap-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>${s.time}
+          </span>
         </button>
       `;
     }).join('');
