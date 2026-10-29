@@ -543,10 +543,9 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     container.innerHTML = slotDataList.map(s => {
       if (s.status === 'occupied') {
         return `
-          <button type="button" disabled title="Horario ocupado (${s.occupantName})" class="flex flex-col items-center justify-center rounded-lg border py-2 px-1 text-xs font-mono font-medium transition-all border-destructive/50 bg-destructive/10 text-destructive hover:border-destructive/40 hover:bg-destructive/25 hover:shadow-[0_0_10px_rgba(239,68,68,0.25)] cursor-not-allowed opacity-60">
-            <span class="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>${s.time}
-            </span>
+          <button type="button" disabled title="Horario ocupado (${s.occupantName})" class="flex flex-col items-center justify-center rounded-lg border py-2 px-1 text-xs font-mono font-medium transition-all border-rose-500/40 bg-rose-500/10 text-rose-400 line-through cursor-not-allowed opacity-80 select-none">
+            <span class="flex items-center gap-1"><span class="size-1.5 rounded-full bg-rose-400"></span>${s.time}</span>
+            <span class="text-[9px] font-sans text-rose-400/90 tracking-tight mt-0.5">Ocupado</span>
           </button>
         `;
       }
