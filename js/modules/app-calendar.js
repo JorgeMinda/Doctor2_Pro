@@ -164,6 +164,10 @@ export function renderMonthView() {
     if (dateStr === todayStr) cell.classList.add('today');
 
     const dayApts = state.appointments.filter(a => a.date === dateStr);
+    const activeApts = dayApts.filter(a => {
+      const normStatus = normalizeStatus(a.status);
+      return normStatus !== 'Cancelado';
+    });
     const dayBlock = isDateBlocked(dateStr, state.selectedProfessional);
 
     if (dayBlock) {
@@ -177,9 +181,9 @@ export function renderMonthView() {
           <i class="fas fa-ban"></i> ${dayBlock.time_from && dayBlock.time_to ? `${dayBlock.time_from}-${dayBlock.time_to}` : (dayBlock.type === 'emergency' ? 'Emergencia' : 'Bloqueado')}
         </div>
       ` : ''}
-      ${dayApts.length > 0 ? `
-        <div class="count" title="Hacé clic para ver el detalle de los ${dayApts.length} turnos" onclick="event.stopPropagation(); window.viewDayAppointments('${dateStr}')">
-          <i class="fas fa-calendar-check"></i> ${dayApts.length} ${dayApts.length === 1 ? 'turno' : 'turnos'}
+      ${activeApts.length > 0 ? `
+        <div class="count" title="Hacé clic para ver el detalle de los ${activeApts.length} turnos" onclick="event.stopPropagation(); window.viewDayAppointments('${dateStr}')">
+          <i class="fas fa-calendar-check"></i> ${activeApts.length} ${activeApts.length === 1 ? 'turno' : 'turnos'}
         </div>
       ` : ''}
     `;
@@ -365,21 +369,28 @@ export function renderDayTimeline() {
   if (title) title.textContent = formatReadableDate(dateStr);
 
   const dayApts = state.appointments.filter(a => a.date === dateStr);
-  const dayBlock = isDateBlocked(dateStr, state.selectedProfessional);
+  const dayBlocks = (state.blockedDays || []).filter(b => {
+    const from = b.date_from || b.date;
+    const to = b.date_to || from;
+    return dateStr >= from && dateStr <= to &&
+      (b.professional_id === 'all' || b.professional_id === state.selectedProfessional);
+  });
 
   let bannerHtml = '';
-  if (dayBlock) {
-    const isAllDay = dayBlock.all_day !== false && (!dayBlock.time_from || !dayBlock.time_to);
-    const timeDetail = isAllDay ? 'Día Completo' : `${dayBlock.time_from} a ${dayBlock.time_to} hs`;
-    bannerHtml = `
-      <div style="background:rgba(239,68,68,0.12); border:1.5px solid var(--danger); border-radius:8px; padding:12px 16px; margin-bottom:14px; color:var(--danger); display:flex; align-items:center; gap:10px;">
-        <i class="fas fa-ban" style="font-size:1.4rem;"></i>
-        <div>
-          <strong style="font-size:0.92rem;">${isAllDay ? 'Día Bloqueado por Emergencia / Ausencia' : 'Horario Bloqueado por Emergencia'}</strong>
-          <br><span style="color:var(--text); font-size:0.8rem;"><strong>${dayBlock.professional_name || 'Todos'} (${timeDetail}):</strong> ${dayBlock.reason || 'Sin atención'}</span>
+  if (dayBlocks.length > 0) {
+    bannerHtml = dayBlocks.map(dayBlock => {
+      const isAllDay = dayBlock.all_day !== false && (!dayBlock.time_from || !dayBlock.time_to);
+      const timeDetail = isAllDay ? 'Día Completo' : `${dayBlock.time_from} a ${dayBlock.time_to} hs`;
+      return `
+        <div style="background:rgba(239,68,68,0.12); border:1.5px solid var(--danger); border-radius:8px; padding:12px 16px; margin-bottom:14px; color:var(--danger); display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-ban" style="font-size:1.4rem;"></i>
+          <div>
+            <strong style="font-size:0.92rem;">${isAllDay ? 'Día Bloqueado por Emergencia / Ausencia' : 'Horario Bloqueado por Emergencia'}</strong>
+            <br><span style="color:var(--text); font-size:0.8rem;"><strong>${dayBlock.professional_name || 'Todos'} (${timeDetail}):</strong> ${dayBlock.reason || 'Sin atención'}</span>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }).join('');
   }
 
   if (dayApts.length === 0) {
@@ -424,14 +435,13 @@ window.viewDayAppointments = (dateStr) => {
   scheduleAgendaRender();
 
   const dayApts = state.appointments.filter(a => a.date === dateStr);
-  if (dayApts.length === 1) {
-    // Si hay un único turno, abrir su modal con toda la información
-    openModal({ appointment: dayApts[0] });
-  } else if (dayApts.length > 1) {
-    // Si hay varios, hacer scroll suave al panel diario para ver el listado
+  const activeApts = dayApts.filter(a => normalizeStatus(a.status) !== 'Cancelado');
+  if (activeApts.length === 1) {
+    openModal({ appointment: activeApts[0] });
+  } else if (activeApts.length > 1) {
     const timelineCard = el('dayTimeline')?.closest('.card');
     timelineCard?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    showToast(`Mostrando los ${dayApts.length} turnos del día`, 'info');
+    showToast(`Mostrando los ${activeApts.length} turnos del día`, 'info');
   }
 };
 
