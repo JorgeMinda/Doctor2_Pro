@@ -665,9 +665,14 @@ class MySQLDatabase {
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
         ];
 
-        // Soporte SSL para bases en la nube (TiDB / Aiven / PlanetScale)
+        // Soporte SSL para bases en la nube (TiDB Cloud requiere conexión segura)
         $ssl = getenv('DB_SSL');
-        if ($ssl === 'true' || $ssl === '1') {
+        $isCloudHost = false;
+        $dbHost = getenv('DB_HOST') ?: '';
+        if (str_contains($dbHost, 'tidbcloud') || str_contains($dbHost, 'aiven') || str_contains($dbHost, 'planetscale')) {
+            $isCloudHost = true;
+        }
+        if ($ssl === 'true' || $ssl === '1' || $isCloudHost) {
             $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
