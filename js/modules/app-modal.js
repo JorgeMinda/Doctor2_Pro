@@ -538,14 +538,14 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     if (saveBtn) saveBtn.disabled = true;
   }
 
-  // Renderizar los chips interactivos en el contenedor (diseño estilo Radix/Tailwind con lucide clock)
+  // Renderizar los chips interactivos en el contenedor (diseño estilo Radix/Tailwind con lucide clock - exacto a ejemplo)
   if (container) {
     container.innerHTML = slotDataList.map(s => {
       if (s.status === 'occupied') {
         return `
           <button type="button" disabled title="Horario ocupado (${s.occupantName})" class="flex flex-col items-center justify-center rounded-lg border py-2 px-1 text-xs font-mono font-medium transition-all border-destructive/50 bg-destructive/10 text-destructive hover:border-destructive/40 hover:bg-destructive/25 hover:shadow-[0_0_10px_rgba(239,68,68,0.25)] cursor-not-allowed opacity-60">
             <span class="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>${s.time}
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>${s.time}
             </span>
           </button>
         `;
@@ -554,7 +554,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
         return `
           <button type="button" disabled title="Horario ya transcurrido en el día de hoy" class="flex flex-col items-center justify-center rounded-lg border py-2 px-1 text-xs font-mono font-medium transition-all border-muted/30 bg-muted/10 text-muted hover:border-muted/40 hover:bg-muted/20 cursor-not-allowed opacity-50">
             <span class="flex items-center gap-1">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>${s.time}
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>${s.time}
             </span>
           </button>
         `;
@@ -571,7 +571,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
       return `
         <button type="button" title="Disponible para agendar (${s.time} hs)" class="flex flex-col items-center justify-center rounded-lg border py-2 px-1 text-xs font-mono font-medium transition-all border-emerald-500/50 bg-emerald-500/10 text-emerald-300 hover:border-emerald-400 hover:bg-emerald-500/25 hover:shadow-[0_0_10px_rgba(52,211,153,0.25)] cursor-pointer" data-time="${s.time}">
           <span class="flex items-center gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>${s.time}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>${s.time}
           </span>
         </button>
       `;
