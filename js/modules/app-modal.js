@@ -554,34 +554,34 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     };
 
     // Chips estilo panel "Horarios del día": grilla plana con borde 2px neón (teal/rose/gris)
-    const clockIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>';
-    const checkIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+    const clockIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>';
+    const checkIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
 
     const chipsHtml = slotDataList.map(s => {
       if (s.status === 'occupied') {
         return `
-          <button type="button" disabled aria-disabled="true" title="${s.occupantName}" class="flex flex-col items-center justify-center rounded-lg border-2 border-rose-500/70 bg-rose-950/30 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-rose-300 cursor-not-allowed select-none">
-            <span class="flex items-center gap-1.5"><span class="inline-block size-1.5 rounded-full bg-rose-400 shrink-0"></span><span class="line-through">${s.time}</span></span>
-            <span class="text-[10px] font-sans font-medium line-through text-rose-400/80 mt-1">Ocupado</span>
+          <button type="button" disabled aria-disabled="true" data-status="occupied" title="${s.occupantName}" class="slot-chip-btn slot-occupied flex flex-col items-center justify-center rounded-lg border-2 border-rose-500/70 bg-rose-950/30 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-rose-300 cursor-not-allowed select-none">
+            <span class="flex items-center gap-1.5"><span class="slot-occupied-dot inline-block size-1.5 rounded-full bg-rose-400 shrink-0"></span><span class="slot-occupied-time line-through">${s.time}</span></span>
+            <span class="slot-occupied-text text-[10px] font-sans font-medium line-through text-rose-400/80 mt-1">Ocupado</span>
           </button>
         `;
       }
       if (s.status === 'past') {
         return `
-          <button type="button" disabled title="Horario ya transcurrido en el día de hoy" class="flex flex-col items-center justify-center rounded-lg border-2 border-white/10 bg-white/[0.03] py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white/30 cursor-not-allowed select-none opacity-70">
+          <button type="button" disabled data-status="past" title="Horario ya transcurrido en el día de hoy" class="slot-chip-btn slot-past flex flex-col items-center justify-center rounded-lg border-2 border-white/10 bg-white/[0.03] py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white/30 cursor-not-allowed select-none opacity-70">
             <span class="flex items-center gap-1.5">${clockIcon}${s.time}</span>
           </button>
         `;
       }
       if (s.status === 'selected' || s.isSelected) {
         return `
-          <button type="button" title="Horario seleccionado (${s.time} hs)" aria-pressed="true" class="flex flex-col items-center justify-center rounded-lg border-2 border-transparent bg-gradient-to-br from-teal-500 to-emerald-600 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white scale-105 shadow-[0_0_18px_rgba(45,212,191,0.5)] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(45,212,191,0.6)] active:scale-95" data-time="${s.time}">
+          <button type="button" data-status="selected" title="Horario seleccionado (${s.time} hs)" aria-pressed="true" class="slot-chip-btn slot-selected flex flex-col items-center justify-center rounded-lg border-2 border-transparent bg-gradient-to-br from-teal-500 to-emerald-600 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white scale-105 shadow-[0_0_18px_rgba(45,212,191,0.5)] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(45,212,191,0.6)] active:scale-95" data-time="${s.time}">
             <span class="flex items-center gap-1.5">${checkIcon}${s.time}</span>
           </button>
         `;
       }
       return `
-        <button type="button" title="Disponible para agendar (${s.time} hs)" class="flex flex-col items-center justify-center rounded-lg border-2 border-teal-500/80 bg-teal-950/40 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-teal-300 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-400 hover:bg-teal-500/15 hover:shadow-[0_0_14px_rgba(45,212,191,0.35)] active:scale-95" data-time="${s.time}">
+        <button type="button" data-status="available" title="Disponible para agendar (${s.time} hs)" class="slot-chip-btn slot-available flex flex-col items-center justify-center rounded-lg border-2 border-teal-500/80 bg-teal-950/40 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-teal-300 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-400 hover:bg-teal-500/15 hover:shadow-[0_0_14px_rgba(45,212,191,0.35)] active:scale-95" data-time="${s.time}">
           <span class="flex items-center gap-1.5">${clockIcon}${s.time}</span>
         </button>
       `;

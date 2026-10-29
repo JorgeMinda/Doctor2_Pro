@@ -622,20 +622,20 @@
 
         <!-- 4. Horarios del día -->
         <div class="radix-form-field">
-          <div class="rounded-2xl border border-slate-800/80 bg-[#070b12] p-4 shadow-inner">
-            <div class="flex items-center justify-between mb-2">
-              <label data-slot="label" class="text-base font-bold text-white tracking-tight" style="margin:0;">Horarios del día</label>
+          <div id="slotsCardWrapper" class="slots-card-wrapper">
+            <div class="slots-card-head">
+              <label data-slot="label" class="slots-card-title">Horarios del día</label>
               <div style="display:flex; align-items:center; gap:8px;">
                 <span id="selectedTimeBadge" class="badge primary" style="font-size:0.75rem; font-weight:700; display:none;"></span>
-                <span id="slotsFreeCount" class="text-xs font-normal text-slate-400"></span>
+                <span id="slotsFreeCount" class="slots-free-count"></span>
               </div>
             </div>
-            <div class="flex items-center gap-4 mb-3 text-xs font-medium select-none">
-              <span class="flex items-center gap-1.5 text-teal-400 font-semibold"><span class="inline-block size-2 rounded-full bg-teal-400"></span>Disponible</span>
-              <span class="flex items-center gap-1.5 text-rose-400 font-semibold"><span class="inline-block size-2 rounded-full bg-rose-400"></span>Ocupado</span>
-              <span class="flex items-center gap-1.5 text-slate-400 font-semibold"><span class="inline-block size-2 rounded-full bg-slate-400"></span>Pasado</span>
+            <div id="slotsLegend" class="slots-legend">
+              <span class="legend-item disponible"><span class="legend-dot disponible"></span>Disponible</span>
+              <span class="legend-item ocupado"><span class="legend-dot ocupado"></span>Ocupado</span>
+              <span class="legend-item pasado"><span class="legend-dot pasado"></span>Pasado</span>
             </div>
-            <div id="slotsGridContainer" class="grid grid-cols-4 gap-2 sm:grid-cols-6 max-h-60 overflow-y-auto p-1 custom-slots-scrollbar">
+            <div id="slotsGridContainer" class="slots-grid-container custom-slots-scrollbar">
               <!-- Rellenado dinámicamente -->
             </div>
             <select id="formTime" style="display:none;"></select>
@@ -1300,6 +1300,6 @@
   </div>
 
   <!-- Scripts Modulares -->
-  <script type="module" src="js/app.js?v=4.2"></script>
+  <script type="module" src="js/app.js?v=4.3"></script>
 </body>
 </html>
