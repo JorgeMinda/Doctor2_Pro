@@ -110,6 +110,7 @@ function renderAppointmentInfo(apt) {
     'Confirmado': '#22c55e',
     'Reservado': '#f59e0b',
     'Reprogramado': '#f59e0b',
+    'En curso': '#f59e0b',
     'Atendido': '#3b82f6',
     'Cancelado': '#ef4444',
     'Ausente': '#6b7280'

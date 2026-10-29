@@ -144,6 +144,7 @@ function normalizeAppointmentStatus(status) {
   const s = String(status).toLowerCase();
   if (s === 'scheduled' || s === 'reservado') return 'Reservado';
   if (s === 'confirmed' || s === 'confirmado') return 'Confirmado';
+  if (s === 'en curso' || s === 'in_progress' || s === 'in-progress') return 'En curso';
   if (s === 'cancelled' || s === 'cancelado') return 'Cancelado';
   if (s === 'completed' || s === 'atendido' || s === 'done') return 'Atendido';
   if (s === 'rescheduled' || s === 'reprogramado') return 'Reprogramado';

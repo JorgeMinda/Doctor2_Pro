@@ -4,6 +4,7 @@
 import { state, api } from './app-state.js';
 import { el, formatDate, apiFetch, showToast } from './app-utils.js';
 import { loadMonth } from './app-calendar.js';
+import { showConfirmDialog } from './app-dialog.js';
 
 let editingAppointmentId = null;
 
@@ -739,8 +740,11 @@ export async function saveAppointment() {
   );
 
   const formStatus = el('formStatus');
-  // Al actualizar o reactivar la cita, el estado pasa a ser 'Reservado'
-  const status = formStatus ? formStatus.value : 'Reservado';
+  // Al actualizar o reactivar una cita que estaba cancelada, vuelve a 'Reservado'.
+  // Los demás estados (Confirmado, En curso, Atendido, etc.) se conservan al editar.
+  const status = formStatus
+    ? formStatus.value
+    : (origApt ? (wasCancelled ? 'Reservado' : (origApt.status || 'Reservado')) : 'Reservado');
 
   const payload = {
     id: editingAppointmentId,
@@ -905,6 +909,65 @@ export async function toggleCancelAppointment() {
     showToast(err.message || 'Error al actualizar el estado de la cita', 'error');
   }
 }
+
+/**
+ * Marca la cita como "En curso": la consulta con el paciente está en atención
+ */
+window.startApt = async (aptId) => {
+  const apt = (state.appointments || []).find(a => a.id === aptId);
+  if (!apt) return;
+
+  const current = String(apt.status || '').toLowerCase();
+  if (!['reservado', 'confirmado', 'reprogramado'].includes(current)) {
+    showToast('Esta cita ya no puede iniciarse en su estado actual.', 'warning');
+    return;
+  }
+
+  try {
+    await apiFetch(api.appointments, {
+      method: 'PATCH',
+      body: JSON.stringify({ id: aptId, status: 'En curso' })
+    });
+    apt.status = 'En curso';
+    showToast('Consulta iniciada: la cita está ahora en curso', 'success');
+    loadMonth();
+  } catch (err) {
+    showToast(err.message || 'Error al iniciar la consulta', 'error');
+  }
+};
+
+/**
+ * Abre el diálogo de confirmación para completar una consulta en curso
+ */
+window.completeApt = async (aptId) => {
+  const apt = (state.appointments || []).find(a => a.id === aptId);
+  if (!apt) return;
+
+  if (String(apt.status || '').toLowerCase() !== 'en curso') {
+    showToast('La consulta debe estar "En curso" para completarse. Primero usá el botón Iniciar.', 'warning');
+    return;
+  }
+
+  const confirmed = await showConfirmDialog({
+    title: '¿Completar o cancelar consulta en curso?',
+    description: 'Puedes marcar la cita como completada una vez atendido el paciente.',
+    confirmLabel: 'Completar atención',
+    cancelLabel: 'Cancelar'
+  });
+  if (!confirmed) return;
+
+  try {
+    await apiFetch(api.appointments, {
+      method: 'PATCH',
+      body: JSON.stringify({ id: aptId, status: 'Atendido' })
+    });
+    apt.status = 'Atendido';
+    showToast('Consulta completada con éxito', 'success');
+    loadMonth();
+  } catch (err) {
+    showToast(err.message || 'Error al completar la cita', 'error');
+  }
+};
 
 /**
  * Elimina permanentemente la cita de la base de datos

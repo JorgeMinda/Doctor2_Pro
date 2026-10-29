@@ -202,11 +202,27 @@ function normalizeStatus(status) {
   const s = String(status).toLowerCase();
   if (s === 'scheduled' || s === 'reservado') return 'Reservado';
   if (s === 'confirmed' || s === 'confirmado') return 'Confirmado';
+  if (s === 'en curso' || s === 'in_progress' || s === 'in-progress') return 'En curso';
   if (s === 'cancelled' || s === 'cancelado') return 'Cancelado';
   if (s === 'completed' || s === 'atendido' || s === 'done') return 'Atendido';
   if (s === 'rescheduled' || s === 'reprogramado') return 'Reprogramado';
   if (s === 'absent' || s === 'ausente') return 'Ausente';
   return status;
+}
+
+// Iniciales compactas para los pills de estado en las tarjetas de la semana
+const STATUS_INITIALS = {
+  'Reservado': 'RES',
+  'Confirmado': 'CONF',
+  'Cancelado': 'CANC',
+  'Atendido': 'ATEN',
+  'Reprogramado': 'REPR',
+  'Ausente': 'AUS',
+  'En curso': 'CURSO'
+};
+
+function statusSlug(status) {
+  return String(status).toLowerCase().replace(/\s+/g, '-');
 }
 
 export function initCalendarNavListeners() {
@@ -313,12 +329,12 @@ export function renderWeekView() {
       const normStatus = normalizeStatus(apt.status);
       const isCancelled = normStatus === 'Cancelado';
       const aptEl = document.createElement('div');
-      aptEl.className = `week-card-apt-block status-${normStatus.toLowerCase()}`;
+      aptEl.className = `week-card-apt-block status-${statusSlug(normStatus)}`;
       aptEl.title = `${apt.patient_name} (${apt.time} hs) · ${apt.reason || 'Consulta'} · Estado: ${normStatus}`;
       aptEl.innerHTML = `
         <div class="apt-block-top">
           <span class="apt-block-time"><i class="far fa-clock" style="font-size:0.65rem; opacity:0.8; margin-right:3px;"></i>${apt.time} hs</span>
-          <span class="apt-block-pill pill-${normStatus.toLowerCase()}">${normStatus}</span>
+          <span class="apt-block-pill pill-${statusSlug(normStatus)}" title="Estado: ${normStatus}">${STATUS_INITIALS[normStatus] || normStatus}</span>
         </div>
         <div class="apt-block-patient${isCancelled ? ' text-strikethrough' : ''}">${apt.patient_name}</div>
         ${apt.reason ? `<div class="apt-block-reason">${apt.reason}</div>` : ''}
@@ -407,6 +423,20 @@ export function renderDayTimeline() {
     const isPast = aptDateTime < now;
     const isNotDone = apt.status !== 'Atendido' && apt.status !== 'Cancelado';
 
+    const normStatus = normalizeStatus(apt.status);
+    const badgeClass = normStatus === 'En curso' ? 'en-curso' : normStatus;
+    const canStart = ['Reservado', 'Confirmado', 'Reprogramado'].includes(normStatus);
+    const startBtn = canStart ? `
+      <button type="button" class="apt-action-btn apt-action-btn--primary" onclick="window.startApt('${apt.id}')" title="Iniciar consulta (queda En curso)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="apt-action-icon" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>Iniciar
+      </button>
+    ` : '';
+    const completeBtn = normStatus === 'En curso' ? `
+      <button type="button" class="apt-action-btn apt-action-btn--outline" onclick="window.completeApt('${apt.id}')" title="Completar atención">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="apt-action-icon" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>Completar
+      </button>
+    ` : '';
+
     return `
       <div class="slot" data-id="${apt.id}" style="cursor:pointer;" onclick="window.editApt('${apt.id}')">
         <div class="info">
@@ -421,7 +451,8 @@ export function renderDayTimeline() {
           <small>${apt.reason || 'Consulta general'} ${apt.patient_phone ? `· 📱 ${apt.patient_phone}` : ''} ${apt.cost ? `· 💵 $${parseFloat(apt.cost).toLocaleString('es-AR')}` : ''}</small>
         </div>
         <div class="actions" onclick="event.stopPropagation()">
-          <span class="badge ${apt.status}">${apt.status}</span>
+          <span class="badge ${badgeClass}">${normStatus}</span>
+          ${startBtn}${completeBtn}
           <button class="ghost" onclick="window.editApt('${apt.id}')" title="Ver / Editar turno"><i class="fas fa-edit"></i></button>
         </div>
       </div>
