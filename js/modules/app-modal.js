@@ -504,14 +504,12 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     }
   }
 
-  // Actualizar contador superior (formato horas libres, ej: "24 horas libres")
+  // Actualizar contador superior (formato horarios libres, ej: "24 horarios libres")
   if (freeCountEl) {
     if (freeSlotsCount === 0) {
-      freeCountEl.textContent = isToday ? '0 horas libres (todas transcurridas u ocupadas)' : '0 horas libres';
+      freeCountEl.textContent = isToday ? '0 horarios libres (ocupados o transcurridos)' : '0 horarios libres';
     } else {
-      const freeHours = freeSlotsCount / 2;
-      const freeHoursText = Number.isInteger(freeHours) ? freeHours : freeHours.toFixed(1);
-      freeCountEl.textContent = `${freeHoursText} hora${freeHours === 1 ? '' : 's'} libre${freeHours === 1 ? '' : 's'}`;
+      freeCountEl.textContent = `${freeSlotsCount} horario${freeSlotsCount === 1 ? '' : 's'} libre${freeSlotsCount === 1 ? '' : 's'}`;
     }
   }
 
@@ -562,9 +560,9 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     const chipsHtml = slotDataList.map(s => {
       if (s.status === 'occupied') {
         return `
-          <button type="button" disabled aria-disabled="true" title="${s.occupantName}" class="flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 border-rose-500/70 bg-rose-950/30 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-rose-300 cursor-not-allowed select-none">
-            <span class="flex items-center gap-1.5">${clockIcon}${s.time}</span>
-            <span class="flex items-center gap-1 mt-0.5 text-[10px] font-sans font-normal leading-none text-rose-400/90"><span class="inline-block size-1.5 rounded-full bg-rose-400"></span>Ocupado</span>
+          <button type="button" disabled aria-disabled="true" title="${s.occupantName}" class="flex flex-col items-center justify-center rounded-lg border-2 border-rose-500/70 bg-rose-950/30 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-rose-300 cursor-not-allowed select-none">
+            <span class="flex items-center gap-1.5"><span class="inline-block size-1.5 rounded-full bg-rose-400 shrink-0"></span><span class="line-through">${s.time}</span></span>
+            <span class="text-[10px] font-sans font-medium line-through text-rose-400/80 mt-1">Ocupado</span>
           </button>
         `;
       }
