@@ -425,7 +425,8 @@ export function renderDayTimeline() {
 
     const normStatus = normalizeStatus(apt.status);
     const badgeClass = normStatus === 'En curso' ? 'en-curso' : normStatus;
-    const canStart = ['Reservado', 'Confirmado', 'Reprogramado'].includes(normStatus);
+    // Solo se puede iniciar una consulta cuya fecha/hora aún no haya transcurrido
+    const canStart = !isPast && ['Reservado', 'Confirmado', 'Reprogramado'].includes(normStatus);
     const startBtn = canStart ? `
       <button type="button" class="apt-action-btn apt-action-btn--primary" onclick="window.startApt('${apt.id}')" title="Iniciar consulta (queda En curso)">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="apt-action-icon" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>Iniciar

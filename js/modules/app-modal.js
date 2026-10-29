@@ -923,6 +923,16 @@ window.startApt = async (aptId) => {
     return;
   }
 
+  // Validación: no se puede iniciar una consulta cuya fecha/hora ya transcurrió
+  const now = new Date();
+  const todayStr = formatDate(now);
+  const timeClean = apt.time && apt.time.length === 5 ? apt.time : '00:00';
+  const aptDateTime = new Date(`${apt.date}T${timeClean}:00`);
+  if (apt.date < todayStr || (apt.date === todayStr && aptDateTime < now)) {
+    showToast('⚠️ No es posible iniciar una consulta con horario ya transcurrido (' + apt.time + ' hs).', 'error');
+    return;
+  }
+
   try {
     await apiFetch(api.appointments, {
       method: 'PATCH',
