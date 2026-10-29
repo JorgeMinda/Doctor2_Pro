@@ -390,7 +390,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
       select.innerHTML = '<option value="">(Fecha Pasada - No disponible)</option>';
       select.value = '';
     }
-    if (freeCountEl) freeCountEl.textContent = '0 horarios disponibles (Fecha pasada)';
+    if (freeCountEl) freeCountEl.textContent = '0 horas libres (Fecha pasada)';
     if (selectedBadge) selectedBadge.style.display = 'none';
     if (saveBtn) saveBtn.disabled = true;
     return;
@@ -416,7 +416,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
       `;
     }
     if (select) select.innerHTML = '<option value="">(Fecha Bloqueada - Día Completo)</option>';
-    if (freeCountEl) freeCountEl.textContent = '0 horarios libres (Día bloqueado)';
+    if (freeCountEl) freeCountEl.textContent = '0 horas libres (Día bloqueado)';
     if (selectedBadge) selectedBadge.style.display = 'none';
     if (saveBtn) saveBtn.disabled = true;
     return;
@@ -504,12 +504,14 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     }
   }
 
-  // Actualizar contador superior
+  // Actualizar contador superior (formato horas libres, ej: "24 horas libres")
   if (freeCountEl) {
     if (freeSlotsCount === 0) {
-      freeCountEl.textContent = isToday ? '0 horarios libres (Todos transcurridos u ocupados)' : '0 horarios disponibles';
+      freeCountEl.textContent = isToday ? '0 horas libres (todas transcurridas u ocupadas)' : '0 horas libres';
     } else {
-      freeCountEl.textContent = `${freeSlotsCount} horario${freeSlotsCount === 1 ? '' : 's'} libre${freeSlotsCount === 1 ? '' : 's'}`;
+      const freeHours = freeSlotsCount / 2;
+      const freeHoursText = Number.isInteger(freeHours) ? freeHours : freeHours.toFixed(1);
+      freeCountEl.textContent = `${freeHoursText} hora${freeHours === 1 ? '' : 's'} libre${freeHours === 1 ? '' : 's'}`;
     }
   }
 
@@ -538,7 +540,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     if (saveBtn) saveBtn.disabled = true;
   }
 
-  // Renderizar los chips interactivos en el contenedor (diseño por franjas del día)
+  // Renderizar los chips interactivos en el contenedor (panel "Horarios del día", grilla plana)
   if (container) {
     // Duración de la cita (usar formDuration si existe, si no 30 min)
     const durEl = el('formDuration');
@@ -553,119 +555,50 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
       return `${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}`;
     };
 
-    // 1. Botón "Próximo disponible" arriba de la grilla (vidrio oscuro + neón indigo)
-    const firstAvailable = slotDataList.find(s => s.status === 'available');
-    const nextAvailableHtml = firstAvailable ? `
-      <button type="button" title="Seleccionar próximo disponible (${firstAvailable.time})" 
-        class="rounded-full border border-indigo-400/40 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300 transition-all duration-200 hover:bg-indigo-500/20 hover:-translate-y-0.5 hover:shadow-[0_0_12px_rgba(99,102,241,0.4)] active:scale-95 cursor-pointer"
-        data-time="${firstAvailable.time}">
-        <i class="fas fa-clock" style="font-size:0.7rem; margin-right:4px;"></i>
-        Próximo disponible: ${firstAvailable.time}
-      </button>
-    ` : '';
+    // Chips estilo panel "Horarios del día": grilla plana con borde 2px neón (teal/rose/gris)
+    const clockIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>';
+    const checkIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
 
-    // 2. Función para renderizar una franja del día
-    const renderPeriod = (periodName, filterFn) => {
-      const periodSlots = slotDataList.filter(filterFn);
-      if (periodSlots.length === 0) return '';
-
-      const freeCount = periodSlots.filter(s => s.status === 'available').length;
-
-      if (freeCount === 0) {
+    const chipsHtml = slotDataList.map(s => {
+      if (s.status === 'occupied') {
         return `
-          <div class="col-span-full p-1 mb-2">
-            <div class="text-[11px] uppercase tracking-wider text-white/50">${periodName} · sin horarios disponibles</div>
-          </div>
+          <button type="button" disabled aria-disabled="true" title="${s.occupantName}" class="flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 border-rose-500/70 bg-rose-950/30 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-rose-300 cursor-not-allowed select-none">
+            <span class="flex items-center gap-1.5">${clockIcon}${s.time}</span>
+            <span class="flex items-center gap-1 mt-0.5 text-[10px] font-sans font-normal leading-none text-rose-400/90"><span class="inline-block size-1.5 rounded-full bg-rose-400"></span>Ocupado</span>
+          </button>
         `;
       }
-
-      const freeBadgeClass = freeCount === 0 ? 'text-rose-400/70' : 'text-emerald-400/80';
-
+      if (s.status === 'past') {
+        return `
+          <button type="button" disabled title="Horario ya transcurrido en el día de hoy" class="flex flex-col items-center justify-center rounded-lg border-2 border-white/10 bg-white/[0.03] py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white/30 cursor-not-allowed select-none opacity-70">
+            <span class="flex items-center gap-1.5">${clockIcon}${s.time}</span>
+          </button>
+        `;
+      }
+      if (s.status === 'selected' || s.isSelected) {
+        return `
+          <button type="button" title="Horario seleccionado (${s.time} hs)" aria-pressed="true" class="flex flex-col items-center justify-center rounded-lg border-2 border-transparent bg-gradient-to-br from-teal-500 to-emerald-600 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white scale-105 shadow-[0_0_18px_rgba(45,212,191,0.5)] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(45,212,191,0.6)] active:scale-95" data-time="${s.time}">
+            <span class="flex items-center gap-1.5">${checkIcon}${s.time}</span>
+          </button>
+        `;
+      }
       return `
-        <div class="col-span-full grid grid-cols-4 gap-1.5 sm:grid-cols-6 p-1 mb-2">
-          <div class="col-span-full flex justify-between items-center mb-1">
-            <span class="text-[11px] uppercase tracking-wider text-white/50">${periodName}</span>
-            <span class="text-[11px] uppercase tracking-wider">N libres: <span class="${freeBadgeClass}">${freeCount}</span></span>
-          </div>
-          ${periodSlots.map(s => {
-            const base = 'flex flex-col items-center justify-center rounded-xl border py-2.5 px-1 text-xs font-mono font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300';
-
-            if (s.status === 'occupied') {
-              return `
-                <button type="button" disabled title="${s.occupantName}" class="${base} border-rose-500/40 bg-rose-500/10 text-rose-400 line-through cursor-not-allowed opacity-70 select-none">
-                  <span class="flex items-center gap-1"><span class="size-1.5 rounded-full bg-rose-400"></span>${s.time}</span>
-                  <span class="text-[9px] font-sans tracking-tight mt-0.5">Ocupado</span>
-                </button>
-              `;
-            }
-            if (s.status === 'past') {
-              return `
-                <button type="button" disabled title="Horario ya transcurrido en el día de hoy" class="${base} border-white/5 bg-white/5 text-white/30 cursor-not-allowed opacity-50 select-none">
-                  <span class="flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>${s.time}
-                  </span>
-                </button>
-              `;
-            }
-            if (s.status === 'selected' || s.isSelected) {
-              return `
-                <button type="button" title="Horario seleccionado (${s.time} hs)" class="${base} border-transparent bg-gradient-to-br from-indigo-500 to-violet-600 text-white scale-105 shadow-[0_0_18px_rgba(99,102,241,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(99,102,241,0.65)] active:scale-95 cursor-pointer" data-time="${s.time}" aria-pressed="true">
-                  <span class="flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle size-3" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>${s.time}
-                  </span>
-                </button>
-              `;
-            }
-            // available
-            return `
-              <button type="button" title="Disponible para agendar (${s.time} hs)" class="${base} border-emerald-500/40 bg-emerald-500/10 text-emerald-300 cursor-pointer hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-500/20 hover:shadow-[0_6px_16px_rgba(52,211,153,0.25)] active:translate-y-0 active:scale-95" data-time="${s.time}">
-                <span class="flex items-center gap-1">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock size-3 opacity-80" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>${s.time}
-                </span>
-              </button>
-            `;
-          }).join('')}
-        </div>
+        <button type="button" title="Disponible para agendar (${s.time} hs)" class="flex flex-col items-center justify-center rounded-lg border-2 border-teal-500/80 bg-teal-950/40 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-teal-300 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-400 hover:bg-teal-500/15 hover:shadow-[0_0_14px_rgba(45,212,191,0.35)] active:scale-95" data-time="${s.time}">
+          <span class="flex items-center gap-1.5">${clockIcon}${s.time}</span>
+        </button>
       `;
-    };
+    }).join('');
 
-    // 3. Agrupar por franja del día
-    const morningSlots = slotDataList.filter(s => {
-      const [h] = s.time.split(':').map(Number);
-      return h < 12;
-    });
-    const afternoonSlots = slotDataList.filter(s => {
-      const [h] = s.time.split(':').map(Number);
-      return h >= 12 && h < 18;
-    });
-    const nightSlots = slotDataList.filter(s => {
-      const [h] = s.time.split(':').map(Number);
-      return h >= 18;
-    });
-
-    // 4. Resumen con aria-live
     const summaryText = currentTime
       ? `Cita: ${currentTime} – ${endTimeStr(currentTime)}`
       : 'Elige un horario para continuar';
 
     container.innerHTML = `
-      ${nextAvailableHtml}
-      ${renderPeriod('Mañana', s => {
-        const [h] = s.time.split(':').map(Number);
-        return h < 12;
-      })}
-      ${renderPeriod('Tarde', s => {
-        const [h] = s.time.split(':').map(Number);
-        return h >= 12 && h < 18;
-      })}
-      ${renderPeriod('Noche', s => {
-        const [h] = s.time.split(':').map(Number);
-        return h >= 18;
-      })}
-      <div role="status" aria-live="polite" class="col-span-full mt-2 text-xs text-muted-foreground">${summaryText}</div>
+      ${chipsHtml}
+      <div role="status" aria-live="polite" class="sr-only col-span-full">${summaryText}</div>
     `;
 
-    // Listener de clic para seleccionar horario (incluye "Próximo disponible")
+    // Listener de clic para seleccionar horario
     container.querySelectorAll('[data-time]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
