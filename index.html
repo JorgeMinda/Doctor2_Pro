@@ -630,6 +630,18 @@
                 <span id="slotsFreeCount" class="slots-free-count"></span>
               </div>
             </div>
+
+            <!-- Selector de Duración (Segmented Control UX) -->
+            <div id="slotDurationSelector" class="mb-4">
+              <span class="block text-xs font-semibold text-slate-500 mb-2">Duración de la cita:</span>
+              <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-100 rounded-lg text-xs font-medium text-slate-600">
+                <button type="button" data-duration="30" class="py-1.5 rounded-md transition-all bg-teal-600 text-white font-semibold shadow-sm">30 min</button>
+                <button type="button" data-duration="45" class="py-1.5 rounded-md transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-200">45 min</button>
+                <button type="button" data-duration="60" class="py-1.5 rounded-md transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-200">60 min</button>
+                <button type="button" data-duration="90" class="py-1.5 rounded-md transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-200">90 min</button>
+              </div>
+            </div>
+
             <div id="slotsLegend" class="slots-legend">
               <span class="legend-item disponible"><span class="legend-dot disponible"></span>Disponible</span>
               <span class="legend-item ocupado"><span class="legend-dot ocupado"></span>Ocupado</span>

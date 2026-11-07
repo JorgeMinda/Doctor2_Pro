@@ -592,10 +592,36 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
       ? `Cita: ${currentTime} – ${endTimeStr(currentTime)}`
       : 'Elige un horario para continuar';
 
-    container.innerHTML = `
+container.innerHTML = `
       ${chipsHtml}
-      <div role="status" aria-live="polite" class="sr-only col-span-full">${summaryText}</div>
+      <div class="slot-live" role="status" aria-live="polite">${summaryText}</div>
     `;
+
+    // Selector de duración de cita
+    const durationSelector = document.getElementById('slotDurationSelector');
+    if (durationSelector) {
+      const durationBtns = durationSelector.querySelectorAll('button[data-duration]');
+      if (durationBtns.length) {
+        durationBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            // Remover estado activo de todos los botones
+            durationBtns.forEach(b => {
+              b.classList.remove('bg-teal-600', 'text-white');
+              b.classList.add('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-200');
+            });
+            // Aplicar estado activo al botón pulsado
+            btn.classList.remove('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-200');
+            btn.classList.add('bg-teal-600', 'text-white');
+            // Actualizar input oculto de duración
+            const formDuration = el('formDuration');
+            if (formDuration) {
+              formDuration.value = btn.dataset.duration;
+            }
+            showToast(`Duración seleccionada: ${btn.dataset.duration} min`, 'success');
+          });
+        });
+      }
+    }
 
     // Listener de clic para seleccionar horario
     container.querySelectorAll('[data-time]').forEach(btn => {
