@@ -938,14 +938,18 @@ export async function toggleCancelAppointment() {
 
 /**
  * Marca la cita como "En curso": la consulta con el paciente está en atención
+ * Valida que NO exista otra cita en curso antes de proceder
  */
 window.startApt = async (aptId) => {
   const apt = (state.appointments || []).find(a => a.id === aptId);
   if (!apt) return;
 
-  const current = String(apt.status || '').toLowerCase();
-  if (!['reservado', 'confirmado', 'reprogramado'].includes(current)) {
-    showToast('Esta cita ya no puede iniciarse en su estado actual.', 'warning');
+  // --- NUEVA VALIDACIÓN: impedimos 2 citas "En curso" simultáneas ---
+  const activeApt = (state.appointments || []).find(
+    a => a.id !== aptId && (a.status === 'En curso' || String(a.status || '').toLowerCase().includes('en curso'))
+  );
+  if (activeApt) {
+    showToast(`No puedes iniciar esta cita. Actualmente la cita de "${activeApt.patient_name || 'otro paciente'}" está En Curso. Finalízala primero.`, 'error');
     return;
   }
 

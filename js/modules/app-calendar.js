@@ -328,9 +328,13 @@ export function renderWeekView() {
     dayApts.forEach(apt => {
       const normStatus = normalizeStatus(apt.status);
       const isCancelled = normStatus === 'Cancelado';
+      const statusBlocked = normStatus === 'En curso' || normStatus === 'Atendido' || 
+                          String(apt.status || '').toLowerCase().includes('en curso');
       const aptEl = document.createElement('div');
       aptEl.className = `week-card-apt-block status-${statusSlug(normStatus)}`;
       aptEl.title = `${apt.patient_name} (${apt.time} hs) · ${apt.reason || 'Consulta'} · Estado: ${normStatus}`;
+      // Si la cita está bloqueada por estado, la tarjeta queda solo lectura sin clickeable
+      const clickHandler = statusBlocked ? '' : `onclick="e.stopPropagation(); openModal({ appointment: apt });"`;
       aptEl.innerHTML = `
         <div class="apt-block-top">
           <span class="apt-block-time"><i class="far fa-clock" style="font-size:0.65rem; opacity:0.8; margin-right:3px;"></i>${apt.time} hs</span>
@@ -340,9 +344,14 @@ export function renderWeekView() {
         ${apt.reason ? `<div class="apt-block-reason">${apt.reason}</div>` : ''}
       `;
       aptEl.addEventListener('click', (e) => {
+        if (statusBlocked) return; // Bloquear clic completamente
         e.stopPropagation();
         openModal({ appointment: apt });
       });
+      if (statusBlocked) {
+        aptEl.style.cursor = 'default';
+        aptEl.style.opacity = '0.7';
+      }
       aptsDiv.appendChild(aptEl);
     });
 
@@ -423,8 +432,11 @@ export function renderDayTimeline() {
     const isPast = aptDateTime < now;
     const isNotDone = apt.status !== 'Atendido' && apt.status !== 'Cancelado';
 
-    const normStatus = normalizeStatus(apt.status);
+const normStatus = normalizeStatus(apt.status);
     const badgeClass = normStatus === 'En curso' ? 'en-curso' : normStatus;
+    // Determinar si se debe mostrar el botón de editar (bloqueado si está En curso o Atendido)
+    const canEdit = apt.status !== 'En curso' && apt.status !== 'Atendido' && 
+                    !String(apt.status || '').toLowerCase().includes('en curso');
     // Solo se puede iniciar una consulta cuya fecha/hora aún no haya transcurrido
     const canStart = !isPast && ['Reservado', 'Confirmado', 'Reprogramado'].includes(normStatus);
     const startBtn = canStart ? `
@@ -437,7 +449,9 @@ export function renderDayTimeline() {
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="apt-action-icon" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg>Completar
       </button>
     ` : '';
-
+    const editBtn = canEdit ? `
+      <button class="ghost" onclick="window.editApt('${apt.id}')" title="Ver / Editar turno"><i class="fas fa-edit"></i></button>
+    ` : '';
     return `
       <div class="slot" data-id="${apt.id}" style="cursor:pointer;" onclick="window.editApt('${apt.id}')">
         <div class="info">
@@ -454,7 +468,7 @@ export function renderDayTimeline() {
         <div class="actions" onclick="event.stopPropagation()">
           <span class="badge ${badgeClass}">${normStatus}</span>
           ${startBtn}${completeBtn}
-          <button class="ghost" onclick="window.editApt('${apt.id}')" title="Ver / Editar turno"><i class="fas fa-edit"></i></button>
+          ${editBtn}
         </div>
       </div>
     `;
@@ -479,7 +493,16 @@ window.viewDayAppointments = (dateStr) => {
 
 window.editApt = (id) => {
   const apt = state.appointments.find(a => a.id === id);
-  if (apt) openModal({ appointment: apt });
+  if (!apt) return;
+
+  // Bloqueo de edición si ya está En curso o Atendido
+  if (apt.status === 'En curso' || apt.status === 'Atendido' || 
+      String(apt.status || '').toLowerCase().includes('en curso')) {
+    alert('Las citas "En curso" o "Atendidas" quedan como registro histórico y no se pueden modificar ni eliminar.');
+    return;
+  }
+
+  openModal({ appointment: apt });
 };
 
 export function fillFormProfessionals() {
