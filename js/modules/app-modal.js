@@ -1267,10 +1267,78 @@ window.saveAppearanceSettings = saveAppearanceSettings;
 window.resetAppearanceSettings = resetAppearanceSettings;
 
 // Placeholders de Ajustes Avanzados
+export function importBackup(file) { showToast(`Copia ${file.name} restaurada`, 'success'); }
+
+// Listener para guardar el bloqueo de horario
+document.getElementById('saveBlockedBtn').addEventListener('click', function() {
+  const profId = document.getElementById('newBlockedProfessional').value;
+  const dateFrom = document.getElementById('newBlockedDateFrom').value;
+  const dateTo = document.getElementById('newBlockedDateTo').value;
+  const isAllDay = document.getElementById('newBlockedAllDay').checked;
+  const timeFrom = isAllDay ? '00:00' : document.getElementById('newBlockedTimeFrom').value;
+  const timeTo = isAllDay ? '23:59' : document.getElementById('newBlockedTimeTo').value;
+  const reason = document.getElementById('newBlockedReason').value || 'Emergencia / Cierre';
+
+
+  // Buscar citas reservadas que colisionan con el rango del bloqueo
+  const affectedAppointments = state.appointments.filter(apt => {
+    const sameProf = (profId === 'all' || apt.professional_id === profId);
+    const inDateRange = apt.date >= dateFrom && apt.date <= dateTo;
+    const inTimeRange = isAllDay || (apt.time >= timeFrom && apt.time < timeTo);
+    const isPending = apt.status === 'Reservado';
+    
+    return sameProf && inDateRange && inTimeRange && isPending;
+  });
+
+
+  // Si hay citas afectadas, avisar y marcar para notificación al paciente
+  if (affectedAppointments.length > 0) {
+    const patientNames = affectedAppointments.map(a => `${a.patient_name} (${a.time} hs)`).join('\n- ');
+    const confirmCancel = confirm(
+      `ATENCIÓN: Este bloqueo afecta a ${affectedAppointments.length} cita(s) reservada(s):\n- ${patientNames}\n\n¿Deseas cancelar estas citas y enviar aviso automático por WhatsApp / Email a los pacientes?`
+    );
+
+
+    if (!confirmCancel) return;
+
+
+    // Procesar la cancelación y enviar notificaciones
+    affectedAppointments.forEach(apt => {
+      apt.status = 'Cancelado';
+      apt.cancelReason = `Bloqueo de agenda: ${reason}`;
+      // Simular/envío de notificación - en producción conectar con WhatsApp/Email API
+      console.log(`[Notificación enviada a ${apt.patient_name}]: Hola ${apt.patient_name}, tu cita del ${apt.date} a las ${apt.time} hs ha sido reprogramada/cancelada debido a: ${reason}.`);
+    });
+  }
+
+
+  // Guardar bloqueo y re-renderizar la vista
+  // Lógica para guardar en base de datos (simulada)
+  const blockageData = {
+    profId,
+    dateFrom,
+    dateTo,
+    timeFrom,
+    timeTo,
+    reason,
+    affectedCount: affectedAppointments.length
+  };
+  // Aquí iría el llamado API real: saveBlockageToDatabase(blockageData);
+  
+  // Actualizar UI: cerrar modal y renderizar timeline
+  closeModal();
+  renderTimeline();
+});
+
+// Función simulada para envío de aviso al paciente
+function sendPatientNotification(apt, reason) {
+  console.log(`[Notificación enviada a ${apt.patient_name}]: Hola ${apt.patient_name}, tu cita del ${apt.date} a las ${apt.time} hs ha sido reprogramada/cancelada debido a: ${reason}.`);
+}
+
+// Placeholders de Ajustes Avanzados
 export function resetSystem() { if (confirm('¿Estás seguro de reiniciar los datos?')) showToast('Sistema reiniciado', 'info'); }
 export function saveMenuPermissions() { showToast('Permisos guardados', 'success'); }
 export function saveCountryCode() { showToast('Código de país guardado', 'success'); }
 export function saveSheetsSyncSettings() { showToast('Sincronización configurada', 'success'); }
 export function exportBackup() { showToast('Copia de seguridad descargada', 'success'); }
 export function triggerImportBackup() { el('backupFileInput')?.click(); }
-export function importBackup(file) { showToast(`Copia ${file.name} restaurada`, 'success'); }

@@ -348,7 +348,57 @@
                   <button id="quickNew" class="ghost"><i class="fas fa-plus"></i></button>
                 </div>
               </div>
-              <div id="dayTimeline" class="timeline"></div>
+              <div id="dayTimeline" class="timeline">
+
+  <!-- Banner de Horario Bloqueado -->
+  <div class="bg-rose-50 border border-rose-200 rounded-lg p-3 mb-3 text-rose-700 flex items-center gap-3">
+    <i class="fas fa-ban text-xl"></i>
+    <div>
+      <strong class="text-sm block font-bold">Horario Bloqueado por Emergencia</strong>
+      <span class="text-xs text-slate-600"><strong>Todos (14:00 a 17:30 hs):</strong> limpieza</span>
+    </div>
+  </div>
+
+  <!-- Cita Afectada / Cancelada por Bloqueo (Solo Lectura con Aviso de Notificación) -->
+  <div class="slot border-l-4 border-l-rose-500 bg-rose-50/40 p-3 rounded-lg mb-2 flex justify-between items-center opacity-90" data-id="apt-k15arvl09g">
+    <div class="info">
+      <div class="flex items-center gap-2">
+        <strong class="text-slate-800 text-sm font-semibold">14:30 · Maria Delgado</strong>
+        <span class="text-xs bg-rose-100 text-rose-800 font-medium px-2 py-0.5 rounded">Aviso enviado</span>
+      </div>
+      <small class="text-slate-500 text-xs block mt-0.5"><i class="fab fa-whatsapp text-emerald-600"></i> Cita reprogramada por bloqueo de agenda</small>
+    </div>
+    <div class="actions flex items-center gap-2" onclick="event.stopPropagation()">
+      <span class="badge bg-rose-100 text-rose-700 text-xs font-bold px-2.5 py-1 rounded-full">Cancelado x Cierre</span>
+    </div>
+  </div>
+
+  <!-- Cita Atendida (Solo Lectura) -->
+  <div class="slot bg-slate-50 border border-slate-200 p-3 rounded-lg mb-2 flex justify-between items-center opacity-75" data-id="apt-uwsljhxs64">
+    <div class="info">
+      <strong class="text-slate-700 text-sm">13:30 · Prueba WhatsApp</strong>
+      <small class="text-slate-400 text-xs block">prueba2</small>
+    </div>
+    <div class="actions" onclick="event.stopPropagation()">
+      <span class="badge bg-slate-200 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-full">Atendido</span>
+    </div>
+  </div>
+
+  <!-- Cita En Curso -->
+  <div class="slot border-2 border-teal-500 bg-teal-50/30 p-3 rounded-lg mb-2 flex justify-between items-center" data-id="apt-7nhyisu24m">
+    <div class="info">
+      <strong class="text-teal-950 text-sm font-bold">18:30 · Jhon Sanunga</strong>
+      <small class="text-teal-700 text-xs block">Consulta</small>
+    </div>
+    <div class="actions flex items-center gap-2" onclick="event.stopPropagation()">
+      <span class="badge bg-teal-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">En curso</span>
+      <button type="button" class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded-md text-xs font-semibold" onclick="window.completeApt('apt-7nhyisu24m')">
+        Completar
+      </button>
+    </div>
+  </div>
+
+</div>
             </div>
           </div>
         </section>
