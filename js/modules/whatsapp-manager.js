@@ -261,20 +261,37 @@ export async function getWhatsAppStatus() {
 }
 
 // Global WhatsApp Report Sender Helper
-export async function sendWhatsAppReport(phone, patientName, customMessage = '') {
-  let cleanPhone = (phone || '').replace(/\D/g, '');
-  if (!cleanPhone) {
-    showToast('El paciente no tiene un número telefónico válido registrado', 'warning');
-    return false;
+/**
+ * Normaliza un teléfono al formato internacional de WhatsApp.
+ * Ecuador (+593): celular de 9 dígitos o fijo de 8 dígitos,
+ * aceptando también el 0 nacional, el prefijo 00 o el +593 completo.
+ */
+export function normalizeWhatsAppPhone(phone) {
+  let clean = String(phone || '').replace(/\D/g, '');
+  if (!clean) return '';
+
+  // Prefijo de salida internacional (00) y/o cero nacional (0)
+  if (clean.startsWith('00')) clean = clean.substring(2);
+  if (clean.startsWith('0')) clean = clean.substring(1);
+
+  if (!clean.startsWith('593')) {
+    if (clean.length === 9) return `593${clean}`;                  // 0999123456 → 593999123456
+    if (clean.length === 8) return `593${clean}`;                  // 02 1234567 → 59321234567
+    if (clean.length === 10 && clean.startsWith('9')) return `593${clean.substring(1)}`;
   }
-  
-  if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
-  if (!cleanPhone.startsWith('593') && (cleanPhone.length === 9 || (cleanPhone.length === 10 && cleanPhone.startsWith('9')))) {
-    cleanPhone = '593' + (cleanPhone.length === 10 ? cleanPhone.substring(1) : cleanPhone);
-  } else if (!cleanPhone.startsWith('54') && cleanPhone.length === 10) {
-    cleanPhone = '549' + cleanPhone;
-  } else if (cleanPhone.startsWith('54') && !cleanPhone.startsWith('549') && cleanPhone.length === 12) {
-    cleanPhone = '549' + cleanPhone.substring(2);
+
+  // Compatibilidad con el comportamiento previo (Argentina +549)
+  if (!clean.startsWith('54') && clean.length === 10) return `549${clean}`;
+  if (clean.startsWith('54') && !clean.startsWith('549') && clean.length === 12) return `549${clean.substring(2)}`;
+
+  return clean;
+}
+
+export async function sendWhatsAppReport(phone, patientName, customMessage = '') {
+  const cleanPhone = normalizeWhatsAppPhone(phone);
+  if (!cleanPhone) {
+    showToast('El paciente no tiene un número telefónico válido registrado (Ecuador: 0999123456 o +593 999 123 456)', 'warning');
+    return false;
   }
 
   const textEncoded = encodeURIComponent(customMessage || `Hola ${patientName}, te contactamos desde Consultorios Doctor2 para enviarte información de tu atención clínica.`);

@@ -2,7 +2,7 @@
  * app-calendar.js - Gestión de Agenda, Vistas de Calendario y Turnos
  */
 import { state, api } from './app-state.js';
-import { el, formatDate, formatReadableDate, apiFetch, showToast } from './app-utils.js';
+import { el, formatDate, formatReadableDate, apiFetch, showToast, resolvePatientPhone } from './app-utils.js';
 import { openModal } from './app-modal.js';
 import { checkIsTimeBlocked, describeBlock } from './app-block-alert.js';
 import { updateRemindersCountBadge } from './app-reminders.js';
@@ -442,6 +442,8 @@ const normStatus = normalizeStatus(apt.status);
     const blockInfo = checkIsTimeBlocked(apt.date, apt.time, apt.professional_id || state.selectedProfessional);
     const isPendingApt = ['Reservado', 'Confirmado', 'Reprogramado'].includes(normStatus);
     const isBlockedApt = !!blockInfo && isPendingApt;
+    // Teléfono resuelto: cita → ficha del paciente (evita avisos sin número)
+    const aptPhone = resolvePatientPhone(apt);
 
     // Determinar si se debe mostrar el botón de editar (bloqueado si está En curso o Atendido)
     const canEdit = apt.status !== 'En curso' && apt.status !== 'Atendido' && 
@@ -455,7 +457,7 @@ const normStatus = normalizeStatus(apt.status);
       const blockText = describeBlock(blockInfo);
       const notifyData = JSON.stringify({
         patientName: apt.patient_name || 'Paciente',
-        phone: apt.patient_phone || '',
+        phone: aptPhone,
         date: apt.date,
         time: apt.time,
         reason: blockReason,
@@ -478,7 +480,7 @@ const normStatus = normalizeStatus(apt.status);
               <span class="blocked-tag">Horario Bloqueado</span>
             </div>
             <span class="slot-block-reason"><i class="fab fa-whatsapp"></i> Bloqueado: ${blockText} — ${blockReason}</span>
-            <small>${apt.reason || 'Consulta general'} ${apt.patient_phone ? `· 📱 ${apt.patient_phone}` : ''}</small>
+            <small>${apt.reason || 'Consulta general'} ${aptPhone ? `· 📱 ${aptPhone}` : '· <span style="color:#b91c1c; font-weight:600;">Sin teléfono</span>'}</small>
           </div>
           <div class="actions" onclick="event.stopPropagation()">
             <span class="badge Cancelado">Cancelado x Cierre</span>
@@ -515,7 +517,7 @@ const normStatus = normalizeStatus(apt.status);
               </span>
             ` : ''}
           </div>
-          <small>${apt.reason || 'Consulta general'} ${apt.patient_phone ? `· 📱 ${apt.patient_phone}` : ''} ${apt.cost ? `· 💵 $${parseFloat(apt.cost).toLocaleString('es-AR')}` : ''}</small>
+          <small>${apt.reason || 'Consulta general'} ${aptPhone ? `· 📱 ${aptPhone}` : ''} ${apt.cost ? `· 💵 $${parseFloat(apt.cost).toLocaleString('es-AR')}` : ''}</small>
         </div>
         <div class="actions" onclick="event.stopPropagation()">
           <span class="badge ${badgeClass}">${normStatus}</span>

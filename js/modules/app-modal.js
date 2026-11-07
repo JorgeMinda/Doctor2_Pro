@@ -2,7 +2,7 @@
  * app-modal.js - Modales de Turnos, Perfil, Apariencia y Ajustes
  */
 import { state, api } from './app-state.js';
-import { el, formatDate, apiFetch, showToast } from './app-utils.js';
+import { el, formatDate, apiFetch, showToast, resolvePatientPhone } from './app-utils.js';
 import { loadMonth } from './app-calendar.js';
 import { showConfirmDialog } from './app-dialog.js';
 import { checkIsTimeBlocked, describeBlock, showBlockedNotificationToast } from './app-block-alert.js';
@@ -870,6 +870,23 @@ export async function saveAppointment() {
       }
     }
 
+    // Backfill: si el paciente existe y no tiene teléfono registrado, actualizarlo con el del formulario
+    if (patientId && patientPhone && Array.isArray(state.patients)) {
+      const patient = state.patients.find(p => p.id === patientId);
+      if (patient && !patient.phone) {
+        try {
+          await apiFetch(`${api.patients}/${patientId}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ phone: patientPhone })
+          });
+          patient.phone = patientPhone;
+          if (foundPatient) foundPatient.phone = patientPhone;
+        } catch (e) {
+          // No falla si no se puede actualizar — el turno se guardó correctamente
+        }
+      }
+    }
+
     const toastMsg = wasCancelled
       ? 'Cita reactivada y actualizada con éxito'
       : (editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito');
@@ -1030,7 +1047,7 @@ window.startApt = async (aptId) => {
   if (blockInfo) {
     showBlockedNotificationToast({
       patientName: apt.patient_name || 'Paciente',
-      phone: apt.patient_phone || '',
+      phone: resolvePatientPhone(apt),
       date: apt.date,
       time: apt.time,
       reason: blockInfo.reason || 'Bloqueo de agenda',

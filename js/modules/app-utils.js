@@ -1,6 +1,7 @@
 /**
  * app-utils.js - Funciones Utilitarias y Helpers para Doctor2
  */
+import { state } from './app-state.js';
 
 export function el(id) {
   return document.getElementById(id);
@@ -208,7 +209,35 @@ export function getPatientHcNumber(patient) {
   return 'ND-0001';
 }
 
+/**
+ * Resuelve el teléfono WhatsApp de una cita.
+ * Prioridad: teléfono guardado en la cita → ficha del paciente (por id → por nombre).
+ * Evita el aviso "El paciente no tiene un número telefónico válido registrado"
+ * cuando la cita se creó sin campo de teléfono pero la ficha sí lo tiene.
+ */
+export function resolvePatientPhone(apt) {
+  if (!apt) return '';
+
+  const direct = String(apt.patient_phone || apt.phone || '').trim();
+  if (direct) return direct;
+
+  const patients = Array.isArray(state.patients) ? state.patients : [];
+  if (patients.length === 0) return '';
+
+  const byId = apt.patient_id ? patients.find(p => p.id === apt.patient_id) : null;
+  if (byId && byId.phone) return String(byId.phone).trim();
+
+  const name = String(apt.patient_name || apt.patientName || '').trim().toLowerCase();
+  if (name) {
+    const byName = patients.find(p => String(p.name || '').trim().toLowerCase() === name);
+    if (byName && byName.phone) return String(byName.phone).trim();
+  }
+
+  return '';
+}
+
 if (typeof window !== 'undefined') {
   window.getPatientHcNumber = getPatientHcNumber;
+  window.resolvePatientPhone = resolvePatientPhone;
 }
 

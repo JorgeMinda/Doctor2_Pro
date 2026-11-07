@@ -3,7 +3,7 @@
  * Genera recordatorios con 1 clic para todos los pacientes con turno al día siguiente.
  */
 import { state, api } from './app-state.js';
-import { el, formatDate, formatReadableDate, showToast, apiFetch } from './app-utils.js';
+import { el, formatDate, formatReadableDate, showToast, apiFetch, resolvePatientPhone } from './app-utils.js';
 import { sendWhatsAppReport } from './whatsapp-manager.js';
 
 export function getTomorrowDateStr() {
@@ -124,7 +124,7 @@ export function renderRemindersList() {
 
   listContainer.innerHTML = apts.map(apt => {
     const patientName = apt.patient_name || apt.patientName || 'Paciente';
-    const patientPhone = apt.patient_phone || apt.patientPhone || '';
+    const patientPhone = resolvePatientPhone(apt);
     const profName = apt.professional_name || apt.professionalName || 'Especialista';
     const time = apt.start_time || '08:00';
     const treatment = apt.treatment || apt.reason || 'Consulta Odontológica';
@@ -171,7 +171,7 @@ export function renderRemindersList() {
       if (!apt) return;
 
       const pName = apt.patient_name || apt.patientName || 'Paciente';
-      const pPhone = apt.patient_phone || apt.patientPhone || '';
+      const pPhone = resolvePatientPhone(apt);
       const prof = apt.professional_name || apt.professionalName || 'su especialista';
       const time = apt.start_time || '10:00';
       const dateText = formatReadableDate(apt.date) || apt.date;
