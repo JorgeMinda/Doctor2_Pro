@@ -432,6 +432,24 @@
   color: #64748b !important;
 }
 
+/* Badge de rango horario seleccionado (inicio – fin según duración) */
+#selectedTimeBadge {
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  color: #0f766e !important;
+  background: #ccfbf1 !important;
+  border: 1px solid #5eead4 !important;
+  border-radius: 999px !important;
+  padding: 3px 10px !important;
+  white-space: nowrap !important;
+  letter-spacing: 0.01em;
+}
+#selectedTimeBadge.range-conflict {
+  color: #b91c1c !important;
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+}
+
 .slots-legend,
 #slotsLegend {
   display: flex !important;
@@ -502,6 +520,25 @@
   #slotsGridContainer {
     grid-template-columns: repeat(3, 1fr) !important;
   }
+}
+
+/* Resumen en vivo del rango elegido */
+.slot-live {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.slot-live.conflict {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #b91c1c;
 }
 
 /* Botones de Turnos (Base) */
@@ -647,48 +684,77 @@
   transform: scale(0.98) !important;
 }
 
-/* Selector de Duración */
+/* 5. RANGO CONTIGUO POR DURACIÓN (bloques intermedios que abarca la cita) */
+#slotsGridContainer button.slot-range,
+#slotsGridContainer button[data-range="true"] {
+  border: 2px solid #14b8a6 !important;
+  background: linear-gradient(180deg, #14b8a6 0%, #0d9488 100%) !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  box-shadow: 0 0 8px rgba(20, 184, 166, 0.35) !important;
+}
+#slotsGridContainer button.slot-range svg,
+#slotsGridContainer button[data-range="true"] svg {
+  stroke: #ffffff !important;
+}
+#slotsGridContainer button.slot-range:hover,
+#slotsGridContainer button[data-range="true"]:hover {
+  border-color: #5eead4 !important;
+  background: linear-gradient(180deg, #0d9488 0%, #0f766e 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(45, 212, 191, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+#slotsGridContainer button.slot-range:active,
+#slotsGridContainer button[data-range="true"]:active {
+  transform: scale(0.95) !important;
+}
+
+/* Selector de Duración (Segmented Control) */
 #slotDurationSelector {
   margin: 4px 0 8px;
 }
 
 #slotDurationSelector .block {
-  font-size: 0.8rem;
-  font-weight: 500;
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
   color: #64748b;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 #slotDurationSelector .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5px;
+  gap: 4px;
   background: #f1f5f9;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
+  padding: 4px;
 }
 
 #slotDurationSelector button {
   all: unset;
+  box-sizing: border-box;
   cursor: pointer;
   border-radius: 6px;
-  padding: 6px 10px;
+  padding: 6px 4px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
+  text-align: center;
+  color: #64748b;
   transition: all 0.15s ease;
 }
 
 #slotDurationSelector button:hover {
   background: #e2e8f0;
+  color: #1e293b;
 }
 
-#slotDurationSelector button[data-duration="30"]:not(:hover) { background: #3b82f6; color: #fff; }
-#slotDurationSelector button[data-duration="45"]:not(:hover) { color: #64748b; background: transparent; }
-#slotDurationSelector button[data-duration="60"]:not(:hover) { color: #64748b; background: transparent; }
-#slotDurationSelector button[data-duration="90"]:not(:hover) { color: #64748b; background: transparent; }
-
-#slotDurationSelector button.active,
-#slotDurationSelector button:hover { background: #e2e8f0; color: #1e293b; }
-  border-color: var(--border) !important;
+#slotDurationSelector button.active {
+  background: #0d9488;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(13, 148, 136, 0.4);
 }
 
 .bg-surface {

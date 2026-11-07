@@ -358,6 +358,10 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
   const currentMinutesNow = now.getHours() * 60 + now.getMinutes();
   const profId = profSelect?.value || '';
 
+  // Duración activa de la cita (segmented control de duración)
+  const durEl = el('formDuration');
+  const duration = durEl ? parseInt(durEl.value) || 30 : 30;
+
   if (!container && !select) return;
 
   let currentTime = explicitTime || select?.value || '';
@@ -505,6 +509,38 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     }
   }
 
+  // Rango contiguo que abarca la cita según la duración elegida [inicio, fin)
+  let rangeStartMin = null;
+  let rangeEndMin = null;
+  let rangeConflict = false;
+
+  const toMinutes = (t) => {
+    const [hh, mm] = (t || '00:00').split(':').map(Number);
+    return hh * 60 + mm;
+  };
+  const toTimeStr = (total) => {
+    const eh = Math.floor(total / 60) % 24;
+    const em = total % 60;
+    return `${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}`;
+  };
+
+  if (currentTime) {
+    rangeStartMin = toMinutes(currentTime);
+    rangeEndMin = rangeStartMin + duration;
+    slotDataList.forEach(s => {
+      const sMin = toMinutes(s.time);
+      if (sMin <= rangeStartMin || sMin >= rangeEndMin) return;
+      if (s.status === 'available') {
+        s.inRange = true; // Bloque intermedio del rango (marcado visualmente)
+      } else if (s.status === 'occupied') {
+        rangeConflict = true; // El rango choca con una cita u horario bloqueado
+      }
+    });
+  }
+
+  // Si el rango elegido choca con otro horario ocupado, no permitir guardar
+  if (saveBtn && rangeConflict) saveBtn.disabled = true;
+
   // Actualizar contador superior (formato horarios libres, ej: "24 horarios libres")
   if (freeCountEl) {
     if (freeSlotsCount === 0) {
@@ -524,13 +560,15 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     select.value = currentTime;
   }
 
-  // Actualizar badge con el horario seleccionado
+  // Actualizar badge con el rango horario seleccionado (inicio – fin según duración)
   if (selectedBadge) {
-    if (currentTime) {
-      selectedBadge.textContent = `${currentTime} hs`;
+    if (currentTime && rangeEndMin !== null) {
+      selectedBadge.textContent = `${currentTime} – ${toTimeStr(rangeEndMin)} hs`;
       selectedBadge.style.display = 'inline-flex';
+      selectedBadge.classList.toggle('range-conflict', rangeConflict);
     } else {
       selectedBadge.style.display = 'none';
+      selectedBadge.classList.remove('range-conflict');
     }
   }
 
@@ -541,10 +579,6 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
 
   // Renderizar los chips interactivos en el contenedor (panel "Horarios del día", grilla plana)
   if (container) {
-    // Duración de la cita (usar formDuration si existe, si no 30 min)
-    const durEl = el('formDuration');
-    const duration = durEl ? parseInt(durEl.value) || 30 : 30;
-
     // Función para calcular hora de fin
     const endTimeStr = (startTime) => {
       const [h, m] = startTime.split(':').map(Number);
@@ -581,6 +615,14 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
           </button>
         `;
       }
+      // Bloques intermedios del rango: se marcan visualmente según la duración elegida
+      if (s.inRange) {
+        return `
+          <button type="button" data-status="available" data-range="true" title="Parte del rango ${s.time} – ${endTimeStr(s.time)} hs (duración ${duration} min)" class="slot-chip-btn slot-available slot-range flex flex-col items-center justify-center rounded-lg border-2 border-teal-500 bg-teal-600 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95" data-time="${s.time}">
+            <span class="flex items-center gap-1.5">${clockIcon}${s.time}</span>
+          </button>
+        `;
+      }
       return `
         <button type="button" data-status="available" title="Disponible para agendar (${s.time} hs)" class="slot-chip-btn slot-available flex flex-col items-center justify-center rounded-lg border-2 border-teal-500/80 bg-teal-950/40 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-teal-300 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-400 hover:bg-teal-500/15 hover:shadow-[0_0_14px_rgba(45,212,191,0.35)] active:scale-95" data-time="${s.time}">
           <span class="flex items-center gap-1.5">${clockIcon}${s.time}</span>
@@ -588,39 +630,40 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
       `;
     }).join('');
 
-    const summaryText = currentTime
-      ? `Cita: ${currentTime} – ${endTimeStr(currentTime)}`
-      : 'Elige un horario para continuar';
+    // Resumen en vivo del rango elegido (+ advertencia si choca con otro horario)
+    let summaryText = 'Elige un horario para continuar';
+    if (currentTime) {
+      const rangeText = `${currentTime} – ${endTimeStr(currentTime)} hs (duración ${duration} min)`;
+      summaryText = rangeConflict
+        ? `⚠️ El rango ${rangeText} se superpone con un horario ocupado o bloqueado. Elegí otro inicio o una duración menor.`
+        : `Cita: ${rangeText}`;
+    }
 
 container.innerHTML = `
       ${chipsHtml}
-      <div class="slot-live" role="status" aria-live="polite">${summaryText}</div>
+      <div class="slot-live${rangeConflict ? ' conflict' : ''}" role="status" aria-live="polite">${summaryText}</div>
     `;
 
-    // Selector de duración de cita
+    // Selector de duración de cita (se bindea una sola vez)
     const durationSelector = document.getElementById('slotDurationSelector');
     if (durationSelector) {
       const durationBtns = durationSelector.querySelectorAll('button[data-duration]');
-      if (durationBtns.length) {
+      if (durationBtns.length && !durationSelector.dataset.hasListener) {
+        durationSelector.dataset.hasListener = 'true';
         durationBtns.forEach(btn => {
           btn.addEventListener('click', () => {
-            // Remover estado activo de todos los botones
-            durationBtns.forEach(b => {
-              b.classList.remove('bg-teal-600', 'text-white');
-              b.classList.add('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-200');
-            });
-            // Aplicar estado activo al botón pulsado
-            btn.classList.remove('text-slate-600', 'hover:text-slate-900', 'hover:bg-slate-200');
-            btn.classList.add('bg-teal-600', 'text-white');
-            // Actualizar input oculto de duración
             const formDuration = el('formDuration');
-            if (formDuration) {
-              formDuration.value = btn.dataset.duration;
-            }
+            if (formDuration) formDuration.value = btn.dataset.duration;
             showToast(`Duración seleccionada: ${btn.dataset.duration} min`, 'success');
+            // Recalcular rango y resaltar bloques contiguos
+            loadSlots(el('formDate')?.value || targetDate, el('formTime')?.value || currentTime);
           });
         });
       }
+      // Sincronizar estado activo del segmented control con la duración vigente
+      durationBtns.forEach(b => {
+        b.classList.toggle('active', b.dataset.duration === String(duration));
+      });
     }
 
     // Listener de clic para seleccionar horario

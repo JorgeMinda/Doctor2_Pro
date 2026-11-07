@@ -682,13 +682,13 @@
             </div>
 
             <!-- Selector de Duración (Segmented Control UX) -->
-            <div id="slotDurationSelector" class="mb-4">
-              <span class="block text-xs font-semibold text-slate-500 mb-2">Duración de la cita:</span>
-              <div class="grid grid-cols-4 gap-1.5 p-1 bg-slate-100 rounded-lg text-xs font-medium text-slate-600">
-                <button type="button" data-duration="30" class="py-1.5 rounded-md transition-all bg-teal-600 text-white font-semibold shadow-sm">30 min</button>
-                <button type="button" data-duration="45" class="py-1.5 rounded-md transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-200">45 min</button>
-                <button type="button" data-duration="60" class="py-1.5 rounded-md transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-200">60 min</button>
-                <button type="button" data-duration="90" class="py-1.5 rounded-md transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-200">90 min</button>
+            <div id="slotDurationSelector">
+              <span class="block">Duración de la cita:</span>
+              <div class="grid">
+                <button type="button" data-duration="30" class="active">30 min</button>
+                <button type="button" data-duration="45">45 min</button>
+                <button type="button" data-duration="60">60 min</button>
+                <button type="button" data-duration="90">90 min</button>
               </div>
             </div>
 
@@ -701,6 +701,7 @@
               <!-- Rellenado dinámicamente -->
             </div>
             <select id="formTime" style="display:none;"></select>
+            <input type="hidden" id="formDuration" value="30">
           </div>
         </div>
 
