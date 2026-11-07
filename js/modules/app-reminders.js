@@ -128,7 +128,7 @@ export function renderRemindersList() {
     const profName = apt.professional_name || apt.professionalName || 'Especialista';
     const time = apt.start_time || '08:00';
     const treatment = apt.treatment || apt.reason || 'Consulta Odontológica';
-    const isConfirmed = apt.status === 'confirmed';
+    const isConfirmed = ['confirmed', 'confirmado'].includes(String(apt.status || '').toLowerCase());
 
     return `
       <div class="reminder-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:12px; gap:12px; flex-wrap:wrap; transition:all 0.2s;">
@@ -188,7 +188,7 @@ export function renderRemindersList() {
 
       // Actualizar automáticamente a confirmado si estaba pendiente
       try {
-        if (apt.status !== 'confirmed') {
+        if (!['confirmed', 'confirmado'].includes(String(apt.status || '').toLowerCase())) {
           apt.status = 'confirmed';
           await apiFetch(api.appointments, {
             method: 'POST',

@@ -915,9 +915,36 @@
 }
 
 .radix-input.font-mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 0.86rem;
 }
+
+/* Campos en paralelo (teléfono/email · costo/estado) */
+.radix-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.radix-form-row select.radix-input {
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .radix-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Textarea de observaciones (hereda .radix-input pero con altura libre) */
+.radix-input.radix-textarea {
+  height: auto;
+  min-height: 62px;
+  padding: 8px 12px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
 
 .radix-dialog-footer {
   display: flex;

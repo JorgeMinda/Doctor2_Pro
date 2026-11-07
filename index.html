@@ -712,6 +712,44 @@
           <input type="text" id="formReason" class="radix-input" placeholder="Ej: Control de rutina, revisión de exámenes, seguimiento…">
         </div>
 
+        <!-- 6. Contacto del paciente -->
+        <div class="radix-form-row">
+          <div class="radix-form-field">
+            <label data-slot="label" class="radix-label" for="formPhone">Teléfono (WhatsApp)</label>
+            <input type="tel" id="formPhone" class="radix-input" placeholder="Ej: 0999 123 456" autocomplete="tel">
+          </div>
+          <div class="radix-form-field">
+            <label data-slot="label" class="radix-label" for="formEmail">Email</label>
+            <input type="email" id="formEmail" class="radix-input" placeholder="paciente@email.com" autocomplete="email">
+          </div>
+        </div>
+
+        <!-- 7. Costo y estado -->
+        <div class="radix-form-row">
+          <div class="radix-form-field">
+            <label data-slot="label" class="radix-label" for="formCost">Costo de la consulta</label>
+            <input type="number" id="formCost" class="radix-input" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="radix-form-field">
+            <label data-slot="label" class="radix-label" for="formStatus">Estado del turno</label>
+            <select id="formStatus" class="radix-input">
+              <option value="Reservado">Reservado</option>
+              <option value="Confirmado">Confirmado</option>
+              <option value="Reprogramado">Reprogramado</option>
+              <option value="En curso">En curso</option>
+              <option value="Atendido">Atendido</option>
+              <option value="Ausente">Ausente</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 8. Observaciones internas -->
+        <div class="radix-form-field">
+          <label data-slot="label" class="radix-label" for="formObservation">Observaciones internas</label>
+          <textarea id="formObservation" class="radix-input radix-textarea" rows="2" placeholder="Alergias, indicaciones, notas del profesional…"></textarea>
+        </div>
+
         <!-- Footer -->
         <div data-slot="dialog-footer" class="radix-dialog-footer">
           <div id="aptActionGroupLeft" class="radix-footer-left">
@@ -1364,6 +1402,6 @@
   </div>
 
   <!-- Scripts Modulares -->
-  <script type="module" src="js/app.js?v=4.4"></script>
+  <script type="module" src="js/app.js?v=4.5"></script>
 </body>
 </html>

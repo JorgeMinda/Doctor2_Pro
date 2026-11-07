@@ -9,6 +9,24 @@ import { checkIsTimeBlocked, describeBlock, showBlockedNotificationToast } from 
 
 let editingAppointmentId = null;
 
+const STATUS_OPTIONS = ['Reservado', 'Confirmado', 'Reprogramado', 'En curso', 'Atendido', 'Ausente', 'Cancelado'];
+
+/** Normaliza el estado crudo (EN/ES) a una opción válida del select #formStatus */
+function normalizeStatusValue(status) {
+  const s = String(status || '').toLowerCase().trim();
+  const map = {
+    scheduled: 'Reservado', reservado: 'Reservado',
+    confirmed: 'Confirmado', confirmado: 'Confirmado',
+    'en curso': 'En curso', in_progress: 'En curso', 'in-progress': 'En curso',
+    cancelled: 'Cancelado', cancelado: 'Cancelado',
+    completed: 'Atendido', atendido: 'Atendido', done: 'Atendido',
+    rescheduled: 'Reprogramado', reprogramado: 'Reprogramado',
+    absent: 'Ausente', ausente: 'Ausente'
+  };
+  if (map[s]) return map[s];
+  return STATUS_OPTIONS.includes(status) ? status : 'Reservado';
+}
+
 export function openModal(opts = {}) {
   const modal = el('modal');
   if (!modal) return;
@@ -54,7 +72,7 @@ export function openModal(opts = {}) {
     if (formPhone) formPhone.value = a.patient_phone || '';
     if (formCost) formCost.value = a.cost || '';
     if (formObs) formObs.value = a.observation || '';
-    if (formStatus) formStatus.value = a.status || 'Reservado';
+    if (formStatus) formStatus.value = normalizeStatusValue(a.status);
 
     // Autocompletar email: primero el de la cita, o buscar en la ficha del paciente
     if (formEmail) {

@@ -2,6 +2,7 @@
  * app-block-alert.js - Detección de horarios bloqueados y aviso al paciente (toast WhatsApp)
  */
 import { state } from './app-state.js';
+import { sendWhatsAppReminder } from './whatsapp-manager.js';
 
 /**
  * Devuelve el bloqueo activo que cubre (fecha, hora y profesional) o null.
@@ -72,10 +73,10 @@ export function showBlockedNotificationToast(data = {}) {
         <label class="block-toast__label" for="toastMessageInput">Mensaje para el paciente:</label>
         <textarea id="toastMessageInput" class="block-toast__textarea" rows="3" spellcheck="true"></textarea>
         <div class="block-toast__actions">
-          <a id="whatsappSendBtn" class="block-toast__btn block-toast__btn--wa" href="https://wa.me/${phone}?text=${encodeURIComponent(messageText)}" target="_blank" rel="noopener">
+          <button type="button" id="whatsappSendBtn" class="block-toast__btn block-toast__btn--wa">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-            Enviar WhatsApp
-          </a>
+            Enviar WhatsApp Directo
+          </button>
           <button type="button" class="block-toast__btn block-toast__btn--ghost" data-toast-close>Cerrar</button>
         </div>
       </div>
@@ -88,10 +89,11 @@ export function showBlockedNotificationToast(data = {}) {
   const waBtn = toast.querySelector('#whatsappSendBtn');
   if (textarea) textarea.value = messageText;
 
-  // Si el usuario edita el mensaje, el enlace de WhatsApp se actualiza en vivo
-  if (textarea && waBtn) {
-    textarea.addEventListener('input', () => {
-      waBtn.href = `https://wa.me/${phone}?text=${encodeURIComponent(textarea.value)}`;
+  // Acción directa (click-to-chat): usa el mensaje tal como lo editó el usuario
+  if (waBtn) {
+    waBtn.addEventListener('click', () => {
+      const finalText = textarea && textarea.value.trim() ? textarea.value : messageText;
+      sendWhatsAppReminder(phone, patientName, date, time, reason, finalText);
     });
   }
 

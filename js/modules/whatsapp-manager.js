@@ -284,5 +284,27 @@ export async function sendWhatsAppReport(phone, patientName, customMessage = '')
   return true;
 }
 
+/**
+ * Envía recordatorio o aviso de turno por WhatsApp (click-to-chat).
+ * - Sin customReason  → recordatorio de la cita.
+ * - Con customReason  → aviso de modificación / cancelación / bloqueo.
+ * - Con customMessage → usa el texto tal como lo escribió el usuario.
+ */
+export function sendWhatsAppReminder(patientPhone, patientName, date, time, customReason = '', customMessage = '') {
+  const name = patientName || 'paciente';
+  let message = String(customMessage || '').trim();
+
+  if (!message) {
+    message = customReason
+      ? `Hola ${name}, te informamos que tu cita del ${date} a las ${time} hs fue modificada por: ${customReason}.`
+      : `Hola ${name}, te recordamos tu cita médica programada para el día ${date} a las ${time} hs.`;
+  }
+
+  return sendWhatsAppReport(patientPhone, name, message);
+}
+
+// Invocable desde atributos inline (onclick)
+window.sendWhatsAppReminder = sendWhatsAppReminder;
+
 
 
