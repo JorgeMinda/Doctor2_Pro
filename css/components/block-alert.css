@@ -1,0 +1,243 @@
+/* =========================================================
+   BLOCK ALERT TOAST - Aviso de cita bloqueada con envío WhatsApp
+   ========================================================= */
+
+.block-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9999;
+  width: min(400px, calc(100vw - 32px));
+  animation: blockToastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes blockToastIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.block-toast__card {
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.block-toast__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  background: linear-gradient(90deg, #f43f5e 0%, #e11d48 100%);
+  color: #ffffff;
+}
+
+.block-toast__icon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+.block-toast__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.block-toast__title {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.block-toast__close {
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.block-toast__close:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.block-toast__body {
+  padding: 14px;
+  background: var(--surface, #ffffff);
+}
+
+.block-toast__note {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--muted, #64748b);
+}
+
+.block-toast__note strong {
+  color: var(--text, #0f172a);
+}
+
+.block-toast__label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted, #64748b);
+}
+
+.block-toast__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: none;
+  padding: 9px 10px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  background: var(--bg, #ffffff);
+  color: var(--text, #0f172a);
+  font-family: inherit;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.block-toast__textarea:focus {
+  border-color: #f43f5e;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15);
+}
+
+.block-toast__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.block-toast__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.block-toast__btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.block-toast__btn--wa {
+  flex: 1;
+  background: #059669;
+  color: #ffffff;
+}
+
+.block-toast__btn--wa:hover {
+  background: #047857;
+}
+
+.block-toast__btn--ghost {
+  background: var(--surface-alt, #e2e8f0);
+  color: var(--text, #334155);
+}
+
+.block-toast__btn--ghost:hover {
+  background: var(--border, #cbd5e1);
+}
+
+.block-toast__btn:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 480px) {
+  .block-toast {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+    width: auto;
+  }
+}
+
+/* =========================================================
+   CITAS AFECTADAS POR BLOQUEO EN EL TIMELÍNE DEL DÍA
+   ========================================================= */
+
+.slot.slot--blocked {
+  background: rgba(244, 63, 94, 0.05);
+  border-color: rgba(244, 63, 94, 0.35);
+  border-left: 4px solid #f43f5e;
+}
+
+.slot.slot--blocked:hover {
+  border-color: rgba(244, 63, 94, 0.6);
+}
+
+.slot--blocked .info strong {
+  color: var(--text, #0f172a);
+}
+
+.blocked-tag {
+  display: inline-block;
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #9f1239;
+  background: #ffe4e6;
+  border: 1px solid #fecdd3;
+  border-radius: 4px;
+  padding: 2px 6px;
+  line-height: 1.2;
+}
+
+.slot-block-reason {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.76rem;
+  color: #e11d48;
+}
+
+.slot-block-reason i {
+  margin-right: 3px;
+}
+
+.apt-notify-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: #059669;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.35);
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.apt-notify-btn:hover {
+  background: #047857;
+}
+
+.apt-notify-btn:active {
+  transform: scale(0.97);
+}
+

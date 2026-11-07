@@ -236,6 +236,23 @@ export async function saveBlockedDay() {
     return;
   }
 
+  // Aviso previo: qué turnos existentes quedan afectados por este bloqueo
+  const affectedAppointments = (state.appointments || []).filter(apt => {
+    const matchProf = profId === 'all' || !profId || apt.professional_id === profId;
+    const matchDate = apt.date >= dateFrom && apt.date <= (dateTo || dateFrom);
+    const matchTime = allDay || (apt.time >= timeFrom && apt.time < timeTo);
+    const isLive = apt.status !== 'Cancelado' && apt.status !== 'Atendido';
+    return matchProf && matchDate && matchTime && isLive;
+  });
+
+  if (affectedAppointments.length > 0) {
+    const patientNames = affectedAppointments.map(a => `- ${a.patient_name} (${a.time} hs · ${a.status})`).join('\n');
+    const proceed = confirm(
+      `ATENCIÓN: Este bloqueo afecta a ${affectedAppointments.length} turno(s) existente(s):\n\n${patientNames}\n\nEsos turnos serán cancelados automáticamente y los pacientes deberán ser avisados. ¿Continuar?`
+    );
+    if (!proceed) return;
+  }
+
   try {
     const res = await apiFetch(api.blockedDays, {
       method: 'POST',

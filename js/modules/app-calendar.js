@@ -4,6 +4,7 @@
 import { state, api } from './app-state.js';
 import { el, formatDate, formatReadableDate, apiFetch, showToast } from './app-utils.js';
 import { openModal } from './app-modal.js';
+import { checkIsTimeBlocked, describeBlock } from './app-block-alert.js';
 import { updateRemindersCountBadge } from './app-reminders.js';
 
 export async function loadMonth(opts = {}) {
@@ -397,8 +398,10 @@ export function renderDayTimeline() {
   const dayBlocks = (state.blockedDays || []).filter(b => {
     const from = b.date_from || b.date;
     const to = b.date_to || from;
-    return dateStr >= from && dateStr <= to &&
-      (b.professional_id === 'all' || b.professional_id === state.selectedProfessional);
+    if (!(dateStr >= from && dateStr <= to)) return false;
+    // Sin filtro de profesional se muestran todos los bloqueos del día
+    if (!state.selectedProfessional) return true;
+    return b.professional_id === 'all' || b.professional_id === state.selectedProfessional;
   });
 
   let bannerHtml = '';
@@ -434,11 +437,60 @@ export function renderDayTimeline() {
 
 const normStatus = normalizeStatus(apt.status);
     const badgeClass = normStatus === 'En curso' ? 'en-curso' : normStatus;
+
+    // ¿La cita cae dentro de un horario bloqueado? → se muestra como "Cancelado x Cierre"
+    const blockInfo = checkIsTimeBlocked(apt.date, apt.time, apt.professional_id || state.selectedProfessional);
+    const isPendingApt = ['Reservado', 'Confirmado', 'Reprogramado'].includes(normStatus);
+    const isBlockedApt = !!blockInfo && isPendingApt;
+
     // Determinar si se debe mostrar el botón de editar (bloqueado si está En curso o Atendido)
     const canEdit = apt.status !== 'En curso' && apt.status !== 'Atendido' && 
                     !String(apt.status || '').toLowerCase().includes('en curso');
     // Solo se puede iniciar una consulta cuya fecha/hora aún no haya transcurrido
     const canStart = !isPast && ['Reservado', 'Confirmado', 'Reprogramado'].includes(normStatus);
+
+    // Tarjeta de cita afectada por bloqueo: sin botón "Iniciar", con aviso al paciente
+    if (isBlockedApt) {
+      const blockReason = blockInfo.reason || 'Bloqueo de agenda';
+      const blockText = describeBlock(blockInfo);
+      const notifyData = JSON.stringify({
+        patientName: apt.patient_name || 'Paciente',
+        phone: apt.patient_phone || '',
+        date: apt.date,
+        time: apt.time,
+        reason: blockReason,
+        blockText
+      })
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+      const editBlockedBtn = canEdit ? `
+        <button class="ghost" onclick="window.editApt('${apt.id}')" title="Ver / Editar turno"><i class="fas fa-edit"></i></button>
+      ` : '';
+
+      return `
+        <div class="slot slot--blocked" data-id="${apt.id}" style="cursor:pointer;" onclick="window.editApt('${apt.id}')">
+          <div class="info">
+            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
+              <strong>${apt.time} · ${apt.patient_name}</strong>
+              <span class="blocked-tag">Horario Bloqueado</span>
+            </div>
+            <span class="slot-block-reason"><i class="fab fa-whatsapp"></i> Bloqueado: ${blockText} — ${blockReason}</span>
+            <small>${apt.reason || 'Consulta general'} ${apt.patient_phone ? `· 📱 ${apt.patient_phone}` : ''}</small>
+          </div>
+          <div class="actions" onclick="event.stopPropagation()">
+            <span class="badge Cancelado">Cancelado x Cierre</span>
+            <button type="button" class="apt-notify-btn" onclick="window.showBlockedToast(${notifyData})" title="Enviar aviso de bloqueo al paciente por WhatsApp">
+              <i class="fab fa-whatsapp"></i> Avisar
+            </button>
+            ${editBlockedBtn}
+          </div>
+        </div>
+      `;
+    }
+
     const startBtn = canStart ? `
       <button type="button" class="apt-action-btn apt-action-btn--primary" onclick="window.startApt('${apt.id}')" title="Iniciar consulta (queda En curso)">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="apt-action-icon" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>Iniciar
