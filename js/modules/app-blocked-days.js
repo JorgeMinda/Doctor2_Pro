@@ -70,6 +70,9 @@ function initSlotPicker(opts = {}) {
       mode: 'range'
     }
   });
+
+  // Renderizar inmediatamente
+  slotPicker.render();
 }
 
 export function initBlockedDays() {
