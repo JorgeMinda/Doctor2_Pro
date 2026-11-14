@@ -57,6 +57,7 @@ export function renderBlockedHoursSlots(opts = {}) {
     const isSelTo = !isFrom && time === selectedTo;
 
     const clockIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>';
+    const medicalIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-2.5 shrink-0" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0"></path><path d="M12 10v10"></path><path d="M9 13h6"></path></svg>';
 
     if (isSelFrom || isSelTo) {
       return `
@@ -69,11 +70,17 @@ export function renderBlockedHoursSlots(opts = {}) {
     // Siempre clickable - mostrar indicador visual si hay cita
     if (status === 'occupied') {
       const apt = existingApts.find(a => a.time === time);
-      const title = `Cita existente: ${apt.patient_name} (${apt.reason || 'Consulta'})`;
+      const patientName = apt.patient_name || 'Paciente';
+      const reason = apt.reason || 'Consulta';
+      const title = `📅🏥 Cita Médica: ${patientName} — ${reason}`;
       // Siempre clickable, pero con borde naranja/rojo para indicar que hay cita
       return `
         <button type="button" title="${title}" class="slot-chip-btn slot-occupied-indicator flex flex-col items-center justify-center rounded-lg border-2 border-orange-500/70 bg-orange-50/40 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-orange-700 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-100/60 active:scale-95" data-time="${time}" data-${isFrom ? 'from' : 'to'}="true">
           <span class="flex items-center gap-1.5">${clockIcon}${time}</span>
+          <span class="flex items-center gap-1 text-[9px] text-orange-600 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-2.5 shrink-0" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0"></path><path d="M12 10v10"></path><path d="M9 13h6"></path></svg>
+            ${patientName}
+          </span>
           <span class="slot-occupied-indicator-dot inline-block mt-1 size-1.5 rounded-full bg-orange-500"></span>
         </button>
       `;
