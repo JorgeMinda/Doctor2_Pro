@@ -130,11 +130,13 @@ Doctor2_Pro/
 
 ## Actualizaciones y Commits Recientes
 
-### Commit `f67bf9d` (Actual)
+### Commit `d773511` (Actual)
 ```
-fix(phone): resolvePatientPhone resolver + backfill al guardar, 
-normalizeWhatsAppPhone para ecua, app-reminders usa resolver
+feat: autocompletar observaciones desde notes del paciente
 ```
+- Al seleccionar un paciente en el modal, el campo de observaciones se completa automáticamente con el campo `notes` de la ficha del paciente
+
+### Commit `f67bf9d`
 - Agregado `resolvePatientPhone()` en app-utils.js - resuelve teléfono de cita → ficha paciente
 - `normalizeWhatsAppPhone()` maneja Ecuador (+593): cel 9 dígitos, fijo 8 dígitos, prefijo 0/00
 - Backfill teléfono paciente al guardar cita
