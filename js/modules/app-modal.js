@@ -144,10 +144,10 @@ export function openModal(opts = {}) {
       if (formPatient) formPatient.value = foundPatient.name;
       if (formPhone) formPhone.value = foundPatient.phone || opts.patientPhone || '';
       if (formEmail) formEmail.value = foundPatient.email || '';
+      if (formObs) formObs.value = foundPatient.notes || '';
       if (formProf && foundPatient.assignedProfessionalId) formProf.value = foundPatient.assignedProfessionalId;
       if (modal) modal.dataset.patientId = foundPatient.id;
     } else {
-      // Sin paciente preseleccionado: limpiar campos del paciente
       if (formPatient) formPatient.value = opts.patientName || '';
       if (formPhone) formPhone.value = opts.patientPhone || '';
       if (formEmail) formEmail.value = opts.patientEmail || '';
