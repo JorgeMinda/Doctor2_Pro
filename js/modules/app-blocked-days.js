@@ -190,8 +190,8 @@ export function openBlockedDaysModal() {
         const dT = el('newBlockedDateTo')?.value || '';
         renderBlockedHoursSlots({ profId: p, dateFrom: dF, dateTo: dT });
       });
-    });
-  }
+    }
+  });
 }
 
 export function closeBlockedDaysModal() {
