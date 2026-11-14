@@ -395,7 +395,7 @@ export function handleVoiceIntent(rawText) {
         showVoicePatientOptions(matchedPatient);
 
         speakText(`Encontré a ${matchedPatient.name}. ¿Deseas ver su historia clínica o sus citas agendadas?`);
-        showToast(`✓ Ficha cargada: ${matchedPatient.name}`, 'success');
+        showToast(`check Ficha cargada: ${matchedPatient.name}`, 'success');
         return;
       } else {
         // Si no está en el padrón, revisar si tiene turnos agendados en la clínica
@@ -442,7 +442,7 @@ export function handleVoiceIntent(rawText) {
           return;
         } else {
           speakText(`El medicamento ${detected[0].name} es seguro para ${currentPatient.name}.`);
-          showToast(`✓ ${detected[0].name} no presenta contraindicaciones conocidas`, 'success');
+          showToast(`check ${detected[0].name} no presenta contraindicaciones conocidas`, 'success');
           return;
         }
       }
@@ -488,7 +488,7 @@ export function handleVoiceIntent(rawText) {
     const formattedNote = formatClinicalDictation(rawText);
     const inserted = insertTextIntoInput(lastFocusedElement, formattedNote);
     if (inserted) {
-      showToast('✓ Texto dictado e insertado en la nota', 'success');
+      showToast('check Texto dictado e insertado en la nota', 'success');
       return;
     }
   }

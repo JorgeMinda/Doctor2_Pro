@@ -211,7 +211,7 @@ export function getPatientHcNumber(patient) {
 
 /**
  * Resuelve el teléfono WhatsApp de una cita.
- * Prioridad: teléfono guardado en la cita → ficha del paciente (por id → por nombre).
+ * Prioridad: teléfono guardado en la cita -> ficha del paciente (por id -> por nombre).
  * Evita el aviso "El paciente no tiene un número telefónico válido registrado"
  * cuando la cita se creó sin campo de teléfono pero la ficha sí lo tiene.
  */

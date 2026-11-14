@@ -140,7 +140,7 @@ export function renderTreasuryView() {
                 <i class="fas ${icon}" style="color:${color}; font-size:1.1rem;"></i>
               </div>
               <h3 style="margin:0; font-size:1.3rem; color:var(--text);">$${bal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</h3>
-              <small class="muted">${acc.currency || 'ARS'} · Saldo en Tiempo Real</small>
+              <small class="muted">${acc.currency || 'ARS'} . Saldo en Tiempo Real</small>
             </div>
           `;
         }).join('')}
@@ -211,7 +211,7 @@ function renderMovementsTab() {
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; flex:1;">
         <div class="search" style="min-width:240px; flex:1;">
           <i class="fas fa-search"></i>
-          <input type="search" id="trSearchInput" placeholder="Buscar por concepto, paciente, proveedor, N° recibo..." value="${filterSearch}">
+          <input type="search" id="trSearchInput" placeholder="Buscar por concepto, paciente, proveedor, Ndeg recibo..." value="${filterSearch}">
         </div>
         <select id="trAccountFilter" style="max-width:220px; font-size:0.85rem; padding:7px 10px; border-radius:8px; background:var(--surface); font-weight:600;">
           <option value="ALL">Todas las Cuentas</option>
@@ -241,7 +241,7 @@ function renderMovementsTab() {
         <table class="data-table">
           <thead>
             <tr>
-              <th>N° Comprobante & Fecha</th>
+              <th>Ndeg Comprobante & Fecha</th>
               <th>Cuenta / Medio</th>
               <th>Concepto & Beneficiario / Paciente</th>
               <th>Categoría</th>
@@ -349,7 +349,7 @@ function renderClosuresTab() {
                     ${c.status}
                   </span>
                 </td>
-                <td><small>${c.closedBy || 'Admin'}${c.notes ? ` · <em>${c.notes}</em>` : ''}</small></td>
+                <td><small>${c.closedBy || 'Admin'}${c.notes ? ` . <em>${c.notes}</em>` : ''}</small></td>
               </tr>
             `;
           }).join('')}
@@ -553,7 +553,7 @@ function openIncomeModal() {
 
       <div class="grid-2" style="gap:12px; margin-bottom:12px;">
         <div class="field">
-          <span>N° de Comprobante / Recibo</span>
+          <span>Ndeg de Comprobante / Recibo</span>
           <input type="text" id="incReceiptCode" value="${defaultReceipt}" style="font-weight:700;">
         </div>
         <div class="field">
@@ -712,14 +712,14 @@ function openExpenseModal() {
           <input type="text" id="expPerson" placeholder="Ej: Distribuidora Dental Sur SRL / Personal de Limpieza">
         </div>
         <div class="field">
-          <span>N° Factura / Ticket de Respaldo</span>
+          <span>Ndeg Factura / Ticket de Respaldo</span>
           <input type="text" id="expId" placeholder="Ej: Factura A-0001-00004523">
         </div>
       </div>
 
       <div class="grid-2" style="gap:12px; margin-bottom:12px;">
         <div class="field">
-          <span>N° de Vale / Comprobante de Egreso</span>
+          <span>Ndeg de Vale / Comprobante de Egreso</span>
           <input type="text" id="expReceiptCode" value="${defaultReceipt}" style="font-weight:700;">
         </div>
         <div class="field">
@@ -838,13 +838,13 @@ export function openReceiptPreview(m) {
               <i class="fas fa-hospital-user" style="color:#2563eb;"></i> DOCTOR PRO
             </h2>
             <p style="margin:2px 0 0; font-size:0.82rem; color:#64748b;">Consultorios Médicos & Odontología Integral</p>
-            <p style="margin:1px 0 0; font-size:0.78rem; color:#94a3b8;">Av. Central 1234 · Tel: +593 9 9123-4567</p>
+            <p style="margin:1px 0 0; font-size:0.78rem; color:#94a3b8;">Av. Central 1234 . Tel: +593 9 9123-4567</p>
           </div>
           <div style="text-align:right;">
             <div style="display:inline-block; padding:4px 10px; border-radius:6px; background:${isIncome ? '#ecfdf5' : '#fef2f2'}; border:1px solid ${isIncome ? '#10b981' : '#ef4444'}; color:${isIncome ? '#059669' : '#dc2626'}; font-weight:800; font-size:0.82rem; margin-bottom:4px;">
               ${isIncome ? 'RECIBO OFICIAL DE INGRESO' : 'COMPROBANTE DE EGRESO (VALE)'}
             </div>
-            <div style="font-size:1rem; font-weight:800; color:#1e293b;">N° ${receiptCode}</div>
+            <div style="font-size:1rem; font-weight:800; color:#1e293b;">Ndeg ${receiptCode}</div>
             <div style="font-size:0.78rem; color:#64748b;">${dateFormatted}</div>
           </div>
         </div>
@@ -919,7 +919,7 @@ export function openReceiptPreview(m) {
         </div>
 
         <div style="text-align:center; margin-top:20px; font-size:0.75rem; color:#94a3b8; border-top:1px dashed #e2e8f0; padding-top:8px;">
-          Documento interno de tesorería y comprobante contable · Sistema Doctor Pro Enterprise
+          Documento interno de tesorería y comprobante contable . Sistema Doctor Pro Enterprise
         </div>
       </div>
 
@@ -1004,7 +1004,7 @@ export function printTreasuryReceipt(m) {
             <div class="badge ${isIncome ? 'badge-inc' : 'badge-exp'}">
               ${isIncome ? 'RECIBO OFICIAL DE INGRESO' : 'COMPROBANTE DE EGRESO (VALE)'}
             </div>
-            <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">N° ${receiptCode}</div>
+            <div style="font-size:15px; font-weight:800; color:#0f172a; margin-top:4px;">Ndeg ${receiptCode}</div>
             <div style="font-size:11px; color:#64748b;">${dateFormatted}</div>
           </div>
         </div>

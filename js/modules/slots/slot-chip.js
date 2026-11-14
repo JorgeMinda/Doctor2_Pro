@@ -156,14 +156,13 @@ function renderOccupied(slotState, baseAttrs, customClass) {
   const { appointment } = slotState.metadata;
   const patientName = appointment?.patient_name || 'Paciente';
   const reason = appointment?.reason || 'Consulta';
-  const title = `📅🏥 Cita Médica: ${patientName} — ${reason}`;
-  const patientName = appointment?.patient_name || 'Paciente';
+  const title = `📅🏥 Cita Médica: ${patientName} - ${reason}`;
 
   return `
     <button 
       ${baseAttrs}
       class="slot-chip-btn slot-occupied-indicator"
-      title="📅🏥 Cita Médica: ${patientName} — ${reason}"
+      title="📅🏥 Cita Médica: ${patientName} - ${reason}"
       style="
         display: flex;
         flex-direction: column;
@@ -318,7 +317,7 @@ function getTooltip(slotState) {
       return `En rango seleccionado (${slotState.time} hs)`;
     case 'occupied':
       const apt = metadata.appointment;
-      return `📅🏥 Cita Médica: ${apt?.patient_name || 'Paciente'} — ${apt?.reason || 'Consulta'}`;
+      return `📅🏥 Cita Médica: ${apt?.patient_name || 'Paciente'} - ${apt?.reason || 'Consulta'}`;
     case 'blocked':
       const blockInfo = metadata.blockInfo;
       return `Bloqueado: ${formatBlockInfo(blockInfo)}`;

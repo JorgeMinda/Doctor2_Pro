@@ -80,7 +80,7 @@ function injectCopilotDOM() {
         <button type="button" class="copilot-skill-pill" data-action="workflow_checkout" title="Workflow 1-Click: Cierre de consulta, caja y WhatsApp">
           <i class="fas fa-bolt" style="color:#eab308;"></i> Cierre Consulta
         </button>
-        <button type="button" class="copilot-skill-pill" data-action="summarize_patient" title="Resumen Clínico Inteligente 360°">
+        <button type="button" class="copilot-skill-pill" data-action="summarize_patient" title="Resumen Clínico Inteligente 360deg">
           <i class="fas fa-file-waveform" style="color:#3b82f6;"></i> Resumen Paciente
         </button>
         <button type="button" class="copilot-skill-pill" data-action="certificate" title="Emitir Certificado Médico Oficial">
@@ -253,7 +253,7 @@ export async function executeCopilotSkill(action) {
   switch (action) {
     case 'workflow_checkout':
       if (!currentPatient) {
-        appendCopilotMessage('bot', '⚠️ Selecciona primero un paciente para ejecutar el Workflow de Cierre de Consulta.');
+        appendCopilotMessage('bot', 'WARNING️ Selecciona primero un paciente para ejecutar el Workflow de Cierre de Consulta.');
         showToast('Selecciona un paciente en el padrón', 'warning');
         return;
       }
@@ -262,7 +262,7 @@ export async function executeCopilotSkill(action) {
 
     case 'summarize_patient':
       if (!currentPatient) {
-        appendCopilotMessage('bot', '⚠️ Selecciona un paciente para ver su Resumen Clínico 360°.');
+        appendCopilotMessage('bot', 'WARNING️ Selecciona un paciente para ver su Resumen Clínico 360deg.');
         showToast('Selecciona un paciente en el padrón', 'warning');
         return;
       }
@@ -271,7 +271,7 @@ export async function executeCopilotSkill(action) {
 
     case 'certificate':
       if (!currentPatient) {
-        appendCopilotMessage('bot', '⚠️ Selecciona un paciente para generar su Certificado de Asistencia.');
+        appendCopilotMessage('bot', 'WARNING️ Selecciona un paciente para generar su Certificado de Asistencia.');
         showToast('Selecciona un paciente', 'warning');
         return;
       }
@@ -364,7 +364,7 @@ export async function processCopilotCommand(inputQuery) {
   }
 
   // 7. RESPUESTA CLÍNICA GENERAL
-  appendCopilotMessage('bot', `💡 Entendido: <em>"${inputQuery}"</em>.<br>Si estás en la consulta, puedes decirme por ejemplo:<br>• <em>"Pieza 16 con caries oclusal y endodoncia"</em><br>• <em>"Resumir paciente"</em><br>• <em>"Cierre de consulta"</em><br>• <em>"Consultar stock de anestesia"</em>`, true);
+  appendCopilotMessage('bot', `💡 Entendido: <em>"${inputQuery}"</em>.<br>Si estás en la consulta, puedes decirme por ejemplo:<br>- <em>"Pieza 16 con caries oclusal y endodoncia"</em><br>- <em>"Resumir paciente"</em><br>- <em>"Cierre de consulta"</em><br>- <em>"Consultar stock de anestesia"</em>`, true);
 }
 
 /**
@@ -443,11 +443,11 @@ function applyParsedOdontogramActions(parsed, patient) {
   if (!data.teeth) data.teeth = {};
 
   const toolLabels = {
-    caries: '● Caries',
-    obturacion: '● Obturación',
+    caries: 'bullet Caries',
+    obturacion: 'bullet Obturación',
     sellante: '✱ Sellante',
     endodoncia: '△ Endodoncia',
-    extraccion: '✕ Extracción',
+    extraccion: 'x Extracción',
     corona: 'Corona',
     implante: 'Implante',
     sano: 'Sano / Limpio'
@@ -484,9 +484,9 @@ function applyParsedOdontogramActions(parsed, patient) {
 
   const msgHtml = `
     ✅ <strong>Odontograma Actualizado</strong>:<br>
-    • Pieza(s): <strong>${parsed.pieces.join(', ')}</strong><br>
-    • Hallazgo: <span style="color:${parsed.color}; font-weight:700;">${toolLabels[parsed.tool] || parsed.tool}</span><br>
-    • Cara(s): <code>${parsed.surfaces.join(', ').toUpperCase()}</code>
+    - Pieza(s): <strong>${parsed.pieces.join(', ')}</strong><br>
+    - Hallazgo: <span style="color:${parsed.color}; font-weight:700;">${toolLabels[parsed.tool] || parsed.tool}</span><br>
+    - Cara(s): <code>${parsed.surfaces.join(', ').toUpperCase()}</code>
   `;
 
   appendCopilotMessage('bot', msgHtml, true);
@@ -495,7 +495,7 @@ function applyParsedOdontogramActions(parsed, patient) {
 }
 
 /**
- * Genera el Resumen Clínico 360° del paciente
+ * Genera el Resumen Clínico 360deg del paciente
  */
 function generatePatientSummary(patient) {
   const notes = patient.clinicalNotes || [];
@@ -504,16 +504,16 @@ function generatePatientSummary(patient) {
   const antDet = ant.detalles || {};
   
   const alertList = [];
-  if (patient.allergies) alertList.push(`⚠️ Alergias: ${patient.allergies}`);
-  if (ant.hipertension) alertList.push(`⚠️ Hipertensión Arterial`);
-  if (ant.diabetes) alertList.push(`⚠️ Diabetes`);
-  if (ant.hemorragias) alertList.push(`⚠️ Riesgo de Hemorragia / Anticoagulado`);
-  if (hc.bifosfonatos) alertList.push(`⚠️ Tratamiento con Bifosfonatos (Precaución Ósea)`);
+  if (patient.allergies) alertList.push(`WARNING️ Alergias: ${patient.allergies}`);
+  if (ant.hipertension) alertList.push(`WARNING️ Hipertensión Arterial`);
+  if (ant.diabetes) alertList.push(`WARNING️ Diabetes`);
+  if (ant.hemorragias) alertList.push(`WARNING️ Riesgo de Hemorragia / Anticoagulado`);
+  if (hc.bifosfonatos) alertList.push(`WARNING️ Tratamiento con Bifosfonatos (Precaución Ósea)`);
 
   const summaryHtml = `
     <div style="background:var(--bg-page); border-radius:8px; padding:10px; border-left:3px solid var(--primary); font-size:0.83rem;">
       <strong style="color:var(--primary); font-size:0.9rem;"><i class="fas fa-id-card-clip"></i> Resumen Clínico: ${patient.name}</strong><br>
-      <small class="muted">Edad: ${patient.birthdate ? (new Date().getFullYear() - new Date(patient.birthdate).getFullYear()) + ' años' : '-'} · Cédula: ${patient.dni || '-'} · Cobertura: ${patient.health_insurance || 'Particular'}</small>
+      <small class="muted">Edad: ${patient.birthdate ? (new Date().getFullYear() - new Date(patient.birthdate).getFullYear()) + ' años' : '-'} . Cédula: ${patient.dni || '-'} . Cobertura: ${patient.health_insurance || 'Particular'}</small>
       
       ${alertList.length > 0 ? `
         <div style="margin:6px 0; padding:6px; background:#fee2e2; border-radius:6px; color:#991b1b; font-weight:600; font-size:0.78rem;">
@@ -658,9 +658,9 @@ function triggerWorkflowCheckout(patient) {
 
       appendCopilotMessage('bot', `
         ⚡ <strong>Workflow de Cierre Ejecutado</strong>:<br>
-        • Nota clínica registrada para <strong>${patient.name}</strong>.<br>
-        • Cobro de <strong>$${amount.toLocaleString('es-AR')}</strong> asentado en Tesorería.<br>
-        • Todo sincronizado en el expediente.
+        - Nota clínica registrada para <strong>${patient.name}</strong>.<br>
+        - Cobro de <strong>$${amount.toLocaleString('es-AR')}</strong> asentado en Tesorería.<br>
+        - Todo sincronizado en el expediente.
       `, true);
 
       // 3. Abrir Certificado si se seleccionó

@@ -65,8 +65,8 @@ export function showBlockedNotificationToast(data = {}) {
         <span class="block-toast__icon" aria-hidden="true">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </span>
-        <span class="block-toast__title">Cita Bloqueada — Enviar Aviso</span>
-        <button type="button" class="block-toast__close" data-toast-close aria-label="Cerrar aviso">✕</button>
+        <span class="block-toast__title">Cita Bloqueada - Enviar Aviso</span>
+        <button type="button" class="block-toast__close" data-toast-close aria-label="Cerrar aviso">x</button>
       </div>
       <div class="block-toast__body">
         <p class="block-toast__note">No se puede iniciar la cita de <strong>${patientName} (${time} hs)</strong> debido al bloqueo activo${blockText}.</p>

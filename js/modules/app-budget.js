@@ -99,7 +99,7 @@ export function createBudgetManager(patient, notes = [], plans = [], professiona
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>N°</th>
+                  <th>Ndeg</th>
                   <th>Fecha</th>
                   <th>Profesional</th>
                   <th>Items</th>
@@ -520,7 +520,7 @@ export function createBudgetManager(patient, notes = [], plans = [], professiona
     }
 
     const itemsSummary = (b.items || [])
-      .map(it => `• ${it.pieza ? `[Pieza ${it.pieza}] ` : ''}${it.desc} (${it.cant}x $${(it.precio || 0).toLocaleString('es-AR')})`)
+      .map(it => `- ${it.pieza ? `[Pieza ${it.pieza}] ` : ''}${it.desc} (${it.cant}x $${(it.precio || 0).toLocaleString('es-AR')})`)
       .join('%0A');
 
     const msg = `🦷 *PRESUPUESTO ODONTOLÓGICO / MÉDICO*%0A` +
@@ -552,7 +552,7 @@ export function createBudgetManager(patient, notes = [], plans = [], professiona
             </div>
           </div>
           <div style="text-align:right;">
-            <h2 style="margin:0; font-size:18px; color:#1e293b;">PRESUPUESTO N° ${b.number || '0001'}</h2>
+            <h2 style="margin:0; font-size:18px; color:#1e293b;">PRESUPUESTO Ndeg ${b.number || '0001'}</h2>
             <p style="margin:4px 0 0; font-size:12px; color:#64748b;">Fecha: ${b.date} | Validez: ${b.expiryDate || '15 días'}</p>
           </div>
         </div>

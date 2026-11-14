@@ -169,7 +169,7 @@ export function openModal(opts = {}) {
 
       if (!editingAppointmentId) {
         if (val && val < currentToday) {
-          showToast('⚠️ No es posible seleccionar fechas pasadas. Seleccioná hoy o una fecha posterior.', 'warning');
+          showToast('WARNING️ No es posible seleccionar fechas pasadas. Seleccioná hoy o una fecha posterior.', 'warning');
           formDate.value = currentToday;
           formDate.style.borderColor = 'var(--danger)';
           setTimeout(() => { if (formDate) formDate.style.borderColor = ''; }, 2500);
@@ -178,7 +178,7 @@ export function openModal(opts = {}) {
         const origApt = state.appointments?.find(a => a.id === editingAppointmentId);
         const origDate = origApt?.date || currentToday;
         if (val && val < currentToday && val !== origDate) {
-          showToast('⚠️ No es posible reprogramar un turno a una fecha pasada.', 'warning');
+          showToast('WARNING️ No es posible reprogramar un turno a una fecha pasada.', 'warning');
           formDate.value = origDate >= currentToday ? origDate : currentToday;
           formDate.style.borderColor = 'var(--danger)';
           setTimeout(() => { if (formDate) formDate.style.borderColor = ''; }, 2500);
@@ -280,9 +280,9 @@ function setupPatientAutocomplete() {
           <div class="pat-name"><i class="fas fa-user-circle" style="color:var(--primary);"></i> ${p.name}</div>
           <div class="pat-meta">
             ${p.dni ? `<span>Cédula: ${p.dni}</span>` : ''} 
-            ${p.phone ? `<span>· 📱 ${p.phone}</span>` : ''}
-            ${p.email ? `<span>· ✉️ ${p.email}</span>` : ''}
-            ${p.insurance ? `<span>· 🏥 ${p.insurance}</span>` : ''}
+            ${p.phone ? `<span>. 📱 ${p.phone}</span>` : ''}
+            ${p.email ? `<span>. ✉️ ${p.email}</span>` : ''}
+            ${p.insurance ? `<span>. 🏥 ${p.insurance}</span>` : ''}
           </div>
         </div>
         <span class="pat-badge">Seleccionar</span>
@@ -569,10 +569,10 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     select.value = currentTime;
   }
 
-  // Actualizar badge con el rango horario seleccionado (inicio – fin según duración)
+  // Actualizar badge con el rango horario seleccionado (inicio - fin según duración)
   if (selectedBadge) {
     if (currentTime && rangeEndMin !== null) {
-      selectedBadge.textContent = `${currentTime} – ${toTimeStr(rangeEndMin)} hs`;
+      selectedBadge.textContent = `${currentTime} - ${toTimeStr(rangeEndMin)} hs`;
       selectedBadge.style.display = 'inline-flex';
       selectedBadge.classList.toggle('range-conflict', rangeConflict);
     } else {
@@ -627,7 +627,7 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
       // Bloques intermedios del rango: se marcan visualmente según la duración elegida
       if (s.inRange) {
         return `
-          <button type="button" data-status="available" data-range="true" title="Parte del rango ${s.time} – ${endTimeStr(s.time)} hs (duración ${duration} min)" class="slot-chip-btn slot-available slot-range flex flex-col items-center justify-center rounded-lg border-2 border-teal-500 bg-teal-600 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95" data-time="${s.time}">
+          <button type="button" data-status="available" data-range="true" title="Parte del rango ${s.time} - ${endTimeStr(s.time)} hs (duración ${duration} min)" class="slot-chip-btn slot-available slot-range flex flex-col items-center justify-center rounded-lg border-2 border-teal-500 bg-teal-600 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95" data-time="${s.time}">
             <span class="flex items-center gap-1.5">${clockIcon}${s.time}</span>
           </button>
         `;
@@ -642,9 +642,9 @@ export function loadSlots(selectedDate = null, explicitTime = null) {
     // Resumen en vivo del rango elegido (+ advertencia si choca con otro horario)
     let summaryText = 'Elige un horario para continuar';
     if (currentTime) {
-      const rangeText = `${currentTime} – ${endTimeStr(currentTime)} hs (duración ${duration} min)`;
+      const rangeText = `${currentTime} - ${endTimeStr(currentTime)} hs (duración ${duration} min)`;
       summaryText = rangeConflict
-        ? `⚠️ El rango ${rangeText} se superpone con un horario ocupado o bloqueado. Elegí otro inicio o una duración menor.`
+        ? `WARNING️ El rango ${rangeText} se superpone con un horario ocupado o bloqueado. Elegí otro inicio o una duración menor.`
         : `Cita: ${rangeText}`;
     }
 
@@ -754,7 +754,7 @@ export async function saveAppointment() {
   });
 
   if (collision) {
-    showToast(`⚠️ Horario no disponible: ya existe una cita agendada para "${collision.patient_name || 'otro paciente'}" a las ${collision.time} hs con este profesional. Por favor seleccioná otro horario libre.`, 'error');
+    showToast(`WARNING️ Horario no disponible: ya existe una cita agendada para "${collision.patient_name || 'otro paciente'}" a las ${collision.time} hs con este profesional. Por favor seleccioná otro horario libre.`, 'error');
     loadSlots(date, time);
     return;
   }
@@ -766,11 +766,11 @@ export async function saveAppointment() {
 
   if (!editingAppointmentId) {
     if (date < todayStr) {
-      showToast('⚠️ No es posible agendar una cita en una fecha pasada.', 'error');
+      showToast('WARNING️ No es posible agendar una cita en una fecha pasada.', 'error');
       return;
     }
     if (date === todayStr && newStartMin < currentMinutesNow) {
-      showToast('⚠️ No es posible agendar en un horario que ya transcurrió el día de hoy.', 'error');
+      showToast('WARNING️ No es posible agendar en un horario que ya transcurrió el día de hoy.', 'error');
       return;
     }
   } else {
@@ -781,11 +781,11 @@ export async function saveAppointment() {
       const isTimeChanged = originalApt.time !== time;
       if (isDateChanged || isTimeChanged) {
         if (date < todayStr) {
-          showToast('⚠️ No es posible reagendar una cita a una fecha pasada.', 'error');
+          showToast('WARNING️ No es posible reagendar una cita a una fecha pasada.', 'error');
           return;
         }
         if (date === todayStr && newStartMin < currentMinutesNow) {
-          showToast('⚠️ No es posible reagendar una cita a un horario que ya transcurrió hoy.', 'error');
+          showToast('WARNING️ No es posible reagendar una cita a un horario que ya transcurrió hoy.', 'error');
           return;
         }
       }
@@ -869,7 +869,7 @@ export async function saveAppointment() {
           patient.phone = patientPhone;
           if (foundPatient) foundPatient.phone = patientPhone;
         } catch (e) {
-          // No falla si no se puede actualizar — el turno se guardó correctamente
+          // No falla si no se puede actualizar - el turno se guardó correctamente
         }
       }
     }
@@ -921,11 +921,11 @@ export async function toggleCancelAppointment() {
     const newEndMin = newStartMin + newDuration;
 
     if (newDate < todayStr) {
-      showToast('⚠️ No es posible reactivar una cita en una fecha pasada. Por favor seleccioná una fecha actual o posterior.', 'error');
+      showToast('WARNING️ No es posible reactivar una cita en una fecha pasada. Por favor seleccioná una fecha actual o posterior.', 'error');
       return;
     }
     if (newDate === todayStr && newStartMin < currentMinutesNow) {
-      showToast('⚠️ No es posible reactivar en un horario que ya transcurrió hoy.', 'error');
+      showToast('WARNING️ No es posible reactivar en un horario que ya transcurrió hoy.', 'error');
       return;
     }
 
@@ -944,7 +944,7 @@ export async function toggleCancelAppointment() {
     });
 
     if (collision) {
-      showToast(`⚠️ Horario ocupado: ya existe una cita para "${collision.patient_name || 'otro paciente'}" a las ${collision.time} hs. Por favor seleccioná otro horario libre.`, 'error');
+      showToast(`WARNING️ Horario ocupado: ya existe una cita para "${collision.patient_name || 'otro paciente'}" a las ${collision.time} hs. Por favor seleccioná otro horario libre.`, 'error');
       loadSlots(newDate, newTime);
       return;
     }
@@ -1025,7 +1025,7 @@ window.startApt = async (aptId) => {
   const timeClean = apt.time && apt.time.length === 5 ? apt.time : '00:00';
   const aptDateTime = new Date(`${apt.date}T${timeClean}:00`);
   if (apt.date < todayStr || (apt.date === todayStr && aptDateTime < now)) {
-    showToast('⚠️ No es posible iniciar una consulta con horario ya transcurrido (' + apt.time + ' hs).', 'error');
+    showToast('WARNING️ No es posible iniciar una consulta con horario ya transcurrido (' + apt.time + ' hs).', 'error');
     return;
   }
 

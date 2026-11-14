@@ -164,10 +164,10 @@ export function renderPatientDetail(patient, initialTab = 'historia') {
             <span class="badge primary" style="font-size:0.75rem; font-weight:700; padding:2px 8px; background:rgba(99,102,241,0.12); color:var(--primary); border:1px solid rgba(99,102,241,0.25);">HISTORIA CLÍNICA Nro: ${getPatientHcNumber(patient)}</span>
           </div>
           <p class="muted" style="margin:3px 0 0 0; font-size:0.84rem;">
-            Cédula / ID: <strong style="color:var(--text);">${patient.dni || 'Sin registrar'}</strong> · 
-            Edad: <strong style="color:var(--text);">${calculateAge(patient.birthdate || patient.age)}</strong> · 
-            Género: <strong style="color:var(--text);">${patient.sex || '-'}</strong> · 
-            Tel: <strong style="color:var(--text);">${patient.phone || '-'}</strong> · 
+            Cédula / ID: <strong style="color:var(--text);">${patient.dni || 'Sin registrar'}</strong> . 
+            Edad: <strong style="color:var(--text);">${calculateAge(patient.birthdate || patient.age)}</strong> . 
+            Género: <strong style="color:var(--text);">${patient.sex || '-'}</strong> . 
+            Tel: <strong style="color:var(--text);">${patient.phone || '-'}</strong> . 
             Contacto Emergencia: <strong style="color:var(--primary);">${emergencyInfo}</strong>
           </p>
         </div>
@@ -406,7 +406,7 @@ window.switchPatientTab = (tab) => {
             <tbody>
               ${apts.map(a => `
                 <tr style="cursor:pointer;" onclick="window.editApt && window.editApt('${a.id}')" title="Hacé clic para ver, cancelar o editar este turno">
-                  <td><strong>${a.date} · ${a.time}</strong></td>
+                  <td><strong>${a.date} . ${a.time}</strong></td>
                   <td>${a.reason || 'Consulta'}</td>
                   <td>${a.professional_name || 'Dr. Asignado'}</td>
                   <td><strong>$${(a.cost || 0).toLocaleString('es-AR')}</strong></td>

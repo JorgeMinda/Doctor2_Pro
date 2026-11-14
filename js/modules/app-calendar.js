@@ -341,7 +341,7 @@ dayApts.forEach(apt => {
       aptEl.className = `week-card-apt-block status-${statusClass}`;
       
       const statusDisplay = isBlockedApt ? 'Bloqueado' : normStatus;
-      aptEl.title = `${apt.patient_name} (${apt.time} hs) · ${apt.reason || 'Consulta'} · Estado: ${statusDisplay}`;
+      aptEl.title = `${apt.patient_name} (${apt.time} hs) . ${apt.reason || 'Consulta'} . Estado: ${statusDisplay}`;
       
       // Si la cita está bloqueada por estado o por rango, la tarjeta queda solo lectura
       const clickHandler = (statusBlocked || isBlockedApt) ? '' : `onclick="e.stopPropagation(); openModal({ appointment: apt });"`;
@@ -353,16 +353,16 @@ dayApts.forEach(apt => {
           <div class="apt-block-top">
             <span class="apt-block-time"><i class="far fa-clock" style="font-size:0.65rem; opacity:0.8; margin-right:3px;"></i>${apt.time} hs</span>
             <span class="apt-block-pill pill-cancelado" title="Cancelado por bloqueo: ${blockReason}"><i class="fas fa-lock" style="margin-right:2px;"></i>BLOQ</span>
-            <span class="apt-block-patient">${apt.patient_name} · ${apt.reason || 'Consulta'}</span>
+            <span class="apt-block-patient">${apt.patient_name} . ${apt.reason || 'Consulta'}</span>
           </div>
-          <span class="apt-block-reason"><i class="fas fa-ban" style="margin-right:3px; color:#ef4444;"></i> Bloqueado: ${blockText} — ${blockReason}</span>
+          <span class="apt-block-reason"><i class="fas fa-ban" style="margin-right:3px; color:#ef4444;"></i> Bloqueado: ${blockText} - ${blockReason}</span>
         `;
       } else {
         aptEl.innerHTML = `
           <div class="apt-block-top">
             <span class="apt-block-time"><i class="far fa-clock" style="font-size:0.65rem; opacity:0.8; margin-right:3px;"></i>${apt.time} hs</span>
             <span class="apt-block-pill pill-${statusSlug(normStatus)}" title="Estado: ${normStatus}">${STATUS_INITIALS[normStatus] || normStatus}</span>
-            <span class="apt-block-patient${isCancelled ? ' text-strikethrough' : ''}">${apt.patient_name} · ${apt.reason || 'Consulta'}</span>
+            <span class="apt-block-patient${isCancelled ? ' text-strikethrough' : ''}">${apt.patient_name} . ${apt.reason || 'Consulta'}</span>
           </div>
         `;
       }
@@ -394,7 +394,7 @@ dayApts.forEach(apt => {
     `;
     addBtn.addEventListener('click', () => {
       if (isPastDay) {
-        showToast('⚠️ No es posible agendar turnos en fechas que ya han transcurrido.', 'warning');
+        showToast('WARNING️ No es posible agendar turnos en fechas que ya han transcurrido.', 'warning');
         return;
       }
       state.selectedDate = d;
@@ -460,11 +460,11 @@ export function renderDayTimeline() {
 const normStatus = normalizeStatus(apt.status);
     const badgeClass = normStatus === 'En curso' ? 'en-curso' : normStatus;
 
-    // ¿La cita cae dentro de un horario bloqueado? → se muestra como "Cancelado x Cierre"
+    // ¿La cita cae dentro de un horario bloqueado? -> se muestra como "Cancelado x Cierre"
     const blockInfo = checkIsTimeBlocked(apt.date, apt.time, apt.professional_id || state.selectedProfessional);
     const isPendingApt = ['Reservado', 'Confirmado', 'Reprogramado'].includes(normStatus);
     const isBlockedApt = !!blockInfo && isPendingApt;
-    // Teléfono resuelto: cita → ficha del paciente (evita avisos sin número)
+    // Teléfono resuelto: cita -> ficha del paciente (evita avisos sin número)
     const aptPhone = resolvePatientPhone(apt);
 
     // Determinar si se debe mostrar el botón de editar (bloqueado si está En curso o Atendido)
@@ -498,11 +498,11 @@ const normStatus = normalizeStatus(apt.status);
         <div class="slot slot--blocked" data-id="${apt.id}" style="cursor:pointer;" onclick="window.editApt('${apt.id}')">
           <div class="info">
             <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
-              <strong>${apt.time} · ${apt.patient_name}</strong>
+              <strong>${apt.time} . ${apt.patient_name}</strong>
               <span class="blocked-tag">Horario Bloqueado</span>
             </div>
-            <span class="slot-block-reason"><i class="fab fa-whatsapp"></i> Bloqueado: ${blockText} — ${blockReason}</span>
-            <small>${apt.reason || 'Consulta general'} ${aptPhone ? `· 📱 ${aptPhone}` : '· <span style="color:#b91c1c; font-weight:600;">Sin teléfono</span>'}</small>
+            <span class="slot-block-reason"><i class="fab fa-whatsapp"></i> Bloqueado: ${blockText} - ${blockReason}</span>
+            <small>${apt.reason || 'Consulta general'} ${aptPhone ? `. 📱 ${aptPhone}` : '. <span style="color:#b91c1c; font-weight:600;">Sin teléfono</span>'}</small>
           </div>
           <div class="actions" onclick="event.stopPropagation()">
             <span class="badge Cancelado">Cancelado x Cierre</span>
@@ -532,14 +532,14 @@ const normStatus = normalizeStatus(apt.status);
       <div class="slot" data-id="${apt.id}" style="cursor:pointer;" onclick="window.editApt('${apt.id}')">
         <div class="info">
           <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
-            <strong>${apt.time} · ${apt.patient_name}</strong>
+            <strong>${apt.time} . ${apt.patient_name}</strong>
             ${isPast && isNotDone ? `
               <span class="time-passed-tag" title="El horario establecido (${apt.time} hs) ya ha transcurrido">
                 <i class="fas fa-clock-rotate-left"></i> Horario pasado
               </span>
             ` : ''}
           </div>
-          <small>${apt.reason || 'Consulta general'} ${aptPhone ? `· 📱 ${aptPhone}` : ''} ${apt.cost ? `· 💵 $${parseFloat(apt.cost).toLocaleString('es-AR')}` : ''}</small>
+          <small>${apt.reason || 'Consulta general'} ${aptPhone ? `. 📱 ${aptPhone}` : ''} ${apt.cost ? `. 💵 $${parseFloat(apt.cost).toLocaleString('es-AR')}` : ''}</small>
         </div>
         <div class="actions" onclick="event.stopPropagation()">
           <span class="badge ${badgeClass}">${normStatus}</span>
@@ -587,11 +587,11 @@ export function fillFormProfessionals() {
 
   if (filter) {
     filter.innerHTML = '<option value="">Todos los profesionales</option>' +
-      state.professionals.map(p => `<option value="${p.id}" ${state.selectedProfessional === p.id ? 'selected' : ''}>${p.name} · ${p.specialty}</option>`).join('');
+      state.professionals.map(p => `<option value="${p.id}" ${state.selectedProfessional === p.id ? 'selected' : ''}>${p.name} . ${p.specialty}</option>`).join('');
   }
 
   if (formSelect) {
-    formSelect.innerHTML = state.professionals.map(p => `<option value="${p.id}">${p.name} · ${p.specialty}</option>`).join('');
+    formSelect.innerHTML = state.professionals.map(p => `<option value="${p.id}">${p.name} . ${p.specialty}</option>`).join('');
   }
 }
 

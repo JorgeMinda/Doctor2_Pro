@@ -35,10 +35,10 @@ export async function generateDefaultPrompt() {
 ${profList || '- Dr. Juan Carlos Gómez - Odontología General'}
 
 📍 *INFORMACIÓN DEL CONSULTORIO:*
-- Nombre: ${clinicName} · Amor en cada sonrisa
+- Nombre: ${clinicName} . Amor en cada sonrisa
 - Horarios de atención: Lunes a Viernes 08:00 a 20:00 hs
 
-⚠️ *REGLAS CLÍNICAS IMPORTANTES:*
+WARNING️ *REGLAS CLÍNICAS IMPORTANTES:*
 - NUNCA brindes diagnósticos médicos definitivos
 - NUNCA recetes ni sugieras medicamentos
 - Ante dolores intensos o emergencias médicas, indica acudir de urgencia al consultorio
@@ -196,7 +196,7 @@ export function openAISimulatorModal() {
             <i class="fas fa-robot"></i>
           </div>
           <div>
-            <div style="font-weight:700; font-size:1rem;">Nani Dent · Bot IA</div>
+            <div style="font-weight:700; font-size:1rem;">Nani Dent . Bot IA</div>
             <small style="opacity:0.85; font-size:0.75rem;"><i class="fas fa-circle" style="color:#25d366; font-size:0.55rem;"></i> En línea (Simulación 24/7)</small>
           </div>
         </div>
@@ -220,7 +220,7 @@ export function openAISimulatorModal() {
         <span class="sim-quick-btn" data-txt="Quiero agendar un turno para mañana a las 10:00" style="font-size:0.75rem; background:#fff; border:1px solid #ccc; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">📅 Turno mañana</span>
         <span class="sim-quick-btn" data-txt="Sí, confirmo el turno para mañana a las 10:00" style="font-size:0.75rem; background:#e8f5e9; border:1px solid #81c784; color:#2e7d32; font-weight:700; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">✅ Confirmar turno</span>
         <span class="sim-quick-btn" data-txt="¿Cuánto cuesta una limpieza dental?" style="font-size:0.75rem; background:#fff; border:1px solid #ccc; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">💰 Precios</span>
-        <span class="sim-quick-btn" data-txt="Me duele mucho una muela, ¿qué tomo?" style="font-size:0.75rem; background:#fff; border:1px solid #ccc; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">⚠️ Emergencia</span>
+        <span class="sim-quick-btn" data-txt="Me duele mucho una muela, ¿qué tomo?" style="font-size:0.75rem; background:#fff; border:1px solid #ccc; padding:4px 8px; border-radius:12px; cursor:pointer; white-space:nowrap;">WARNING️ Emergencia</span>
       </div>
 
       <!-- Barra de Input del Paciente -->
@@ -332,7 +332,7 @@ async function generateSimulatedBrainReply(text, prompt, doctors) {
         📅 <strong>Fecha:</strong> ${dateFormatted} (${dateStr})<br>
         ⏰ <strong>Hora:</strong> 10:00 hs<br>
         👨‍⚕️ <strong>Especialista:</strong> ${doctorName}<br>
-        📍 <strong>Lugar:</strong> Nani Dent · Consultorio Principal<br><br>
+        📍 <strong>Lugar:</strong> Nani Dent . Consultorio Principal<br><br>
         <span style="display:inline-block; padding:4px 10px; background:#dcfce7; color:#15803d; border-radius:6px; font-weight:700; font-size:0.78rem;">
           <i class="fas fa-check-circle"></i> Sincronizado en Supabase y visible en tu Agenda
         </span><br><br>
@@ -347,7 +347,7 @@ async function generateSimulatedBrainReply(text, prompt, doctors) {
 
   // 2. Doctores
   if (q.includes('doctor') || q.includes('especialista') || q.includes('quién atiende') || q.includes('medico')) {
-    return `En <strong>Nani Dent</strong> contamos con un equipo de primer nivel 👨‍⚕️✨:<br>• <strong>${doctors}</strong><br><br>Atendemos de Lunes a Viernes de 08:00 a 20:00 hs. ¿Te gustaría consultar la disponibilidad de algún horario en particular?`;
+    return `En <strong>Nani Dent</strong> contamos con un equipo de primer nivel 👨‍⚕️✨:<br>- <strong>${doctors}</strong><br><br>Atendemos de Lunes a Viernes de 08:00 a 20:00 hs. ¿Te gustaría consultar la disponibilidad de algún horario en particular?`;
   }
 
   // 3. Consulta de horarios / citas
@@ -363,7 +363,7 @@ async function generateSimulatedBrainReply(text, prompt, doctors) {
 
   // 5. Emergencia / Dolor
   if (q.includes('duele') || q.includes('tomo') || q.includes('ibuprofeno') || q.includes('medicamento') || q.includes('muela') || q.includes('pastilla')) {
-    return `⚠️ <strong>Importante:</strong> Como asistente virtual no puedo prescribirte medicamentos ni darte diagnósticos médicos por bioseguridad.<br><br>Si presentas un dolor dental agudo, te recomendamos <strong>acudir de urgencia a nuestro consultorio</strong> para que el doctor pueda examinarte y darte la medicación apropiada. ¿Deseas que te reservemos un espacio prioritario hoy?`;
+    return `WARNING️ <strong>Importante:</strong> Como asistente virtual no puedo prescribirte medicamentos ni darte diagnósticos médicos por bioseguridad.<br><br>Si presentas un dolor dental agudo, te recomendamos <strong>acudir de urgencia a nuestro consultorio</strong> para que el doctor pueda examinarte y darte la medicación apropiada. ¿Deseas que te reservemos un espacio prioritario hoy?`;
   }
 
   return `¡Hola! Con mucho gusto te atendemos en <strong>Nani Dent</strong> 🦷. Podemos ayudarte a consultar horarios disponibles, agendar citas o resolver dudas sobre nuestros servicios. ¿Te gustaría coordinar una atención para esta semana?`;

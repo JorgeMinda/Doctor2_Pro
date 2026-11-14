@@ -8,7 +8,7 @@ import { el, showToast, apiFetch } from './app-utils.js';
 
 /**
  * FLUJO CLÍNICO: Finalizar Consulta
- * Secuencia: Guardar evolución → Descontar insumos → Generar recibo → Enviar WhatsApp
+ * Secuencia: Guardar evolución -> Descontar insumos -> Generar recibo -> Enviar WhatsApp
  * @param {object} options - Opciones del flujo
  * @param {string} options.patientId - ID del paciente
  * @param {string} options.patientName - Nombre del paciente
@@ -26,7 +26,7 @@ export async function finishConsultation(options = {}) {
   } = options;
 
   if (!patientId) {
-    showToast('⚠️ No hay paciente seleccionado', 'error');
+    showToast('WARNING️ No hay paciente seleccionado', 'error');
     return false;
   }
 
@@ -52,7 +52,7 @@ export async function finishConsultation(options = {}) {
     console.error('❌ Error en flujo de consulta:', error);
     showToast('❌ Error al finalizar consulta. Revisar consola.', 'error');
     // Aún así, mostramos parcialmente lo que se logró
-    showToast('⚠️ Flujo parcialmente completado', 'warning');
+    showToast('WARNING️ Flujo parcialmente completado', 'warning');
     return false;
   }
 }
@@ -112,7 +112,7 @@ async function deductInventoryItems(usedItemIds, patientId) {
           item = data[0];
         }
       } catch (e) {
-        console.warn('⚠️ No se pudo buscar insumo:', itemId);
+        console.warn('WARNING️ No se pudo buscar insumo:', itemId);
         continue;
       }
     }
@@ -136,7 +136,7 @@ async function deductInventoryItems(usedItemIds, patientId) {
         notes: 'Uso en consulta clínica automatizada'
       });
 
-      console.log(`✅ Insumo descontado: ${item.name} (stock: ${item.stock} → ${newStock})`);
+      console.log(`✅ Insumo descontado: ${item.name} (stock: ${item.stock} -> ${newStock})`);
     }
   }
 
@@ -202,7 +202,7 @@ async function sendConsultationSummary(patientName, cost, observations) {
   if (observations) {
     message += `<b>Observaciones:</b> ${observations}\n`;
   }
-  message += `\n— Generado automáticamente por Doctor2 Pro`;
+  message += `\n- Generado automáticamente por Doctor2 Pro`;
 
   try {
     const response = await fetch(`${api.galiciaNave}?action=send_whatsapp`, {
@@ -221,7 +221,7 @@ async function sendConsultationSummary(patientName, cost, observations) {
       console.log('✅ WhatsApp enviado exitosamente');
       showToast('📱 Resumen enviado por WhatsApp', 'success');
     } else {
-      console.warn('⚠️ Error enviando WhatsApp:', result.error);
+      console.warn('WARNING️ Error enviando WhatsApp:', result.error);
     }
   } catch (error) {
     console.error('❌ Error enviando WhatsApp:', error);
@@ -241,7 +241,7 @@ export function initFinishConsultationButton() {
     btn.addEventListener('click', () => {
       const patient = state.selectedPatient;
       if (!patient) {
-        showToast('⚠️ Seleccione un paciente primero', 'error');
+        showToast('WARNING️ Seleccione un paciente primero', 'error');
         return;
       }
 
