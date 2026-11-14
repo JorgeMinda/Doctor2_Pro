@@ -4,6 +4,12 @@
 import { state, api } from './modules/app-state.js';
 import { el, formatDate, showToast, apiFetch } from './modules/app-utils.js';
 import { checkSession, login, logout, setupLoginListeners } from './modules/app-auth.js';
+
+// Exponer login y logout en window para el onsubmit del formulario
+window.login = login;
+window.logout = logout;
+
+// Importar el resto de módulos
 import { loadNotifications, markNotificationsRead, deleteAllNotifications } from './modules/app-notifications.js';
 import { loadMonth, fillFormProfessionals, scheduleAgendaRender } from './modules/app-calendar.js';
 import { loadPatients, renderPatients, openNewPatientModal, closeNewPatientModal, saveNewPatient } from './modules/app-patients.js';
@@ -83,8 +89,8 @@ function registerServiceWorker() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js')
-        .then((reg) => console.log('📱 [PWA] Service Worker registrado con éxito:', reg.scope))
-        .catch((err) => console.warn('⚠️ [PWA] Error registrando Service Worker:', err));
+        .then((reg) => console.log('[PWA] [PWA] Service Worker registrado con éxito:', reg.scope))
+        .catch((err) => console.warn('[WARN] [PWA] Error registrando Service Worker:', err));
     });
   }
 }
