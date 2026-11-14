@@ -710,36 +710,429 @@
   transform: scale(0.95) !important;
 }
 
-/* Indicador de cita existente en slots de bloqueo (no bloquea, solo informa) */
-#slotsGridContainer button.slot-occupied-indicator,
-#slotsGridContainer button.slot-occupied-indicator {
-  border-color: #f97316 !important;
-  background: rgba(255, 159, 0, 0.15) !important;
-  color: #c2410c !important;
-  cursor: pointer !important;
-}
-#slotsGridContainer button.slot-occupied-indicator:hover,
-#slotsGridContainer button.slot-occupied-indicator:hover {
-  border-color: #fb923c !important;
-  background: rgba(255, 159, 0, 0.25) !important;
-  color: #9a3412 !important;
-  box-shadow: 0 0 10px rgba(249, 115, 22, 0.3) !important;
-  transform: translateY(-2px) !important;
-}
-#slotsGridContainer button.slot-occupied-indicator:active,
-#slotsGridContainer button.slot-occupied-indicator:active {
-  transform: scale(0.95) !important;
+/* ==========================================================
+   AGENDA / SLOTS DE HORARIOS
+   ========================================================== */
+
+
+/* Contenedor de la rejilla */
+.slot-grid,
+#blockedTimeFromSlots,
+#blockedTimeToSlots,
+#newBlockedTimeFrom,
+#newBlockedTimeTo {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
 }
 
-.slot-occupied-indicator-dot {
-  display: inline-block !important;
-  width: 6px !important;
-  height: 6px !important;
-  border-radius: 50% !important;
-  background: #f97316 !important;
+
+
+
+/* ==========================================================
+   BASE
+   ========================================================== */
+
+
+.slot-chip-btn {
+    position: relative;
+
+
+    min-height: 52px;
+    min-width: 0;
+
+
+    border-radius: 10px;
+
+
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+
+
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+
+
+    cursor: pointer;
+
+
+    transition:
+        transform 180ms ease,
+        border-color 180ms ease,
+        background 180ms ease,
+        box-shadow 180ms ease,
+        color 180ms ease,
+        opacity 180ms ease;
 }
 
-/* Selector de Duración (Segmented Control) */
+
+
+
+/* ==========================================================
+   DISPONIBLE
+   ========================================================== */
+
+
+.slot-chip-btn.slot-available {
+
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+
+    padding: 8px 6px;
+
+
+    border: 1.5px solid rgba(45, 212, 191, 0.28);
+
+
+    /* Fondo glass muy parecido a la segunda imagen */
+    background:
+        linear-gradient(
+            145deg,
+            rgba(240, 253, 250, 0.96),
+            rgba(236, 253, 250, 0.72)
+        );
+
+
+    color: #00a8b5;
+
+
+    box-shadow:
+        0 2px 8px rgba(15, 118, 110, 0.04);
+}
+
+
+
+
+/* Hora + icono */
+
+
+.slot-chip-btn.slot-available > span:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+
+    gap: 5px;
+
+
+    color: #00a8b5;
+}
+
+
+
+
+/* Reloj */
+
+
+.slot-chip-btn.slot-available svg {
+    width: 14px;
+    height: 14px;
+
+
+    color: #14b8a6;
+
+
+    flex-shrink: 0;
+}
+
+
+
+
+/* Hover */
+
+
+.slot-chip-btn.slot-available:hover {
+
+
+    transform: translateY(-2px);
+
+
+    border-color: rgba(20, 184, 166, 0.65);
+
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(204, 251, 241, 0.98),
+            rgba(240, 253, 250, 0.92)
+        );
+
+
+    color: #008f99;
+
+
+    box-shadow:
+        0 0 0 1px rgba(45, 212, 191, 0.06),
+        0 0 16px rgba(45, 212, 191, 0.20),
+        0 5px 14px rgba(15, 118, 110, 0.10);
+}
+
+
+
+
+/* Click */
+
+
+.slot-chip-btn.slot-available:active {
+    transform: scale(0.95);
+}
+
+
+
+
+/* ==========================================================
+   SLOT SELECCIONADO
+   ========================================================== */
+
+
+.slot-chip-btn.slot-selected {
+
+
+    display: flex;
+    flex-direction: column
+    align-items: center
+    justify-content: center
+
+
+    padding: 8px 6px
+
+
+    border: 1px solid rgba(20, 184, 166, 0.9)
+
+
+    background:
+        linear-gradient(
+            135deg,
+            #14b8a6 0%,
+            #059669 100%
+        )
+
+
+    color: #ffffff
+
+
+    transform: scale(1.04)
+
+
+    box-shadow:
+        0 0 18px rgba(45, 212, 191, 0.40),
+        0 6px 18px rgba(15, 118, 110, 0.16)
+
+
+    z-index: 2
+}
+
+
+
+
+.slot-chip-btn.slot-selected:hover {
+
+
+    transform: scale(1.06) translateY(-1px)
+
+
+    box-shadow:
+        0 0 24px rgba(45, 212, 191, 0.52),
+        0 8px 20px rgba(15, 118, 110, 0.18)
+}
+
+
+
+
+.slot-chip-btn.slot-selected svg {
+    color: #ffffff;
+}
+
+
+
+
+/* ==========================================================
+   OCUPADO
+   ========================================================== */
+
+
+.slot-chip-btn.slot-occupied-indicator {
+
+
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+
+
+    min-height: 52px
+
+
+    padding: 7px 5px
+
+
+    border: 1.5px solid rgba(249, 115, 22, 0.45)
+
+
+    border-radius: 10px
+
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 247, 237, 0.95),
+            rgba(255, 237, 213, 0.70)
+        )
+
+
+    color: #ea580c
+
+
+    cursor: not-allowed
+
+
+    opacity: 0.88
+}
+
+
+
+
+/* Hover ocupado */
+
+
+.slot-chip-btn.slot-occupied-indicator:hover {
+
+
+    border-color: rgba(249, 115, 22, 0.65)
+
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255, 247, 237, 1),
+            rgba(255, 237, 213, 0.85)
+        )
+
+
+    box-shadow:
+        0 0 12px rgba(249, 115, 22, 0.12)
+}
+
+
+
+
+/* ==========================================================
+   CONTENIDO INTERNO
+   ========================================================== */
+
+
+.slot-chip-btn .slot-time {
+    display: flex
+    align-items: center
+    justify-content: center
+
+
+    gap: 5px
+
+
+    font-size: 13px
+    font-weight: 600
+}
+
+
+
+
+/* Nombre / paciente */
+
+
+.slot-chip-btn .slot-patient,
+.slot-chip-btn .patient-name {
+    margin-top: 4px
+
+
+    font-size: 9px
+    line-height: 1.1
+
+
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        sans-serif
+}
+
+
+
+
+/* Punto de estado */
+
+
+.slot-chip-btn .slot-status-dot {
+    width: 5px
+    height: 5px
+
+
+    margin-top: 4px
+
+
+    border-radius: 50%
+
+
+    background: #f97316
+}
+
+
+
+
+/* ==========================================================
+   ESTADOS DESHABILITADOS
+   ========================================================== */
+
+
+.slot-chip-btn:disabled {
+    cursor: not-allowed
+    opacity: 0.45
+    transform: none !important
+    box-shadow: none !important
+}
+
+
+
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+
+@media (min-width: 768px) {
+
+
+    .slot-grid,
+    #blockedTimeFromSlots,
+    #blockedTimeToSlots,
+    #newBlockedTimeFrom,
+    #newBlockedTimeTo {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+
+@media (min-width: 1024px) {
+
+
+    .slot-grid,
+    #blockedTimeFromSlots,
+    #blockedTimeToSlots,
+    #newBlockedTimeFrom,
+    #newBlockedTimeTo {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
 #slotDurationSelector {
   margin: 4px 0 8px;
 }
