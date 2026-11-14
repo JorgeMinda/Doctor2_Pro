@@ -98,7 +98,9 @@ export function createSlotPicker(config) {
         to: selection.to,
         duration: selection.duration,
         mode: selection.mode
-      }
+      },
+      startHour: 7,
+      endHour: 21
     });
   }
 
@@ -116,7 +118,9 @@ export function createSlotPicker(config) {
         to: selection.to,
         duration: selection.duration,
         mode: selection.mode
-      }
+      },
+      startHour: 7,
+      endHour: 21
     });
   }
 
@@ -190,9 +194,9 @@ export function createSlotPicker(config) {
       const apt = slot.metadata.appointment;
       const patientName = apt?.patient_name || 'Paciente';
       const reason = apt?.reason || 'Consulta';
-      const title = `📅🏥 Cita Médica: ${patientName} — ${reason}`;
+      const title = `📅🏥 Cita Médica: ${patientName} - ${reason}`;
 
-      return `<button type="button" title="📅🏥 Cita Médica: ${patientName} — ${reason}" class="slot-chip-btn slot-occupied-indicator" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:52px;padding:7px 5px;border:1.5px solid rgba(249,115,22,0.45);border-radius:10px;background:linear-gradient(145deg,rgba(255,247,237,0.95),rgba(255,237,213,0.7));color:#ea580c;cursor:pointer;opacity:0.88;transition:transform 180ms ease,border-color 180ms ease,background 180ms ease,box-shadow 180ms ease;" data-time="${slot.time}" data-${slot.isFrom ? 'from' : 'to'}="true">
+      return `<button type="button" title="📅🏥 Cita Médica: ${patientName} - ${reason}" class="slot-chip-btn slot-occupied-indicator" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:52px;padding:7px 5px;border:1.5px solid rgba(249,115,22,0.45);border-radius:10px;background:linear-gradient(145deg,rgba(255,247,237,0.95),rgba(255,237,213,0.7));color:#ea580c;cursor:pointer;opacity:0.88;transition:transform 180ms ease,border-color 180ms ease,background 180ms ease,box-shadow 180ms ease;" data-time="${slot.time}" data-${slot.isFrom ? 'from' : 'to'}="true">
         <span class="slot-time" style="display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:600;">${getClockIcon()}${slot.time}</span>
         <span style="display:flex;align-items:center;gap:1;margin-top:4px;font-size:9px;color:#ea580c;font-weight:500;">${getMedicalIcon()}${escapeHtml(apt?.patient_name || 'Paciente')}</span>
         <span class="slot-status-dot" style="width:5px;height:5px;margin-top:4px;border-radius:50%;background:#f97316;"></span>
@@ -207,7 +211,7 @@ export function createSlotPicker(config) {
     if (slot.isSelected) return `Hora seleccionada (${slot.time} hs)`;
     if (slot.hasAppointment) {
       const apt = slot.metadata.appointment;
-      return `📅🏥 Cita Médica: ${apt?.patient_name || 'Paciente'} — ${apt?.reason || 'Consulta'}`;
+      return `📅🏥 Cita Médica: ${apt?.patient_name || 'Paciente'} - ${apt?.reason || 'Consulta'}`;
     }
     if (slot.state === 'blocked') return `Bloqueado: ${formatBlockInfo(slot.metadata.blockInfo)}`;
     if (slot.isPast) return 'Horario ya transcurrido';
