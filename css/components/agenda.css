@@ -688,10 +688,10 @@
 #slotsGridContainer button.slot-range,
 #slotsGridContainer button[data-range="true"] {
   border: 2px solid #14b8a6 !important;
-  background: linear-gradient(180deg, #14b8a6 0%, #0d9488 100%) !important;
+  background: linear-gradient(135deg, #0f766e 0%, #059669 100%) !important;
   color: #ffffff !important;
   cursor: pointer !important;
-  box-shadow: 0 0 8px rgba(20, 184, 166, 0.35) !important;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.5) !important;
 }
 #slotsGridContainer button.slot-range svg,
 #slotsGridContainer button[data-range="true"] svg {
@@ -700,7 +700,7 @@
 #slotsGridContainer button.slot-range:hover,
 #slotsGridContainer button[data-range="true"]:hover {
   border-color: #5eead4 !important;
-  background: linear-gradient(180deg, #0d9488 0%, #0f766e 100%) !important;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
   color: #ffffff !important;
   box-shadow: 0 0 14px rgba(45, 212, 191, 0.5) !important;
   transform: translateY(-2px) !important;
