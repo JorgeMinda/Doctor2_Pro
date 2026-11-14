@@ -1333,9 +1333,9 @@
 
 .apt-block-top {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
+  gap: 4px 8px;
 }
 
 .apt-block-time {
@@ -1363,37 +1363,19 @@
 .pill-reprogramado { background: #f59e0b; }
 
 .apt-block-patient {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 10px;
+  font-weight: 500;
   color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.3;
-  margin-top: 1px;
-}
-
-.apt-block-reason {
-  font-size: 10px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.3;
+  margin-top: 2px;
 }
 
 .text-strikethrough {
   text-decoration: line-through;
   opacity: 0.7;
-}
-}
-
-.apt-block-reason {
-  font-size: 11px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .week-card-empty-slot {

@@ -340,9 +340,8 @@ export function renderWeekView() {
         <div class="apt-block-top">
           <span class="apt-block-time"><i class="far fa-clock" style="font-size:0.65rem; opacity:0.8; margin-right:3px;"></i>${apt.time} hs</span>
           <span class="apt-block-pill pill-${statusSlug(normStatus)}" title="Estado: ${normStatus}">${STATUS_INITIALS[normStatus] || normStatus}</span>
+          <span class="apt-block-patient${isCancelled ? ' text-strikethrough' : ''}">${apt.patient_name} · ${apt.reason || 'Consulta'}</span>
         </div>
-        <div class="apt-block-patient${isCancelled ? ' text-strikethrough' : ''}">${apt.patient_name}</div>
-        ${apt.reason ? `<div class="apt-block-reason">${apt.reason}</div>` : ''}
       `;
       aptEl.addEventListener('click', (e) => {
         if (statusBlocked) return; // Bloquear clic completamente
