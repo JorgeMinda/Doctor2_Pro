@@ -1368,6 +1368,12 @@
   background: rgba(245, 158, 11, 0.06);
 }
 
+.week-card-apt-block.status-blocked {
+  border-left: 3px solid #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 .apt-block-top {
   display: flex;
   flex-wrap: wrap;
@@ -1406,8 +1412,22 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  .line-height: 1.3;
+  margin-top: 2px;
+}
+
+.apt-block-reason {
+  font-size: 10px;
+  color: var(--danger);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   line-height: 1.3;
   margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
 }
 
 .text-strikethrough {

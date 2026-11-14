@@ -326,29 +326,52 @@ export function renderWeekView() {
       .filter(a => a.date === dStr)
       .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
-    dayApts.forEach(apt => {
+dayApts.forEach(apt => {
       const normStatus = normalizeStatus(apt.status);
       const isCancelled = normStatus === 'Cancelado';
       const statusBlocked = normStatus === 'En curso' || normStatus === 'Atendido' || 
-                          String(apt.status || '').toLowerCase().includes('en curso');
+                            String(apt.status || '').toLowerCase().includes('en curso');
+
+      // Verificar si la cita está dentro de un rango bloqueado
+      const blockInfo = checkIsTimeBlocked(apt.date, apt.time, apt.professional_id);
+      const isBlockedApt = !!blockInfo && !isCancelled && !statusBlocked;
+
       const aptEl = document.createElement('div');
-      aptEl.className = `week-card-apt-block status-${statusSlug(normStatus)}`;
-      aptEl.title = `${apt.patient_name} (${apt.time} hs) · ${apt.reason || 'Consulta'} · Estado: ${normStatus}`;
-      // Si la cita está bloqueada por estado, la tarjeta queda solo lectura sin clickeable
-      const clickHandler = statusBlocked ? '' : `onclick="e.stopPropagation(); openModal({ appointment: apt });"`;
-      aptEl.innerHTML = `
-        <div class="apt-block-top">
-          <span class="apt-block-time"><i class="far fa-clock" style="font-size:0.65rem; opacity:0.8; margin-right:3px;"></i>${apt.time} hs</span>
-          <span class="apt-block-pill pill-${statusSlug(normStatus)}" title="Estado: ${normStatus}">${STATUS_INITIALS[normStatus] || normStatus}</span>
-          <span class="apt-block-patient${isCancelled ? ' text-strikethrough' : ''}">${apt.patient_name} · ${apt.reason || 'Consulta'}</span>
-        </div>
-      `;
+      const statusClass = isBlockedApt ? 'blocked' : statusSlug(normStatus);
+      aptEl.className = `week-card-apt-block status-${statusClass}`;
+      
+      const statusDisplay = isBlockedApt ? 'Bloqueado' : normStatus;
+      aptEl.title = `${apt.patient_name} (${apt.time} hs) · ${apt.reason || 'Consulta'} · Estado: ${statusDisplay}`;
+      
+      // Si la cita está bloqueada por estado o por rango, la tarjeta queda solo lectura
+      const clickHandler = (statusBlocked || isBlockedApt) ? '' : `onclick="e.stopPropagation(); openModal({ appointment: apt });"`;
+      const blockReason = blockInfo?.reason || 'Bloqueo de agenda';
+      const blockText = describeBlock(blockInfo);
+
+      if (isBlockedApt) {
+        aptEl.innerHTML = `
+          <div class="apt-block-top">
+            <span class="apt-block-time"><i class="far fa-clock" style="font-size:0.65rem; opacity:0.8; margin-right:3px;"></i>${apt.time} hs</span>
+            <span class="apt-block-pill pill-cancelado" title="Cancelado por bloqueo: ${blockReason}"><i class="fas fa-lock" style="margin-right:2px;"></i>BLOQ</span>
+            <span class="apt-block-patient">${apt.patient_name} · ${apt.reason || 'Consulta'}</span>
+          </div>
+          <span class="apt-block-reason"><i class="fas fa-ban" style="margin-right:3px; color:#ef4444;"></i> Bloqueado: ${blockText} — ${blockReason}</span>
+        `;
+      } else {
+        aptEl.innerHTML = `
+          <div class="apt-block-top">
+            <span class="apt-block-time"><i class="far fa-clock" style="font-size:0.65rem; opacity:0.8; margin-right:3px;"></i>${apt.time} hs</span>
+            <span class="apt-block-pill pill-${statusSlug(normStatus)}" title="Estado: ${normStatus}">${STATUS_INITIALS[normStatus] || normStatus}</span>
+            <span class="apt-block-patient${isCancelled ? ' text-strikethrough' : ''}">${apt.patient_name} · ${apt.reason || 'Consulta'}</span>
+          </div>
+        `;
+      }
       aptEl.addEventListener('click', (e) => {
-        if (statusBlocked) return; // Bloquear clic completamente
+        if (statusBlocked || isBlockedApt) return; // Bloquear clic completamente
         e.stopPropagation();
         openModal({ appointment: apt });
       });
-      if (statusBlocked) {
+      if (statusBlocked || isBlockedApt) {
         aptEl.style.cursor = 'default';
         aptEl.style.opacity = '0.7';
       }
