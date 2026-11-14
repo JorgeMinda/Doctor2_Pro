@@ -66,13 +66,15 @@ export function renderBlockedHoursSlots(opts = {}) {
       `;
     }
 
+    // Siempre clickable - mostrar indicador visual si hay cita
     if (status === 'occupied') {
       const apt = existingApts.find(a => a.time === time);
-      const title = `Ocupado: ${apt.patient_name} (${apt.reason || 'Consulta'})`;
+      const title = `Cita existente: ${apt.patient_name} (${apt.reason || 'Consulta'})`;
+      // Siempre clickable, pero con borde naranja/rojo para indicar que hay cita
       return `
-        <button type="button" disabled aria-disabled="true" title="${title}" class="slot-chip-btn slot-occupied flex flex-col items-center justify-center rounded-lg border-2 border-rose-500/70 bg-rose-950/30 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-rose-300 cursor-not-allowed select-none">
-          <span class="flex items-center gap-1.5"><span class="slot-occupied-dot inline-block size-1.5 rounded-full bg-rose-400 shrink-0"></span><span class="slot-occupied-time line-through">${time}</span></span>
-          <span class="slot-occupied-text text-[10px] font-sans font-medium line-through text-rose-400/80 mt-1">Ocupado</span>
+        <button type="button" title="${title}" class="slot-chip-btn slot-occupied-indicator flex flex-col items-center justify-center rounded-lg border-2 border-orange-500/70 bg-orange-50/40 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-orange-700 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-100/60 active:scale-95" data-time="${time}" data-${isFrom ? 'from' : 'to'}="true">
+          <span class="flex items-center gap-1.5">${clockIcon}${time}</span>
+          <span class="slot-occupied-indicator-dot inline-block mt-1 size-1.5 rounded-full bg-orange-500"></span>
         </button>
       `;
     }
