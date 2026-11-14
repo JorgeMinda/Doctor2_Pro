@@ -726,32 +726,6 @@
           </div>
         </div>
 
-        <!-- 7. Costo y estado -->
-        <div class="radix-form-row">
-          <div class="radix-form-field">
-            <label data-slot="label" class="radix-label" for="formCost">Costo de la consulta</label>
-            <input type="number" id="formCost" class="radix-input" min="0" step="0.01" placeholder="0.00">
-          </div>
-          <div class="radix-form-field">
-            <label data-slot="label" class="radix-label" for="formStatus">Estado del turno</label>
-            <select id="formStatus" class="radix-input">
-              <option value="Reservado">Reservado</option>
-              <option value="Confirmado">Confirmado</option>
-              <option value="Reprogramado">Reprogramado</option>
-              <option value="En curso">En curso</option>
-              <option value="Atendido">Atendido</option>
-              <option value="Ausente">Ausente</option>
-              <option value="Cancelado">Cancelado</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- 8. Observaciones internas -->
-        <div class="radix-form-field">
-          <label data-slot="label" class="radix-label" for="formObservation">Observaciones internas</label>
-          <textarea id="formObservation" class="radix-input radix-textarea" rows="2" placeholder="Alergias, indicaciones, notas del profesional…"></textarea>
-        </div>
-
         <!-- Footer -->
         <div data-slot="dialog-footer" class="radix-dialog-footer">
           <div id="aptActionGroupLeft" class="radix-footer-left">

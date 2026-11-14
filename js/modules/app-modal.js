@@ -41,9 +41,6 @@ export function openModal(opts = {}) {
   const formPatient = el('formPatient');
   const formPhone = el('formPhone');
   const formEmail = el('formEmail');
-  const formCost = el('formCost');
-  const formObs = el('formObservation');
-  const formStatus = el('formStatus');
   const modalTitle = el('modalTitle');
   const saveBtn = el('saveApt') || el('saveAppointment');
   const deleteBtn = el('deleteAptBtn');
@@ -70,9 +67,6 @@ export function openModal(opts = {}) {
     if (formReason) formReason.value = a.reason || '';
     if (formPatient) formPatient.value = a.patient_name || '';
     if (formPhone) formPhone.value = a.patient_phone || '';
-    if (formCost) formCost.value = a.cost || '';
-    if (formObs) formObs.value = a.observation || '';
-    if (formStatus) formStatus.value = normalizeStatusValue(a.status);
 
     // Autocompletar email: primero el de la cita, o buscar en la ficha del paciente
     if (formEmail) {
@@ -123,9 +117,6 @@ export function openModal(opts = {}) {
     }
     if (formDuration) formDuration.value = '30';
     if (formReason) formReason.value = '';
-    if (formCost) formCost.value = '';
-    if (formObs) formObs.value = '';
-    if (formStatus) formStatus.value = 'Reservado';
 
     // Ocultar botones de eliminar/cancelar para citas nuevas
     if (deleteBtn) deleteBtn.style.display = 'none';
@@ -144,7 +135,6 @@ export function openModal(opts = {}) {
       if (formPatient) formPatient.value = foundPatient.name;
       if (formPhone) formPhone.value = foundPatient.phone || opts.patientPhone || '';
       if (formEmail) formEmail.value = foundPatient.email || '';
-      if (formObs) formObs.value = foundPatient.notes || '';
       if (formProf && foundPatient.assignedProfessionalId) formProf.value = foundPatient.assignedProfessionalId;
       if (modal) modal.dataset.patientId = foundPatient.id;
     } else {
@@ -710,8 +700,9 @@ export async function saveAppointment() {
   const patientName = el('formPatient')?.value.trim();
   const patientPhone = el('formPhone')?.value.trim();
   const patientEmail = el('formEmail')?.value.trim();
-  const cost = parseFloat(el('formCost')?.value) || 0;
-  const observation = el('formObservation')?.value.trim();
+  // cost y observation eliminados del formulario - usar valores por defecto
+  const cost = 0;
+  const observation = '';
 
   if (!patientName || !date || !time) {
     showToast('Por favor completá paciente, fecha y horario', 'warning');
@@ -827,12 +818,8 @@ export async function saveAppointment() {
     String(origApt.status || '').toLowerCase().includes('cancel')
   );
 
-  const formStatus = el('formStatus');
-  // Al actualizar o reactivar una cita que estaba cancelada, vuelve a 'Reservado'.
-  // Los demás estados (Confirmado, En curso, Atendido, etc.) se conservan al editar.
-  const status = formStatus
-    ? formStatus.value
-    : (origApt ? (wasCancelled ? 'Reservado' : (origApt.status || 'Reservado')) : 'Reservado');
+  // Estado por defecto: Reservado (los cambios en estado se hacen por botones Cancelar/Reactivar)
+  const status = origApt ? (wasCancelled ? 'Reservado' : (origApt.status || 'Reservado')) : 'Reservado';
 
   const payload = {
     id: editingAppointmentId,
