@@ -725,7 +725,7 @@
 
 #slotDurationSelector .grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 4px;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
