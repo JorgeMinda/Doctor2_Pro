@@ -579,9 +579,9 @@
 #slotsGridContainer button.slot-available,
 #slotsGridContainer button[data-status="available"],
 #slotsGridContainer button[class*="border-teal-500"] {
-  border: rgba(20, 184, 166, 0.2) !important;
-  background: rgba(204, 251, 241, 0.2) !important;
-  color: #0d9488 !important;
+  border: 1.5px solid rgba(45, 212, 191, 0.28) !important;
+  background: linear-gradient(145deg, rgba(240, 253, 250, 0.96), rgba(236, 253, 250, 0.72)) !important;
+  color: #00a8b5 !important;
 }
 #slotsGridContainer button.slot-available svg,
 #slotsGridContainer button[data-status="available"] svg,
@@ -606,12 +606,12 @@
 #slotsGridContainer button.slot-occupied,
 #slotsGridContainer button[data-status="occupied"],
 #slotsGridContainer button[class*="border-rose-500"] {
-  border: rgba(244, 114, 182, 0.2) !important;
-  background: #fdf2f8 !important;
-  color: #be123c !important;
-  cursor: not-allowed !important;
+  border: 1.5px solid rgba(249, 115, 22, 0.45) !important;
+  background: linear-gradient(145deg, rgba(255, 247, 237, 0.95), rgba(255, 237, 213, 0.7)) !important;
+  color: #ea580c !important;
+  cursor: pointer !important;
   user-select: none !important;
-  opacity: 0.85 !important;
+  opacity: 0.88 !important;
 }
 .slot-occupied-dot {
   display: inline-block !important;
@@ -638,8 +638,8 @@
 #slotsGridContainer button.slot-past,
 #slotsGridContainer button[data-status="past"],
 #slotsGridContainer button[class*="border-white/10"] {
-  border: 2px solid #e2e8f0 !important;
-  background: #f1f5f9 !important;
+  border: 1.5px solid rgba(148, 163, 184, 0.2) !important;
+  background: rgba(241, 245, 249, 0.8) !important;
   color: #94a3b8 !important;
   cursor: not-allowed !important;
   user-select: none !important;
@@ -656,11 +656,11 @@
 #slotsGridContainer button[data-status="selected"],
 #slotsGridContainer button[aria-pressed="true"],
 #slotsGridContainer button[class*="from-teal-500"] {
-  border: 2px solid transparent !important;
+  border: 1px solid rgba(20, 184, 166, 0.9) !important;
   background: linear-gradient(135deg, #14b8a6 0%, #059669 100%) !important;
   color: #ffffff !important;
-  transform: scale(1.05) !important;
-  box-shadow: 0 0 18px rgba(45, 212, 191, 0.6) !important;
+  transform: scale(1.04) !important;
+  box-shadow: 0 0 18px rgba(45, 212, 191, 0.4), 0 6px 18px rgba(15, 118, 110, 0.16) !important;
   cursor: pointer !important;
   z-index: 2 !important;
 }
