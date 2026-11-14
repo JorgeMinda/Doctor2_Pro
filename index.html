@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="css/patient-components.css">
   <link rel="stylesheet" href="css/components/agenda.css">
   <link rel="stylesheet" href="css/components/block-alert.css">
+  <link rel="stylesheet" href="css/components/buttons.css">
   <link rel="stylesheet" href="css/components/patients.css">
   <link rel="stylesheet" href="css/components/inventory.css">
   <link rel="stylesheet" href="css/components/chat.css">
@@ -726,15 +727,19 @@
           </div>
         </div>
 
-        <!-- Footer -->
-        <div data-slot="dialog-footer" class="radix-dialog-footer">
+<!-- Footer -->
+        <div data-slot="dialog-footer" class="radix-dialog-footer" id="aptDialogFooter" data-mode="create">
           <div id="aptActionGroupLeft" class="radix-footer-left">
-            <button type="button" id="deleteAptBtn" class="radix-btn-destructive" style="display:none;" title="Eliminar cita permanentemente">
+            <button type="button" id="deleteAptBtn" class="btn btn--danger" style="display:none;" title="Eliminar cita permanentemente" data-mode-only="edit">
               <i class="fas fa-trash-alt"></i> Eliminar
             </button>
-            <button type="button" id="cancelAptBtn" class="radix-btn-warn" style="display:none;" title="Cancelar cita">
+            <button type="button" id="cancelAptBtn" class="btn btn--warn" style="display:none;" title="Marcar cita como cancelada (libera el horario)" data-mode-only="edit">
               <i class="fas fa-ban"></i> Cancelar Cita
             </button>
+          </div>
+          <div class="radix-footer-right">
+            <button type="button" id="cancelModal" class="btn btn--secondary">Cancelar</button>
+            <button type="button" id="saveApt" class="btn btn--primary">Crear cita</button>
           </div>
           <div class="radix-footer-right">
             <button type="button" id="cancelModal" class="border border-outline-variant bg-surface text-foreground hover:bg-surface-high inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium h-9 px-4 py-2 shadow-sm transition-all active:scale-[0.98]">Cancelar</button>

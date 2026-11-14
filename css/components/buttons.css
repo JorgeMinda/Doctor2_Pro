@@ -1,0 +1,265 @@
+/* ==========================================================
+   BUTTONS - Sistema visual unificado (v2)
+   Mismo lenguaje visual que los chips de horario (.slot-chip-btn)
+   ========================================================== */
+
+/* Variables de botones */
+:root {
+  --btn-warn: #d97706;
+  --btn-danger: #e11d48;
+  --btn-glow: 45, 212, 191; /* mismo teal del slot seleccionado */
+}
+
+/* Modo oscuro - ajustes de variables */
+[data-theme="dark"] {
+  --btn-warn: #f59e0b;
+  --btn-danger: #f87171;
+}
+
+/* ==========================================================
+   BASE
+   ========================================================== */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1.1rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
+  font-family: inherit; /* Misma tipografía que el resto de la app */
+}
+
+.btn i,
+.btn svg {
+  font-size: 0.85em;
+  flex-shrink: 0;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:focus-visible {
+  outline: 2px solid rgb(var(--btn-glow));
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn[aria-busy="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+}
+
+/* ==========================================================
+   PRINCIPAL: gradiente teal con brillo (igual que slot seleccionado)
+   ========================================================== */
+
+.btn--primary {
+  color: #fff;
+  background: linear-gradient(135deg, #14b8a6, #059669);
+  box-shadow: 0 2px 10px rgba(var(--btn-glow), 0.30);
+}
+
+.btn--primary:hover {
+  box-shadow: 0 4px 20px rgba(var(--btn-glow), 0.50);
+}
+
+/* ==========================================================
+   SECUNDARIO: cristal translúcido
+   ========================================================== */
+
+.btn--secondary {
+  color: var(--foreground, #0f172a);
+  background: color-mix(in srgb, var(--foreground, #0f172a) 5%, transparent);
+  border-color: var(--border-subtle, #e2e8f0);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.btn--secondary:hover {
+  background: color-mix(in srgb, var(--foreground, #0f172a) 10%, transparent);
+  border-color: color-mix(in srgb, var(--foreground, #0f172a) 25%, transparent);
+}
+
+/* ==========================================================
+   ADVERTENCIA (cancelar cita): fondo suave ámbar
+   ========================================================== */
+
+.btn--warn {
+  color: var(--btn-warn);
+  background: color-mix(in srgb, var(--btn-warn) 12%, transparent);
+  border-color: color-mix(in srgb, var(--btn-warn) 40%, transparent);
+}
+
+.btn--warn:hover {
+  background: color-mix(in srgb, var(--btn-warn) 22%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--btn-warn) 35%, transparent);
+}
+
+/* ==========================================================
+   DESTRUCTIVO (eliminar): suave en reposo, sólido al hover
+   ========================================================== */
+
+.btn--danger {
+  color: var(--btn-danger);
+  background: color-mix(in srgb, var(--btn-danger) 10%, transparent);
+  border-color: color-mix(in srgb, var(--btn-danger) 40%, transparent);
+}
+
+.btn--danger:hover {
+  color: #fff;
+  background: var(--btn-danger);
+  border-color: var(--btn-danger);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--btn-danger) 45%, transparent);
+}
+
+/* ==========================================================
+   ACCESIBILIDAD
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn:hover,
+  .btn:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ==========================================================
+   UTILIDADES DE TAMAÑO
+   ========================================================== */
+
+.btn--sm {
+  height: 2rem;
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: 0.625rem;
+  gap: 0.375rem;
+}
+
+.btn--lg {
+  height: 3rem;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  border-radius: 0.875rem;
+  gap: 0.625rem;
+}
+
+/* ==========================================================
+   VARIANTE GHOST (solo texto + icono, sin fondo)
+   ========================================================== */
+
+.btn--ghost {
+  color: var(--foreground, #0f172a);
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn--ghost:hover {
+  background: color-mix(in srgb, var(--foreground, #0f172a) 8%, transparent);
+}
+
+.btn--ghost:active {
+  background: color-mix(in srgb, var(--foreground, #0f172a) 12%, transparent);
+}
+
+/* ==========================================================
+   VARIANTE OUTLINE (borde visible, fondo transparente)
+   ========================================================== */
+
+.btn--outline {
+  color: var(--foreground, #0f172a);
+  background: transparent;
+  border-color: var(--border-subtle, #e2e8f0);
+}
+
+.btn--outline:hover {
+  background: color-mix(in srgb, var(--foreground, #0f172a) 5%, transparent);
+  border-color: var(--foreground, #0f172a);
+}
+
+/* ==========================================================
+   ICONOS EN BOTONES
+   ========================================================== */
+
+.btn i,
+.btn svg {
+  font-size: 0.85em;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* Tamaño de iconos en botones pequeños */
+.btn--sm i,
+.btn--sm svg {
+  font-size: 0.75em;
+}
+
+.btn--lg i,
+.btn--lg svg {
+  font-size: 1em;
+}
+
+/* ==========================================================
+   ACCESIBILIDAD: Reducir movimiento
+   ========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn:hover,
+  .btn:active,
+  .btn:focus-visible {
+    transition: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* ==========================================================
+   FOCUS VISIBLE GLOBAL
+   ========================================================== */
+
+.btn:focus-visible {
+  outline: 2px solid rgb(var(--btn-glow));
+  outline-offset: 2px;
+}
+
+.btn:disabled:focus-visible,
+.btn[aria-busy="true"]:focus-visible {
+  outline: none;
+}
+
+/* ==========================================================
+   DESHABILITADO
+   ========================================================== */
+
+.btn:disabled,
+.btn[aria-busy="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
+}
+
+.btn:disabled:hover,
+.btn[aria-busy="true"]:hover {
+  transform: none;
+  box-shadow: none;
+}
