@@ -23,28 +23,21 @@ export function createSlotPicker(config) {
     ...initialSelection
   };
 
-  console.log('createSlotPicker:', { mode, hasContainerFrom: !!containerFrom, hasContainerTo: !!containerTo });
 
   function render(opts = {}) {
     const context = getContext() || {};
-    console.log('render called, hasContainerFrom:', !!config.containerFrom, 'hasContainerTo:', !!config.containerTo);
     const slots = computeSlots(context);
-    console.log('slots computed:', slots.length);
 
     if (config.containerFrom) {
       config.containerFrom.innerHTML = renderContainer(slots, true);
       bindClicks(config.containerFrom, true);
-      console.log('containerFrom filled');
     } else {
-      console.log('containerFrom is null!');
     }
 
     if (config.mode === 'range' && config.containerTo) {
       config.containerTo.innerHTML = renderContainer(slots, false);
       bindClicks(config.containerTo, false);
-      console.log('containerTo filled');
     } else {
-      console.log('containerTo NOT filled - mode:', config.mode, 'hasContainerTo:', !!config.containerTo);
     }
 
     updateBadges();
