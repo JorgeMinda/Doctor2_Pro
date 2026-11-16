@@ -896,10 +896,39 @@ export async function saveAppointment() {
       }
     }
 
+    // Si está completando la consulta, registrar ingreso en tesorería
+    if (completingAppointmentId && cost > 0) {
+      try {
+        const apt = (state.appointments || []).find(a => a.id === completingAppointmentId);
+        const concept = apt?.reason || 'Consulta médica';
+        const receiptNumber = `REC-${Date.now()}`;
+        await apiFetch(api.treasury, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'movement',
+            accountId: 'acc_cash_1',
+            amount: cost,
+            type: 'INCOME',
+            concept: concept,
+            category: 'Consulta',
+            personName: patientName,
+            identification: '',
+            paymentMethod: 'Efectivo',
+            receiptNumber: receiptNumber,
+            notes: observation || '',
+            registeredBy: state.user?.name || 'Dr. Jorge Valenzuela'
+          })
+        });
+      } catch (e) {
+        console.error('Error registrando ingreso en tesorería:', e);
+        // No falla si no se puede registrar - la cita se completó correctamente
+      }
+    }
+
     const toastMsg = wasCancelled
       ? 'Cita reactivada y actualizada con éxito'
       : (completingAppointmentId
-        ? 'Consulta completada con éxito'
+        ? 'Consulta completada con éxito. Ingreso registrado en tesorería.'
         : (editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito'));
     showToast(toastMsg, 'success');
     closeModal();
@@ -910,6 +939,10 @@ export async function saveAppointment() {
       state.monthDate = new Date(targetDateObj.getFullYear(), targetDateObj.getMonth(), 1);
     }
     loadMonth();
+    // Recargar datos de tesorería si se completó una consulta
+    if (completingAppointmentId && typeof window.loadTreasuryData === 'function') {
+      window.loadTreasuryData();
+    }
   } catch (err) {
     showToast(err.message || 'Error al guardar el turno', 'error');
   }

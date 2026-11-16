@@ -48,8 +48,8 @@ window.login = login;
 window.logout = logout;
 console.log("LOGIN SET:", typeof window.login);
 
-// Exponer setNav globalmente para los botones del DOM
-window.setNav = setNav;
+// Exponer funciones de tesorería globalmente
+window.loadTreasuryData = loadTreasuryData;
 
 // ========== GESTIÓN DEL SPLITTER DE AGENDA ==========
 function initAgendaSplitter() {
