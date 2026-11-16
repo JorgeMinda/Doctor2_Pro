@@ -113,9 +113,9 @@ export function openModal(opts = {}) {
       }
     }
 
-    if (saveBtn) {
-      saveBtn.innerHTML = 'Actualizar cita';
-    }
+if (saveBtn) {
+    saveBtn.innerHTML = 'Confirmar';
+  }
 
     loadSlots(a.date, a.time);
   } else {
@@ -137,7 +137,7 @@ export function openModal(opts = {}) {
     // Ocultar botones de eliminar/cancelar para citas nuevas
     if (deleteBtn) deleteBtn.style.display = 'none';
     if (cancelBtn) cancelBtn.style.display = 'none';
-    if (saveBtn) saveBtn.innerHTML = 'Crear cita';
+    if (saveBtn) saveBtn.innerHTML = 'Confirmar';
 
     // Resolver paciente si viene por ID o nombre
     let foundPatient = null;
