@@ -8,6 +8,7 @@ import { showConfirmDialog } from './app-dialog.js';
 import { checkIsTimeBlocked, describeBlock, showBlockedNotificationToast } from './app-block-alert.js';
 
 let editingAppointmentId = null;
+let completingAppointmentId = null; // Para modo completar consulta
 
 const STATUS_OPTIONS = ['Reservado', 'Confirmado', 'Reprogramado', 'En curso', 'Atendido', 'Ausente', 'Cancelado'];
 
@@ -32,6 +33,7 @@ export function openModal(opts = {}) {
   if (!modal) return;
 
   editingAppointmentId = opts.appointment ? opts.appointment.id : null;
+  completingAppointmentId = opts.completing ? opts.appointment.id : null;
 
   const formProf = el('formProfessional');
   const formDate = el('formDate');
@@ -41,6 +43,8 @@ export function openModal(opts = {}) {
   const formPatient = el('formPatient');
   const formPhone = el('formPhone');
   const formEmail = el('formEmail');
+  const formObs = el('formObs');
+  const formCost = el('formCost');
   const modalTitle = el('modalTitle');
   const saveBtn = el('saveApt') || el('saveAppointment');
   const deleteBtn = el('deleteAptBtn');
@@ -49,9 +53,17 @@ export function openModal(opts = {}) {
   const now = new Date();
   const todayStr = formatDate(now);
 
-  if (modalTitle) {
-    const titleText = editingAppointmentId ? 'Editar cita médica' : 'Nueva cita médica';
-    modalTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-check text-primary"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg> <span>${titleText}</span>`;
+  // Mostrar/ocultar campos de completación según el modo
+  const completionFields = el('completionFields');
+  const completionCostField = el('completionCostField');
+  if (completingAppointmentId) {
+    if (completionFields) completionFields.style.display = 'flex';
+    if (completionCostField) completionCostField.style.display = 'flex';
+    if (modalTitle) modalTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-check text-primary"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="m9 16 2 2 4-4"></path></svg> <span>Completar atención</span>`;
+    if (saveBtn) saveBtn.innerHTML = 'Completar atención';
+  } else {
+    if (completionFields) completionFields.style.display = 'none';
+    if (completionCostField) completionCostField.style.display = 'none';
   }
 
   if (opts.appointment) {
@@ -67,6 +79,8 @@ export function openModal(opts = {}) {
     if (formReason) formReason.value = a.reason || '';
     if (formPatient) formPatient.value = a.patient_name || '';
     if (formPhone) formPhone.value = a.patient_phone || '';
+    if (formObs) formObs.value = a.observation || '';
+    if (formCost) formCost.value = a.cost || '';
 
     // Autocompletar email: primero el de la cita, o buscar en la ficha del paciente
     if (formEmail) {
@@ -117,6 +131,8 @@ export function openModal(opts = {}) {
     }
     if (formDuration) formDuration.value = '30';
     if (formReason) formReason.value = '';
+    if (formObs) formObs.value = '';
+    if (formCost) formCost.value = '';
 
     // Ocultar botones de eliminar/cancelar para citas nuevas
     if (deleteBtn) deleteBtn.style.display = 'none';
@@ -133,14 +149,18 @@ export function openModal(opts = {}) {
 
     if (foundPatient) {
       if (formPatient) formPatient.value = foundPatient.name;
-      if (formPhone) formPhone.value = foundPatient.phone || opts.patientPhone || '';
-      if (formEmail) formEmail.value = foundPatient.email || '';
+    if (formPhone) formPhone.value = foundPatient.phone || opts.patientPhone || '';
+    if (formEmail) formEmail.value = foundPatient.email || '';
+    if (formObs) formObs.value = foundPatient.notes || '';
+    if (formCost) formCost.value = '';
       if (formProf && foundPatient.assignedProfessionalId) formProf.value = foundPatient.assignedProfessionalId;
       if (modal) modal.dataset.patientId = foundPatient.id;
     } else {
       if (formPatient) formPatient.value = opts.patientName || '';
-      if (formPhone) formPhone.value = opts.patientPhone || '';
-      if (formEmail) formEmail.value = opts.patientEmail || '';
+    if (formPhone) formPhone.value = opts.patientPhone || '';
+    if (formEmail) formEmail.value = opts.patientEmail || '';
+    if (formObs) formObs.value = '';
+    if (formCost) formCost.value = '';
       if (opts.patientId && modal) modal.dataset.patientId = opts.patientId;
     }
 
@@ -234,8 +254,8 @@ export function closeModal() {
     modal.classList.add('hidden');
     delete modal.dataset.patientId;
   }
-  editingAppointmentId = null;
-  el('patientAutocompleteDropdown')?.classList.add('hidden');
+  // Resetear completingAppointmentId al cerrar
+  completingAppointmentId = null;
 }
 
 /**
@@ -818,8 +838,10 @@ export async function saveAppointment() {
     String(origApt.status || '').toLowerCase().includes('cancel')
   );
 
-  // Estado por defecto: Reservado (los cambios en estado se hacen por botones Cancelar/Reactivar)
-  const status = origApt ? (wasCancelled ? 'Reservado' : (origApt.status || 'Reservado')) : 'Reservado';
+  // Estado: si está completando, forzar a 'Atendido'; si no, conservar el estado existente
+  const status = completingAppointmentId
+    ? 'Atendido'
+    : (origApt ? (wasCancelled ? 'Reservado' : (origApt.status || 'Reservado')) : 'Reservado');
 
   const payload = {
     id: editingAppointmentId,
@@ -876,7 +898,9 @@ export async function saveAppointment() {
 
     const toastMsg = wasCancelled
       ? 'Cita reactivada y actualizada con éxito'
-      : (editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito');
+      : (completingAppointmentId
+        ? 'Consulta completada con éxito'
+        : (editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito'));
     showToast(toastMsg, 'success');
     closeModal();
 
@@ -1071,25 +1095,8 @@ window.completeApt = async (aptId) => {
     return;
   }
 
-  const confirmed = await showConfirmDialog({
-    title: '¿Completar o cancelar consulta en curso?',
-    description: 'Puedes marcar la cita como completada una vez atendido el paciente.',
-    confirmLabel: 'Completar atención',
-    cancelLabel: 'Cancelar'
-  });
-  if (!confirmed) return;
-
-  try {
-    await apiFetch(api.appointments, {
-      method: 'PATCH',
-      body: JSON.stringify({ id: aptId, status: 'Atendido' })
-    });
-    apt.status = 'Atendido';
-    showToast('Consulta completada con éxito', 'success');
-    loadMonth();
-  } catch (err) {
-    showToast(err.message || 'Error al completar la cita', 'error');
-  }
+  // Abrir modal en modo completar con campos de tratamiento y costo
+  openModal({ appointment: apt, completing: true });
 };
 
 /**
