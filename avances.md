@@ -122,4 +122,47 @@
 ---
 
 *Informe generado: 14 de Noviembre 2026*
+### Commit `b4e76eb` (Actual)
+```
+fix(blocked-days): simplify slot rendering - occupied slots selectable, past disabled
+```
+- Reescritura completa de `renderBlockedHoursSlots()` en `app-blocked-days.js`
+- Eliminada dependencia de `slot-picker.js` (mas simple y confiable)
+- Slots generados dinamicamente de 00:00 a 23:30 (30 min)
+- Slots ocupados (con citas) son seleccionables (borde naranja + nombre paciente)
+- Slots pasados permanecen deshabilitados
+- Click handlers actualizan hidden inputs y badges
+- Re-renderizado en cada click para mostrar estado seleccionado
+- Validacion de rango Desde < Hasta
+- Deteccion de citas afectadas con confirmacion antes de guardar
+
+### Commit `f6f6fe4`
+```
+fix(startApt): only block if active appointment is today or future, not past
+```
+- Filtro por fecha en validacion de cita activa
+- Mensaje mejorado con fecha y hora de la cita activa
+
+### Commit `63b9ba3`
+```
+feat(complete): modal de completar con tratamiento y costo
+```
+- Modal de completar con campos de tratamiento y costo
+- Estado forzado a 'Atendido' al guardar en modo completar
+- Toast muestra "Consulta completada con exito"
+
+### Commit `3d677f0`
+```
+fix(login): move window.login assignment after all imports
+```
+- Corregido error de sintaxis (window.login dentro de import block)
+- Login funcional nuevamente
+
+### Commit `5a95aa4`
+```
+fix(login): add loginBtn click listener inside DOMContentLoaded
+```
+- Movido listener de loginBtn dentro de DOMContentLoaded
+- Login funcional
+
 *Versión: v4.5*
