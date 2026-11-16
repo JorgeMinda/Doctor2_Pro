@@ -1011,17 +1011,20 @@ window.startApt = async (aptId) => {
   if (!apt) return;
 
   // --- NUEVA VALIDACIÓN: impedimos 2 citas "En curso" simultáneas ---
+  // Solo considerar citas del mismo día o futuras (no bloquear por citas pasadas)
+  const todayStr = formatDate(new Date());
   const activeApt = (state.appointments || []).find(
-    a => a.id !== aptId && (a.status === 'En curso' || String(a.status || '').toLowerCase().includes('en curso'))
+    a => a.id !== aptId && 
+         (a.status === 'En curso' || String(a.status || '').toLowerCase().includes('en curso')) &&
+         (a.date >= todayStr)
   );
   if (activeApt) {
-    showToast(`No puedes iniciar esta cita. Actualmente la cita de "${activeApt.patient_name || 'otro paciente'}" está En Curso. Finalízala primero.`, 'error');
+    showToast(`No puedes iniciar esta cita. Actualmente la cita de "${activeApt.patient_name || 'otro paciente'}" (${activeApt.date} ${activeApt.time}) está En Curso. Finalízala primero.`, 'error');
     return;
   }
 
   // Validación: no se puede iniciar una consulta cuya fecha/hora ya transcurrió
   const now = new Date();
-  const todayStr = formatDate(now);
   const timeClean = apt.time && apt.time.length === 5 ? apt.time : '00:00';
   const aptDateTime = new Date(`${apt.date}T${timeClean}:00`);
   if (apt.date < todayStr || (apt.date === todayStr && aptDateTime < now)) {
