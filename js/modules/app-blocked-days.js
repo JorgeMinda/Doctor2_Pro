@@ -283,42 +283,6 @@ function handleClick(slot) {
   const inputTo = el('newBlockedTimeTo');
   const badgeFrom = el('blockedTimeFromBadge');
   const badgeTo = el('blockedTimeToBadge');
-
-  if (!slot.isAvailable) return;
-
-  if (!slot.isSelected) {
-    if (slot.isFrom) {
-      inputFrom.value = slot.time;
-      badgeFrom.textContent = `${slot.time} hs`;
-    } else {
-      inputTo.value = slot.time;
-      badgeTo.textContent = `${slot.time} hs`;
-    }
-    slot.isSelected = true;
-  } else {
-    if (slot.isFrom) {
-      inputFrom.value = '';
-      badgeFrom.textContent = '--:-- hs';
-    } else {
-      inputTo.value = '';
-      badgeTo.textContent = '--:-- hs';
-    }
-    slot.isSelected = false;
-  }
-
-  // Re-renderizar ambos contenedores para reflejar el nuevo estado de selección
-  renderBlockedHours();
-}
-
-/**
- * Maneja el clic en un slot de horario del bloqueo.
- * Selecciona/deseleciona el slot como inicio o fin del rango de bloqueo.
- */
-function handleClick(slot) {
-  const inputFrom = el('newBlockedTimeFrom');
-  const inputTo = el('newBlockedTimeTo');
-  const badgeFrom = el('blockedTimeFromBadge');
-  const badgeTo = el('blockedTimeToBadge');
   const containerFrom = el('blockedTimeFromSlots');
   const containerTo = el('blockedTimeToSlots');
 
