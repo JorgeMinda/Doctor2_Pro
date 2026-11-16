@@ -23,25 +23,28 @@ export function createSlotPicker(config) {
     ...initialSelection
   };
 
-  console.log('createSlotPicker:', { mode, containerFrom: !!containerFrom, containerTo: !!containerTo });
+  console.log('createSlotPicker:', { mode, hasContainerFrom: !!containerFrom, hasContainerTo: !!containerTo });
 
   function render(opts = {}) {
     const context = getContext() || {};
-    console.log('render called, containerFrom:', !!config.containerFrom, 'containerTo:', !!config.containerTo);
+    console.log('render called, hasContainerFrom:', !!config.containerFrom, 'hasContainerTo:', !!config.containerTo);
     const slots = computeSlots(context);
+    console.log('slots computed:', slots.length);
 
     if (config.containerFrom) {
       config.containerFrom.innerHTML = renderContainer(slots, true);
       bindClicks(config.containerFrom, true);
-      console.log('containerFrom filled, slots:', slots.length);
+      console.log('containerFrom filled');
+    } else {
+      console.log('containerFrom is null!');
     }
 
     if (config.mode === 'range' && config.containerTo) {
       config.containerTo.innerHTML = renderContainer(slots, false);
       bindClicks(config.containerTo, false);
-      console.log('containerTo filled, slots:', slots.length);
+      console.log('containerTo filled');
     } else {
-      console.log('containerTo NOT filled - mode:', config.mode, 'containerTo:', !!config.containerTo);
+      console.log('containerTo NOT filled - mode:', config.mode, 'hasContainerTo:', !!config.containerTo);
     }
 
     updateBadges();
@@ -73,8 +76,8 @@ export function createSlotPicker(config) {
         duration: selection.duration,
         mode: selection.mode
       },
-      startHour: 7,
-      endHour: 21
+      startHour: 0,
+      endHour: 23
     });
   }
 
@@ -91,8 +94,8 @@ export function createSlotPicker(config) {
         duration: selection.duration,
         mode: selection.mode
       },
-      startHour: 7,
-      endHour: 21
+      startHour: 0,
+      endHour: 23
     });
   }
 
@@ -122,7 +125,7 @@ export function createSlotPicker(config) {
       return `<button type="button" class="slot-chip-btn slot-in-range" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:52px;padding:8px 6px;border:1.5px solid rgba(20,184,166,0.5);border-radius:10px;background:linear-gradient(145deg,rgba(204,251,241,0.9),rgba(236,253,250,0.7));color:#00a8b5;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:13px;font-weight:600;cursor:pointer;border-radius:10px;transition:transform 180ms ease,border-color 180ms ease,background 180ms ease;" data-time="${slot.time}" data-${isFrom ? 'from' : 'to'}="true"><span class="slot-time" style="display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:600;">${getClockIcon()}${formatTime(slot.time)}</span></button>`;
     }
 
-    // Ocupado
+    // Ocupado (seleccionable para bloqueo)
     if (slot.hasAppointment) {
       const apt = slot.metadata.appointment;
       const patientName = apt?.patient_name || 'Paciente';
@@ -182,21 +185,6 @@ export function createSlotPicker(config) {
         selection.to = time;
         if (inputTo) inputTo.value = time;
         if (badgeTo) badgeTo.textContent = `${time} hs`;
-      }
-    }
-
-    // Validación: los chips de Hasta menores o iguales a Desde se muestran deshabilitados
-    // Si Desde pasa a ser mayor o igual que Hasta, ajusta Hasta a Desde + 30 min
-    if (selection.from && selection.to) {
-      const fromMin = toMinutes(selection.from);
-      const toMin = toMinutes(selection.to);
-      if (fromMin >= toMin) {
-        // Ajustar Hasta a Desde + 30 min
-        const newToMin = fromMin + 30;
-        const newTo = toMinutesToString(newToMin);
-        selection.to = newTo;
-        if (inputTo) inputTo.value = newTo;
-        if (badgeTo) badgeTo.textContent = `${newTo} hs`;
       }
     }
 
