@@ -5,9 +5,6 @@ import { state, api } from './modules/app-state.js';
 import { el, formatDate, showToast, apiFetch } from './modules/app-utils.js';
 import { checkSession, login, logout, setupLoginListeners } from './modules/app-auth.js';
 
-// Exponer login y logout en window para el onsubmit del formulario
-window.login = login;
-window.logout = logout;
 
 // Importar el resto de módulos
 import { loadNotifications, markNotificationsRead, deleteAllNotifications } from './modules/app-notifications.js';
@@ -45,6 +42,11 @@ import {
   setTheme,
   setFontSize
 } from './modules/app-modal.js';
+
+// Exponer login y logout en window para el onsubmit del formulario
+window.login = login;
+window.logout = logout;
+console.log("LOGIN SET:", typeof window.login);
 
 // Exponer setNav globalmente para los botones del DOM
 window.setNav = setNav;
