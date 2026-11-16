@@ -1,25 +1,23 @@
-/**
- * app-blocked-days.js - Gestión de Feriados y Bloqueos de Agenda
- */
 import { state, api } from './app-state.js';
 import { el, apiFetch, showToast } from './app-utils.js';
-import { createSlotPicker } from './slots/slot-picker.js';
 
 const BLOCKED_HOURS_LIST = [];
-for (let h = 7; h <= 21; h++) {
+for (let h = 0; h <= 23; h++) {
   const hh = String(h).padStart(2, '0');
   BLOCKED_HOURS_LIST.push(`${hh}:00`);
-  if (h < 21) {
-    BLOCKED_HOURS_LIST.push(`${hh}:30`);
-  }
+  BLOCKED_HOURS_LIST.push(`${hh}:30`);
 }
 
-let slotPicker = null;
+// Variable para rastrear la selección actual
+let blockedSelection = {
+  from: '08:00',
+  to: '13:00'
+};
 
 /**
- * Inicializa el slot picker para el modal de bloqueos (modo rango)
+ * Renderiza los slots de horario para el selector de bloqueo
  */
-function initSlotPicker(opts = {}) {
+export function renderBlockedHoursSlots(opts = {}) {
   const inputFrom = el('newBlockedTimeFrom');
   const inputTo = el('newBlockedTimeTo');
   const containerFrom = el('blockedTimeFromSlots');
@@ -27,52 +25,102 @@ function initSlotPicker(opts = {}) {
   const badgeFrom = el('blockedTimeFromBadge');
   const badgeTo = el('blockedTimeToBadge');
 
-  if (slotPicker) {
-    slotPicker.destroy();
-  }
+  const profId = opts.profId || el('newBlockedProfessional')?.value || 'all';
+  const dateFrom = opts.dateFrom || el('newBlockedDateFrom')?.value || '';
+  const dateTo = opts.dateTo || el('newBlockedDateTo')?.value || '';
 
-  slotPicker = createSlotPicker({
-    mode: 'range',
-    containerFrom: el('blockedTimeFromSlots'),
-    containerTo: el('blockedTimeToSlots'),
-    inputFrom: el('newBlockedTimeFrom'),
-    inputTo: el('newBlockedTimeTo'),
-    badgeFrom: el('blockedTimeFromBadge'),
-    badgeTo: el('blockedTimeToBadge'),
-    getContext: () => {
-      const profId = el('newBlockedProfessional')?.value || 'all';
-      const dateFrom = el('newBlockedDateFrom')?.value || '';
-      const dateTo = el('newBlockedDateTo')?.value || '';
-      return {
-        appointments: state.appointments || [],
-        blockedDays: state.blockedDays || [],
-        profId,
-        dateFrom: el('newBlockedDateFrom')?.value || '',
-        dateTo: el('newBlockedDateTo')?.value || '',
-        date: el('newBlockedDateFrom')?.value || '',
-        profId: el('newBlockedProfessional')?.value || 'all',
-        now: new Date().toISOString()
-      };
-    },
-    onChange: (selection) => {
-      const badgeFrom = el('blockedTimeFromBadge');
-      const badgeTo = el('blockedTimeToBadge');
-      const inputFrom = el('newBlockedTimeFrom');
-      const inputTo = el('newBlockedTimeTo');
-      if (badgeFrom) badgeFrom.textContent = `${selection.from} hs`;
-      if (badgeTo) badgeTo.textContent = `${selection.to} hs`;
-      if (inputFrom) inputFrom.value = selection.from;
-      if (inputTo) inputTo.value = selection.to;
-    },
-    initialSelection: {
-      from: el('newBlockedTimeFrom')?.value || '08:00',
-      to: el('newBlockedTimeTo')?.value || '13:00',
-      mode: 'range'
-    }
+  const selectedFrom = opts.selectedFrom || inputFrom?.value || '08:00';
+  const selectedTo = opts.selectedTo || inputTo?.value || '13:00';
+
+  // Obtener citas existentes para el rango de fechas y profesional
+  const existingApts = (state.appointments || []).filter(a => {
+    if (a.status === 'Cancelado' || a.status === 'Atendido') return false;
+    if (profId !== 'all' && a.professional_id !== profId) return false;
+    if (dateFrom && a.date < dateFrom) return false;
+    if (dateTo && a.date > dateTo) return false;
+    return true;
   });
 
-  // Renderizar inmediatamente
-  slotPicker.render();
+  // Función para determinar el estado de un slot
+  const getSlotStatus = (time) => {
+    const apt = existingApts.find(a => a.time === time);
+    if (!apt) return 'available';
+    if (apt.status === 'Cancelado' || apt.status === 'Atendido') return 'available';
+    return 'occupied';
+  };
+
+  // Función para renderizar un botón de slot
+  const renderSlotBtn = (time, isFrom) => {
+    const status = getSlotStatus(time);
+    const isSelFrom = isFrom && time === selectedFrom;
+    const isSelTo = !isFrom && time === selectedTo;
+
+    const clockIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5 shrink-0" aria-hidden="true"><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="10"></circle></svg>';
+
+    if (isSelFrom || isSelTo) {
+      return `<button type="button" class="slot-chip-btn slot-selected flex flex-col items-center justify-center rounded-lg border-2 border-transparent bg-gradient-to-br from-teal-500 to-emerald-600 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-white scale-105 shadow-[0_0_18px_rgba(45,212,191,0.5)] cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_24px_rgba(45,212,191,0.6)] active:scale-95" data-time="${time}" data-${isFrom ? 'from' : 'to'}="true">
+        <span class="flex items-center gap-1.5">${clockIcon}${time}</span>
+      </button>`;
+    }
+
+    if (status === 'occupied') {
+      const apt = existingApts.find(a => a.time === time);
+      const patientName = apt.patient_name || 'Paciente';
+      const reason = apt.reason || 'Consulta';
+      return `<button type="button" title="Cita existente: ${patientName} (${reason})" class="slot-chip-btn slot-occupied-indicator flex flex-col items-center justify-center rounded-lg border-2 border-orange-500/70 bg-orange-50/40 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-orange-700 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-100/60 active:scale-95" data-time="${time}" data-${isFrom ? 'from' : 'to'}="true">
+        <span class="flex items-center gap-1.5">${clockIcon}${time}</span>
+        <span class="flex items-center gap-1 text-[9px] text-orange-600 font-medium">
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-2.5 shrink-0" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0"></path><path d="M12 10v10"></path><path d="M9 13h6"></path></svg>
+          ${patientName}
+        </span>
+        <span class="slot-occupied-indicator-dot inline-block mt-1 size-1.5 rounded-full bg-orange-500"></span>
+      </button>`;
+    }
+
+    return `<button type="button" title="Disponible para bloquear (${time} hs)" class="slot-chip-btn slot-available flex flex-col items-center justify-center rounded-lg border-2 border-teal-500/80 bg-teal-950/40 py-2 px-1.5 text-[13px] font-mono font-semibold leading-none text-teal-300 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-400 hover:bg-teal-500/15 hover:shadow-[0_0_14px_rgba(45,212,191,0.35)] active:scale-95" data-time="${time}" data-${isFrom ? 'from' : 'to'}="true">
+      <span class="flex items-center gap-1.5">${clockIcon}${time}</span>
+    </button>`;
+  };
+
+  // Renderizar contenedor "Hora Desde"
+  if (containerFrom) {
+    containerFrom.innerHTML = BLOCKED_HOURS_LIST.map(time => renderSlotBtn(time, true)).join('');
+
+    containerFrom.querySelectorAll('[data-from="true"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const t = btn.dataset.time;
+        if (!t) return;
+        inputFrom.value = t;
+        badgeFrom.textContent = `${t} hs`;
+        // Re-renderizar ambos contenedores para marcar el seleccionado
+        renderBlockedHoursSlots({ profId, dateFrom, dateTo, selectedFrom: t, selectedTo: inputTo?.value || '13:00' });
+      });
+    });
+  }
+
+  // Renderizar contenedor "Hora Hasta"
+  if (containerTo) {
+    containerTo.innerHTML = BLOCKED_HOURS_LIST.map(time => renderSlotBtn(time, false)).join('');
+
+    containerTo.querySelectorAll('[data-to="true"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const t = btn.dataset.time;
+        if (!t) return;
+        inputTo.value = t;
+        badgeTo.textContent = `${t} hs`;
+        // Re-renderizar ambos contenedores para marcar el seleccionado
+        renderBlockedHoursSlots({ profId, dateFrom, dateTo, selectedFrom: inputFrom?.value || '08:00', selectedTo: t });
+      });
+    });
+  }
+
+  // Actualizar badges
+  if (badgeFrom) badgeFrom.textContent = `${selectedFrom} hs`;
+  if (badgeTo) badgeTo.textContent = `${selectedTo} hs`;
+  if (inputFrom) inputFrom.value = selectedFrom;
+  if (inputTo) inputTo.value = selectedTo;
 }
 
 export function initBlockedDays() {
@@ -94,7 +142,7 @@ export function initBlockedDays() {
         const profId = el('newBlockedProfessional')?.value || 'all';
         const dateFrom = el('newBlockedDateFrom')?.value || '';
         const dateTo = el('newBlockedDateTo')?.value || '';
-        initSlotPicker({ profId, dateFrom, dateTo });
+        renderBlockedHoursSlots({ profId, dateFrom, dateTo });
       }
     }
   });
@@ -108,7 +156,7 @@ export function openBlockedDaysModal() {
   if (el('newBlockedDateFrom')) el('newBlockedDateFrom').value = today;
   if (el('newBlockedDateTo')) el('newBlockedDateTo').value = today;
   if (el('newBlockedReason')) el('newBlockedReason').value = '';
-  
+
   const allDayCheck = el('newBlockedAllDay');
   if (allDayCheck) {
     allDayCheck.checked = true;
@@ -118,14 +166,14 @@ export function openBlockedDaysModal() {
   if (el('newBlockedTimeFrom')) el('newBlockedTimeFrom').value = '08:00';
   if (el('newBlockedTimeTo')) el('newBlockedTimeTo').value = '13:00';
 
-// Renderizar slots con información de citas existentes
+  // Renderizar slots con información de citas existentes
   const profId = el('newBlockedProfessional')?.value || 'all';
   const dateFrom = el('newBlockedDateFrom')?.value || '';
   const dateTo = el('newBlockedDateTo')?.value || '';
-  initSlotPicker({ profId, dateFrom, dateTo });
+  renderBlockedHoursSlots({ profId, dateFrom, dateTo });
   renderBlockedDaysList();
 
-// Actualizar slots cuando cambie el profesional o las fechas
+  // Actualizar slots cuando cambie el profesional o las fechas
   ['newBlockedProfessional', 'newBlockedDateFrom', 'newBlockedDateTo'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -133,7 +181,7 @@ export function openBlockedDaysModal() {
         const p = el('newBlockedProfessional')?.value || 'all';
         const dF = el('newBlockedDateFrom')?.value || '';
         const dT = el('newBlockedDateTo')?.value || '';
-        initSlotPicker({ profId: p, dateFrom: dF, dateTo: dT });
+        renderBlockedHoursSlots({ profId: p, dateFrom: dF, dateTo: dT });
       });
     }
   });
@@ -166,7 +214,7 @@ export async function renderBlockedDaysList() {
       return;
     }
 
-      container.innerHTML = state.blockedDays.map(b => {
+    container.innerHTML = state.blockedDays.map(b => {
       const isAllDay = b.all_day !== false && (!b.time_from || !b.time_to);
       const timeBadge = isAllDay 
         ? '<span style="font-size:0.75rem; color:var(--muted); margin-left:4px;">(Día completo)</span>' 
@@ -199,7 +247,6 @@ export async function renderBlockedDaysList() {
 
 window.removeBlockedDay = async (blockId) => {
   if (!confirm('¿Deseas eliminar este bloqueo y habilitar nuevamente la agenda para esas fechas y horarios?')) return;
-
   try {
     await apiFetch(`${api.blockedDays}?id=${blockId}`, { method: 'DELETE' });
     showToast('Bloqueo eliminado correctamente', 'success');
@@ -273,5 +320,3 @@ export async function saveBlockedDay() {
     showToast(err.message || 'Error al guardar bloqueo', 'error');
   }
 }
-
-// La selección de slots se maneja internamente en slot-picker.js via bindClicks()
