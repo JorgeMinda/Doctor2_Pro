@@ -103,6 +103,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   registerServiceWorker();
 
   // 2. Verificar sesión de usuario
+  window.login = login;
+  window.logout = logout;
   checkSession();
   setupLoginListeners();
 

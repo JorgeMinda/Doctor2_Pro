@@ -109,7 +109,7 @@ export function setMouthState(stateName, meta = {}) {
   }
 }
 
-export async function login() {
+export async function login() { console.log("LOGIN CALLED");
   const userEl = el('loginUser');
   const passEl = el('loginPass');
   const msgEl = el('loginMsg');
