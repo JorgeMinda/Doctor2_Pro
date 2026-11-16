@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.logout = logout;
   checkSession();
   setupLoginListeners();
+  el('loginBtn')?.addEventListener('click', login);
 
   // 3. Inicializar componentes y utilitarios
   initAppearance();
@@ -137,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Eventos de Autenticación
-el('loginBtn')?.addEventListener('click', login);
+// el('loginBtn') listener moved inside DOMContentLoaded
 el('logoutBtn')?.addEventListener('click', logout);
 
 // Navegación Principal
