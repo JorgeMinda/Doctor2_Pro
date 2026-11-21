@@ -837,11 +837,19 @@ export async function saveAppointment() {
     origApt.status === 'cancelled' ||
     String(origApt.status || '').toLowerCase().includes('cancel')
   );
+  const isRescheduled = !!origApt && (origApt.date !== date || origApt.time !== time);
 
-  // Estado: si está completando, forzar a 'Atendido'; si no, conservar el estado existente
-  const status = completingAppointmentId
-    ? 'Atendido'
-    : (origApt ? (wasCancelled ? 'Reservado' : (origApt.status || 'Reservado')) : 'Reservado');
+  // Estado: si está completando, forzar a 'Atendido'; si reagendó, 'Reprogramado'; si reactiva cancelada sin cambios, 'Reservado'; si no, conservar estado existente
+  let status;
+  if (completingAppointmentId) {
+    status = 'Atendido';
+  } else if (isRescheduled) {
+    status = 'Reprogramado';
+  } else if (wasCancelled) {
+    status = 'Reservado';
+  } else {
+    status = origApt ? (origApt.status || 'Reservado') : 'Reservado';
+  }
 
   const payload = {
     id: editingAppointmentId,
@@ -925,11 +933,13 @@ export async function saveAppointment() {
       }
     }
 
-    const toastMsg = wasCancelled
-      ? 'Cita reactivada y actualizada con éxito'
-      : (completingAppointmentId
-        ? 'Consulta completada con éxito. Ingreso registrado en tesorería.'
-        : (editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito'));
+    const toastMsg = completingAppointmentId
+      ? 'Consulta completada con éxito. Ingreso registrado en tesorería.'
+      : (isRescheduled
+        ? 'Cita reprogramada con éxito'
+        : (wasCancelled
+          ? 'Cita reactivada con éxito'
+          : (editingAppointmentId ? 'Turno actualizado con éxito' : 'Turno agendado con éxito')));
     showToast(toastMsg, 'success');
     closeModal();
 
@@ -957,8 +967,6 @@ export async function toggleCancelAppointment() {
   if (!apt) return;
 
   const isCurrentlyCancelled = apt.status === 'Cancelado' || apt.status === 'cancelled' || String(apt.status || '').toLowerCase().includes('cancel');
-  const targetStatus = isCurrentlyCancelled ? 'Reservado' : 'Cancelado';
-
   const formDate = el('formDate');
   const formTime = el('formTime');
   const formProf = el('formProfessional');
@@ -968,6 +976,11 @@ export async function toggleCancelAppointment() {
   const newTime = formTime?.value || apt.time;
   const newProf = formProf?.value || apt.professional_id;
   const newDuration = parseInt(formDuration?.value) || parseInt(apt.duration) || 30;
+
+  const isRescheduled = isCurrentlyCancelled && (newDate !== apt.date || newTime !== apt.time);
+  const targetStatus = isCurrentlyCancelled
+    ? (isRescheduled ? 'Reprogramado' : 'Reservado')
+    : 'Cancelado';
 
   if (isCurrentlyCancelled) {
     const now = new Date();
@@ -1007,7 +1020,7 @@ export async function toggleCancelAppointment() {
     }
   }
 
-  const isRescheduled = isCurrentlyCancelled && (newDate !== apt.date || newTime !== apt.time);
+  // isRescheduled ya calculado arriba
   const confirmMsg = isCurrentlyCancelled
     ? (isRescheduled
         ? `¿Deseas reactivar y reprogramar la cita de "${apt.patient_name}" para el ${newDate} a las ${newTime} hs?`
