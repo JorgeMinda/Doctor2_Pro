@@ -11,11 +11,16 @@ if ($method === 'GET') {
     $includeDeleted = isset($_GET['include_deleted']) && $_GET['include_deleted'] === '1';
     $deletedOnly = isset($_GET['deleted_only']) && $_GET['deleted_only'] === '1';
 
+    // Asegurar columna deleted_at en MySQL
+    if (method_exists($db, 'ensureSoftDeleteColumn')) {
+        $db->ensureSoftDeleteColumn();
+    }
+
     $appointments = $db->getCollection('appointments');
 
     // Filtrar eliminados (soft-delete) por defecto
     $appointments = array_filter($appointments, function($a) use ($includeDeleted, $deletedOnly) {
-        $isDeleted = !empty($a['deleted_at']);
+        $isDeleted = ($a['status'] ?? '') === 'Eliminado' || !empty($a['deleted_at']);
         if ($deletedOnly) return $isDeleted;
         if ($includeDeleted) return true;
         return !$isDeleted;
@@ -154,6 +159,22 @@ if ($method === 'PATCH' || $method === 'PUT') {
 if ($method === 'DELETE') {
     $id = $_GET['id'] ?? '';
     $hard = isset($_GET['hard']) && $_GET['hard'] === '1';
+    $vaciar = isset($_GET['vaciar']) && $_GET['vaciar'] === '1';
+
+    if ($vaciar) {
+        // Hard delete de todas las citas eliminadas (papelera)
+        $all = $db->getCollection('appointments');
+        foreach ($all as $a) {
+            $isDeleted = ($a['status'] ?? '') === 'Eliminado' || !empty($a['deleted_at']);
+            if ($isDeleted) {
+                $db->logAudit('APPOINTMENT', $a['id'], 'DELETE_HARD', $a, null);
+                $db->delete('appointments', $a['id']);
+            }
+        }
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     if ($id) {
         $oldApt = $db->findById('appointments', $id);
         if ($oldApt) {
@@ -161,10 +182,14 @@ if ($method === 'DELETE') {
                 $db->delete('appointments', $id);
             } else {
                 // Soft delete: conservar registro para auditoría / papelera
-                $db->update('appointments', $id, [
-                    'status' => 'Eliminado',
-                    'deleted_at' => date('Y-m-d H:i:s')
-                ]);
+                try {
+                    $db->update('appointments', $id, [
+                        'status' => 'Eliminado',
+                        'deleted_at' => date('Y-m-d H:i:s')
+                    ]);
+                } catch (Exception $e) {
+                    $db->update('appointments', $id, ['status' => 'Eliminado']);
+                }
             }
             $db->logAudit('APPOINTMENT', $id, $hard ? 'DELETE_HARD' : 'DELETE', $oldApt, $hard ? null : ['deleted_at' => date('Y-m-d H:i:s'), 'status' => 'Eliminado']);
         }

@@ -214,6 +214,11 @@ class TransactSafeDatabase {
         if ($autoTx) $this->commit();
     }
 
+    public function ensureSoftDeleteColumn() {
+        // JSON storage supports dynamic keys; nothing to do
+        return true;
+    }
+
     /**
      * ==========================================
      * AUDIT TRAIL ENGINE (INMUTABLE LOGS)
@@ -812,6 +817,15 @@ class MySQLDatabase {
     public function clearCollection($collection) {
         $table = $this->sanitizeTableName($collection);
         $this->pdo->exec("DELETE FROM `{$table}`");
+    }
+
+    public function ensureSoftDeleteColumn() {
+        try {
+            $this->pdo->exec("ALTER TABLE `appointments` ADD COLUMN IF NOT EXISTS `deleted_at` DATETIME NULL");
+        } catch (Exception $e) {
+            // Column may already exist or ALTER not supported; ignore
+        }
+        return true;
     }
 
     public function logAudit($entity, $entityId, $action, $oldValue = null, $newValue = null, $userId = null, $meta = []) {

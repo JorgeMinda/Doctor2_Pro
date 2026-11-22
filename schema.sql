@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS `appointments` (
   `notes` TEXT,
   `cost` DECIMAL(12,2) DEFAULT 0.00,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `deleted_at` DATETIME NULL,
   INDEX (`date`),
   INDEX (`patient_id`),
   INDEX (`professional_id`)

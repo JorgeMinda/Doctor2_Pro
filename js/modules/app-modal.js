@@ -1169,18 +1169,26 @@ async function loadTrashList() {
     const items = res.appointments || [];
     if (items.length === 0) {
       container.innerHTML = '<p class="muted">No hay citas eliminadas.</p>';
+      // hide vaciar button
+      const vb = el('vaciarPapeleraBtn'); if (vb) vb.style.display = 'none';
       return;
     }
+    const vb = el('vaciarPapeleraBtn'); if (vb) vb.style.display = 'inline-flex';
     container.innerHTML = items.map(a => `
       <div class="card" style="padding:10px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
         <div>
           <strong>${a.patient_name || 'Paciente'}</strong>
           <div class="muted" style="font-size:0.8rem;">${a.date || ''} ${a.time || ''} hs · ${a.reason || ''}</div>
-          <div class="muted" style="font-size:0.75rem;">Eliminada: ${a.deleted_at || ''}</div>
+          <div class="muted" style="font-size:0.75rem;">Eliminada: ${a.deleted_at || a.status || '—'}</div>
         </div>
-        <button type="button" class="btn btn--secondary" onclick="window.restoreAppointment('${a.id}')">
-          <i class="fas fa-undo"></i> Restaurar
-        </button>
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn btn--secondary" onclick="window.restoreAppointment('${a.id}')">
+            <i class="fas fa-undo"></i> Restaurar
+          </button>
+          <button type="button" class="btn btn--danger" onclick="window.permanentDeleteAppointment('${a.id}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       </div>
     `).join('');
   } catch (err) {
@@ -1204,6 +1212,32 @@ export async function restoreAppointment(id) {
   }
 }
 window.restoreAppointment = restoreAppointment;
+
+export async function permanentDeleteAppointment(id) {
+  if (!id) return;
+  if (!confirm('¿Eliminar definitivamente esta cita? Esta acción no se puede deshacer.')) return;
+  try {
+    await apiFetch(`${api.appointments}?id=${encodeURIComponent(id)}&hard=1`, { method: 'DELETE' });
+    showToast('Cita eliminada definitivamente', 'success');
+    await loadTrashList();
+  } catch (err) {
+    showToast(err.message || 'Error al eliminar', 'error');
+  }
+}
+window.permanentDeleteAppointment = permanentDeleteAppointment;
+
+export async function vaciarPapelera() {
+  if (!confirm('¿Vaciar toda la papelera? Se eliminarán definitivamente todas las citas eliminadas.')) return;
+  try {
+    await apiFetch(`${api.appointments}?vaciar=1`, { method: 'DELETE' });
+    showToast('Papelera vaciada', 'success');
+    await loadTrashList();
+    loadMonth();
+  } catch (err) {
+    showToast(err.message || 'Error al vaciar papelera', 'error');
+  }
+}
+window.vaciarPapelera = vaciarPapelera;
 
 export async function deleteAppointment() {
   if (!editingAppointmentId) return;
