@@ -11,6 +11,7 @@ export async function loadProfessionals() {
     state.professionals = data.professionals || [];
     renderProfessionals();
     fillFormProfessionals();
+    window.dispatchEvent(new CustomEvent('app:professionals-loaded'));
   } catch (err) {
     console.warn('Error al cargar profesionales:', err);
   }

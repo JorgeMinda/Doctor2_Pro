@@ -52,11 +52,39 @@ if ($method === 'POST') {
     $professionalId = $input['professional_id'] ?? '';
     $date = $input['date'] ?? '';
     $time = $input['time'] ?? '';
+    $isEmergency = !empty($input['emergencia']);
 
     if (empty($patientName) || empty($date) || empty($time)) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => 'Datos obligatorios incompletos']);
         exit;
+    }
+
+    // Validación de rol para citas de emergencia (servidor)
+    if ($isEmergency) {
+        $userId = $_SESSION['user_id'] ?? null;
+        $user = $userId ? $db->findById('users', $userId) : null;
+        $role = strtolower($user['role'] ?? '');
+        $allowed = in_array($role, ['admin', 'secretaria', 'secretario', 'recepcion', 'recepcionista'], true);
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'No tenés permisos para crear citas de emergencia']);
+            exit;
+        }
+        // Validar profesional existente y activo
+        if ($professionalId) {
+            $prof = $db->findById('professionals', $professionalId);
+            if (!$prof) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'El profesional seleccionado no existe']);
+                exit;
+            }
+            if (isset($prof['active']) && ($prof['active'] === 0 || $prof['active'] === false || $prof['active'] === '0')) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'El profesional seleccionado no está activo']);
+                exit;
+            }
+        }
     }
 
     $newApt = [
@@ -74,6 +102,7 @@ if ($method === 'POST') {
         'cost' => (float)($input['cost'] ?? 0),
         'payments' => $input['payments'] ?? [],
         'observation' => trim($input['observation'] ?? ''),
+        'emergencia' => $isEmergency ? 1 : 0,
         'created_at' => date('Y-m-d H:i:s')
     ];
 

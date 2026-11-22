@@ -228,6 +228,7 @@ if ($method === 'POST') {
         'email' => trim($input['email'] ?? ''),
         'birthdate' => $birthdate,
         'age' => $age,
+        'edad_aproximada' => isset($input['edad_aproximada']) && is_numeric($input['edad_aproximada']) ? (int)$input['edad_aproximada'] : $age,
         'address' => trim($input['address'] ?? ''),
         'representativeName' => trim($input['representativeName'] ?? ''),
         'representativeDni' => trim($input['representativeDni'] ?? ''),
@@ -236,6 +237,7 @@ if ($method === 'POST') {
         'emergencyContact' => trim($input['emergencyContact'] ?? ''),
         'notes' => trim($input['notes'] ?? ''),
         'allergies' => trim($input['allergies'] ?? ''),
+        'registro_incompleto' => !empty($input['registro_incompleto']) ? 1 : 0,
         'created_at' => date('Y-m-d H:i:s')
     ];
 

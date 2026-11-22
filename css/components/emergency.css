@@ -1,0 +1,9 @@
+/* emergency.css - Cita Emergente Express */
+.emergency-modal .radix-input { width: 100%; }
+.emergency-notice {
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #b45309;
+}

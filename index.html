@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="css/components/login.css">
   <link rel="stylesheet" href="css/components/print.css">
   <link rel="stylesheet" href="css/components/copilot.css">
+  <link rel="stylesheet" href="css/components/emergency.css">
 </head>
 <body>
 
@@ -426,6 +427,7 @@
                 <button id="importPatientsBtn" class="ghost" title="Importar Excel / CSV"><i class="fas fa-file-import"></i> Importar</button>
                 <button id="exportPatientsBtn" class="ghost" title="Exportar CSV"><i class="fas fa-file-export"></i> Exportar</button>
                 <button id="newPatientBtn" class="primary"><i class="fas fa-user-plus"></i> Nuevo Paciente</button>
+                <button id="emergencyBtn" class="primary" style="background:var(--danger); display:none;"><i class="fas fa-ambulance"></i> Cita Emergente</button>
               </div>
             </div>
             
@@ -1393,7 +1395,7 @@
     </div>
   </div>
 
-  <!-- Papelera de citas eliminadas (auditoría) -->
+  <!-- Scripts Modulares -->
   <div id="trashModal" class="modal hidden" style="position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5);">
     <div class="modal-content card" style="max-width:720px; width:95%; max-height:80vh; overflow:auto; padding:20px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -1407,6 +1409,61 @@
   </button>
 </div>
 <div id="trashList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Modal Cita Emergente Express -->
+  <div id="emergencyModal" class="modal hidden" style="position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5);">
+    <div class="modal-content card" style="max-width:520px; width:95%; max-height:85vh; overflow:auto; padding:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="margin:0;"><i class="fas fa-ambulance" style="color:var(--danger);"></i> Cita Emergente Express</h3>
+        <button type="button" id="closeEmergencyModal" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <p class="muted" style="font-size:0.85rem; margin-bottom:12px;">Registro mínimo del paciente y turno inmediato (hoy, hora actual).</p>
+      <div style="display:grid; gap:10px;">
+        <div>
+          <label class="radix-label" for="em-firstname">Nombre *</label>
+          <input type="text" id="em-firstname" class="radix-input" placeholder="Nombre">
+        </div>
+        <div>
+          <label class="radix-label" for="em-lastname">Apellido *</label>
+          <input type="text" id="em-lastname" class="radix-input" placeholder="Apellido">
+        </div>
+        <div>
+          <label class="radix-label" for="em-sex">Sexo *</label>
+          <select id="em-sex" class="radix-input">
+            <option value="">Seleccionar...</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+            <option value="O">Otro</option>
+          </select>
+        </div>
+        <div>
+          <label class="radix-label" for="em-dni">Cédula</label>
+          <input type="text" id="em-dni" class="radix-input" placeholder="Cédula (opcional)">
+        </div>
+        <div>
+          <label class="radix-label" for="em-age">Edad aproximada</label>
+          <input type="number" id="em-age" class="radix-input" min="0" placeholder="Edad (opcional)">
+        </div>
+        <div>
+          <label class="radix-label" for="em-phone">Teléfono</label>
+          <input type="tel" id="em-phone" class="radix-input" placeholder="Teléfono (opcional)">
+        </div>
+        <div>
+          <label class="radix-label" for="em-doc">Médico receptor</label>
+          <select id="em-doc" class="radix-input"></select>
+        </div>
+        <div>
+          <label class="radix-label" for="em-reason">Motivo</label>
+          <textarea id="em-reason" class="radix-input radix-textarea" rows="2"></textarea>
+        </div>
+      </div>
+      <div id="em-notice" class="muted" style="font-size:0.8rem; margin-top:8px; display:none;"></div>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+        <button type="button" id="cancelEmergencyModal" class="btn btn--secondary">Cancelar</button>
+        <button type="button" id="saveEmergencyBtn" class="btn btn--primary"><i class="fas fa-check"></i> Crear</button>
+      </div>
     </div>
   </div>
 

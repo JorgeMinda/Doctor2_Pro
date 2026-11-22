@@ -4,6 +4,7 @@
 import { state, api } from './modules/app-state.js';
 import { el, formatDate, showToast, apiFetch } from './modules/app-utils.js';
 import { checkSession, login, logout, setupLoginListeners } from './modules/app-auth.js';
+import './modules/app-emergency.js';
 
 
 // Importar el resto de módulos

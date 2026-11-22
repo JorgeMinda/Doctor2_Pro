@@ -10,7 +10,7 @@ import { checkIsTimeBlocked, describeBlock, showBlockedNotificationToast } from 
 let editingAppointmentId = null;
 let completingAppointmentId = null; // Para modo completar consulta
 
-const STATUS_OPTIONS = ['Reservado', 'Confirmado', 'Reprogramado', 'En curso', 'Atendido', 'Ausente', 'Cancelado'];
+const STATUS_OPTIONS = ['Reservado', 'Confirmado', 'Reprogramado', 'En curso', 'En Atención', 'Atendido', 'Ausente', 'Cancelado'];
 
 /** Normaliza el estado crudo (EN/ES) a una opción válida del select #formStatus */
 function normalizeStatusValue(status) {
@@ -19,6 +19,7 @@ function normalizeStatusValue(status) {
     scheduled: 'Reservado', reservado: 'Reservado',
     confirmed: 'Confirmado', confirmado: 'Confirmado',
     'en curso': 'En curso', in_progress: 'En curso', 'in-progress': 'En curso',
+    'en atención': 'En Atención', 'en atencion': 'En Atención', 'en-atencion': 'En Atención',
     cancelled: 'Cancelado', cancelado: 'Cancelado',
     completed: 'Atendido', atendido: 'Atendido', done: 'Atendido',
     rescheduled: 'Reprogramado', reprogramado: 'Reprogramado',
