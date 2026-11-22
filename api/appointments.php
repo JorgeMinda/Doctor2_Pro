@@ -8,8 +8,18 @@ if ($method === 'GET') {
     $month = $_GET['month'] ?? '';
     $date = $_GET['date'] ?? '';
     $prof = $_GET['professional'] ?? '';
+    $includeDeleted = isset($_GET['include_deleted']) && $_GET['include_deleted'] === '1';
+    $deletedOnly = isset($_GET['deleted_only']) && $_GET['deleted_only'] === '1';
 
     $appointments = $db->getCollection('appointments');
+
+    // Filtrar eliminados (soft-delete) por defecto
+    $appointments = array_filter($appointments, function($a) use ($includeDeleted, $deletedOnly) {
+        $isDeleted = !empty($a['deleted_at']);
+        if ($deletedOnly) return $isDeleted;
+        if ($includeDeleted) return true;
+        return !$isDeleted;
+    });
 
     if ($date) {
         $appointments = array_filter($appointments, fn($a) => ($a['date'] ?? '') === $date);
@@ -96,6 +106,14 @@ if ($method === 'PATCH' || $method === 'PUT') {
         exit;
     }
 
+    // Restaurar cita eliminada (papelera)
+    if (!empty($input['restore'])) {
+        $input['deleted_at'] = null;
+        if (empty($input['status']) || $input['status'] === 'Eliminado') {
+            $input['status'] = 'Reservado';
+        }
+    }
+
     // Check if new payments were added
     if (isset($input['payments']) && is_array($input['payments'])) {
         $oldPayments = $oldApt['payments'] ?? [];
@@ -135,11 +153,20 @@ if ($method === 'PATCH' || $method === 'PUT') {
 
 if ($method === 'DELETE') {
     $id = $_GET['id'] ?? '';
+    $hard = isset($_GET['hard']) && $_GET['hard'] === '1';
     if ($id) {
         $oldApt = $db->findById('appointments', $id);
-        $db->delete('appointments', $id);
         if ($oldApt) {
-            $db->logAudit('APPOINTMENT', $id, 'DELETE', $oldApt, null);
+            if ($hard) {
+                $db->delete('appointments', $id);
+            } else {
+                // Soft delete: conservar registro para auditoría / papelera
+                $db->update('appointments', $id, [
+                    'status' => 'Eliminado',
+                    'deleted_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+            $db->logAudit('APPOINTMENT', $id, $hard ? 'DELETE_HARD' : 'DELETE', $oldApt, $hard ? null : ['deleted_at' => date('Y-m-d H:i:s'), 'status' => 'Eliminado']);
         }
     }
     echo json_encode(['success' => true]);

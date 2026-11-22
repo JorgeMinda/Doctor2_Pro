@@ -329,6 +329,10 @@
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer h-3.5 w-3.5" aria-hidden="true"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg>
                       <span>Planilla</span>
                     </button>
+                    <button type="button" id="openTrashBtn" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-xs font-medium transition-colors border border-outline-variant bg-surface text-foreground hover:bg-surface-high h-7 px-2.5" title="Papelera de citas eliminadas (auditoría)">
+                      <i class="fas fa-trash-restore" style="font-size:0.85rem;"></i>
+                      <span>Papelera</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -740,7 +744,7 @@
         <!-- Footer -->
         <div data-slot="dialog-footer" class="radix-dialog-footer" id="aptDialogFooter" data-mode="create">
           <div id="aptActionGroupLeft" class="radix-footer-left">
-            <button type="button" id="deleteAptBtn" class="btn btn--danger" style="display:none;" title="Eliminar cita permanentemente" data-mode-only="edit">
+            <button type="button" id="deleteAptBtn" class="btn btn--danger" style="display:none;" title="Eliminar cita (mover a papelera)" data-mode-only="edit">
               <i class="fas fa-trash-alt"></i> Eliminar
             </button>
             <button type="button" id="cancelAptBtn" class="btn btn--warn" style="display:none;" title="Marcar cita como cancelada (libera el horario)" data-mode-only="edit">
@@ -1386,6 +1390,18 @@
           <button type="button" id="cancelBlockedModal" class="border border-outline-variant bg-surface text-foreground hover:bg-surface-high inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium h-9 px-4 py-2 shadow-sm transition-all active:scale-[0.98]">Cerrar</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Papelera de citas eliminadas (auditoría) -->
+  <div id="trashModal" class="modal hidden" style="position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.5);">
+    <div class="modal-content card" style="max-width:720px; width:95%; max-height:80vh; overflow:auto; padding:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="margin:0;"><i class="fas fa-trash-restore"></i> Papelera de citas eliminadas</h3>
+        <button type="button" id="closeTrashModal" class="ghost"><i class="fas fa-times"></i></button>
+      </div>
+      <p class="muted" style="font-size:0.85rem; margin-bottom:12px;">Las citas eliminadas se conservan aquí para auditoría. Podés restaurarlas para que vuelvan a la agenda.</p>
+      <div id="trashList" style="display:flex; flex-direction:column; gap:8px;"></div>
     </div>
   </div>
 

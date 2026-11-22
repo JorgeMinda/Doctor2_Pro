@@ -32,6 +32,8 @@ import {
   saveAppointment,
   deleteAppointment,
   toggleCancelAppointment,
+  openTrashModal,
+  closeTrashModal,
   openProfile,
   closeProfile,
   saveProfile,
@@ -213,6 +215,8 @@ el('cancelModal')?.addEventListener('click', closeModal);
 el('saveApt')?.addEventListener('click', saveAppointment);
 el('deleteAptBtn')?.addEventListener('click', deleteAppointment);
 el('cancelAptBtn')?.addEventListener('click', toggleCancelAppointment);
+el('openTrashBtn')?.addEventListener('click', openTrashModal);
+el('closeTrashModal')?.addEventListener('click', closeTrashModal);
 el('formDate')?.addEventListener('change', () => loadSlots());
 
 // Filtro de Profesional

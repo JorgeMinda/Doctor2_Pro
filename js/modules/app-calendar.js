@@ -208,6 +208,7 @@ function normalizeStatus(status) {
   if (s === 'completed' || s === 'atendido' || s === 'done') return 'Atendido';
   if (s === 'rescheduled' || s === 'reprogramado') return 'Reprogramado';
   if (s === 'absent' || s === 'ausente') return 'Ausente';
+  if (s === 'eliminado' || s === 'deleted') return 'Eliminado';
   return status;
 }
 

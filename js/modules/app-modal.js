@@ -22,7 +22,8 @@ function normalizeStatusValue(status) {
     cancelled: 'Cancelado', cancelado: 'Cancelado',
     completed: 'Atendido', atendido: 'Atendido', done: 'Atendido',
     rescheduled: 'Reprogramado', reprogramado: 'Reprogramado',
-    absent: 'Ausente', ausente: 'Ausente'
+    absent: 'Ausente', ausente: 'Ausente',
+    eliminado: 'Eliminado', deleted: 'Eliminado'
   };
   if (map[s]) return map[s];
   return STATUS_OPTIONS.includes(status) ? status : 'Reservado';
@@ -1148,12 +1149,68 @@ window.completeApt = async (aptId) => {
 /**
  * Elimina permanentemente la cita de la base de datos
  */
+export async function openTrashModal() {
+  const modal = el('trashModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  await loadTrashList();
+}
+
+export function closeTrashModal() {
+  el('trashModal')?.classList.add('hidden');
+}
+
+async function loadTrashList() {
+  const container = el('trashList');
+  if (!container) return;
+  container.innerHTML = '<p class="muted"><i class="fas fa-spinner fa-spin"></i> Cargando...</p>';
+  try {
+    const res = await apiFetch(`${api.appointments}?deleted_only=1`);
+    const items = res.appointments || [];
+    if (items.length === 0) {
+      container.innerHTML = '<p class="muted">No hay citas eliminadas.</p>';
+      return;
+    }
+    container.innerHTML = items.map(a => `
+      <div class="card" style="padding:10px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <div>
+          <strong>${a.patient_name || 'Paciente'}</strong>
+          <div class="muted" style="font-size:0.8rem;">${a.date || ''} ${a.time || ''} hs · ${a.reason || ''}</div>
+          <div class="muted" style="font-size:0.75rem;">Eliminada: ${a.deleted_at || ''}</div>
+        </div>
+        <button type="button" class="btn btn--secondary" onclick="window.restoreAppointment('${a.id}')">
+          <i class="fas fa-undo"></i> Restaurar
+        </button>
+      </div>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = '<p class="muted" style="color:var(--danger);">Error al cargar papelera.</p>';
+  }
+}
+
+export async function restoreAppointment(id) {
+  if (!id) return;
+  if (!confirm('¿Restaurar esta cita a la agenda?')) return;
+  try {
+    await apiFetch(api.appointments, {
+      method: 'PATCH',
+      body: JSON.stringify({ id, restore: true })
+    });
+    showToast('Cita restaurada con éxito', 'success');
+    await loadTrashList();
+    loadMonth();
+  } catch (err) {
+    showToast(err.message || 'Error al restaurar la cita', 'error');
+  }
+}
+window.restoreAppointment = restoreAppointment;
+
 export async function deleteAppointment() {
   if (!editingAppointmentId) return;
   const apt = (state.appointments || []).find(a => a.id === editingAppointmentId);
   const patName = apt ? apt.patient_name : 'esta cita';
 
-  const confirmMsg = `🚨 CONFIRMAR ELIMINACIÓN PERMANENTE\n\n¿Estás seguro de que deseas eliminar permanentemente la cita de "${patName}"?\n\nEsta acción eliminará el registro de la base de datos de forma irreversible.`;
+  const confirmMsg = `🗑️ Eliminar cita\n\n¿Deseas eliminar la cita de "${patName}"?\n\nLa cita se moverá a la papelera (auditoría) y no se perderá permanentemente.`;
   if (!confirm(confirmMsg)) return;
 
   try {
@@ -1166,7 +1223,7 @@ export async function deleteAppointment() {
       state.appointments = state.appointments.filter(a => a.id !== editingAppointmentId);
     }
 
-    showToast('Cita eliminada permanentemente con éxito', 'success');
+    showToast('Cita eliminada (conservada en papelera para auditoría)', 'success');
     closeModal();
     loadMonth();
   } catch (err) {
